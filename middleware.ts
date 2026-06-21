@@ -45,7 +45,7 @@ async function runStudioAuthProxy(
   return response;
 }
 
-export default async function proxy(
+export default async function middleware(
   request: NextRequest,
   event: NextFetchEvent
 ) {

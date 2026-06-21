@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import type { Locale } from '@/lib/site';
+import { parseLocale } from '@/lib/locale';
 import { requireStudioUser } from '@/lib/auth/studio';
 
 export default async function StudioLayout({
@@ -11,7 +11,7 @@ export default async function StudioLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: localeValue } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale = parseLocale(localeValue);
   await requireStudioUser(locale);
 
   return (

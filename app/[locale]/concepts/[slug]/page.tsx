@@ -2,33 +2,22 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { ConceptReferenceList } from '@/components/concepts/ConceptReferenceList';
 import { ConceptRelationList } from '@/components/concepts/ConceptRelationList';
+import { ReferenceList } from '@/components/ui/ReferenceList';
 import {
   getConceptArticles,
   getConceptBySlug,
   getStaticConceptParams,
 } from '@/lib/concepts';
 import { categories } from '@/lib/content/categories';
+import { formatDate, getDifficultyLabel } from '@/lib/format';
+import { parseLocale } from '@/lib/locale';
 import { getConceptJsonLd } from '@/lib/metadata';
 import type { Locale } from '@/lib/site';
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
-
-const difficultyLabels = {
-  th: {
-    beginner: 'เริ่มต้น',
-    intermediate: 'ระดับกลาง',
-    advanced: 'ระดับลึก',
-  },
-  en: {
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced',
-  },
-} as const;
 
 export async function generateStaticParams() {
   return getStaticConceptParams();
@@ -38,7 +27,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale: localeValue, slug } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale: Locale = parseLocale(localeValue);
   const concept = await getConceptBySlug(locale, slug);
 
   if (!concept) {
@@ -90,7 +79,7 @@ export async function generateMetadata({
 
 export default async function ConceptDetailPage({ params }: PageProps) {
   const { locale: localeValue, slug } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale: Locale = parseLocale(localeValue);
   const concept = await getConceptBySlug(locale, slug);
 
   if (!concept) notFound();
@@ -99,10 +88,7 @@ export default async function ConceptDetailPage({ params }: PageProps) {
     getConceptArticles(concept),
   ]);
   const category = categories[concept.category];
-  const formattedUpdatedAt = new Date(concept.updatedAt).toLocaleDateString(
-    locale === 'th' ? 'th-TH' : 'en-US',
-    { year: 'numeric', month: 'long', day: 'numeric' }
-  );
+  const formattedUpdatedAt = formatDate(locale, concept.updatedAt);
   const conceptJsonLd = getConceptJsonLd(locale, {
     title: concept.title,
     description: concept.seoDescription,
@@ -255,9 +241,10 @@ export default async function ConceptDetailPage({ params }: PageProps) {
                 locale={locale}
               />
 
-              <ConceptReferenceList
+              <ReferenceList
                 references={concept.references}
                 locale={locale}
+                headingId="concept-references-title"
               />
             </div>
 
@@ -286,7 +273,7 @@ export default async function ConceptDetailPage({ params }: PageProps) {
                     {locale === 'th' ? 'ระดับความลึก' : 'Difficulty'}
                   </dt>
                   <dd className="mt-2 text-text">
-                    {difficultyLabels[locale][concept.difficulty]}
+                    {getDifficultyLabel(locale, concept.difficulty)}
                   </dd>
                 </div>
                 <div className="py-5">

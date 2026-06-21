@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { StudioToaster } from '@/components/studio/StudioToaster';
+import { parseLocale } from '@/lib/locale';
 import {
   getAlternateUrls,
   getOrganizationJsonLd,
@@ -37,7 +38,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = locale === 'en' ? 'en' : 'th';
+  const localeKey = parseLocale(locale);
 
   return {
     metadataBase: new URL(siteConfig.url),
@@ -79,7 +80,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const localeKey = locale === 'en' ? 'en' : 'th';
+  const localeKey = parseLocale(locale);
   const organizationJsonLd = getOrganizationJsonLd(localeKey);
   const websiteJsonLd = getWebSiteJsonLd(localeKey);
 

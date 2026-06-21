@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { categories } from '@/lib/content/categories';
+import { getDifficultyLabel } from '@/lib/format';
 import type { Locale } from '@/lib/site';
 import type { ConceptSummary } from '@/types/concept';
 
@@ -7,19 +8,6 @@ interface ConceptCardProps {
   concept: ConceptSummary;
   locale: Locale;
 }
-
-const difficultyLabels = {
-  th: {
-    beginner: 'เริ่มต้น',
-    intermediate: 'ระดับกลาง',
-    advanced: 'ระดับลึก',
-  },
-  en: {
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced',
-  },
-} as const;
 
 export function ConceptCard({ concept, locale }: ConceptCardProps) {
   const category = categories[concept.category];
@@ -40,7 +28,7 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
             ) : null}
           </div>
           <p className="type-meta mt-2 text-faint">
-            {difficultyLabels[locale][concept.difficulty]}
+            {getDifficultyLabel(locale, concept.difficulty)}
           </p>
         </div>
 

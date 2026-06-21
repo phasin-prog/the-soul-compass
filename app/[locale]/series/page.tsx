@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getT } from '@/lib/i18n';
+import { parseLocale } from '@/lib/locale';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 
@@ -11,7 +12,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
 
   return {
@@ -25,7 +26,7 @@ export async function generateMetadata({
 
 export default async function SeriesListingPage({ params }: PageProps) {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
 
   return (

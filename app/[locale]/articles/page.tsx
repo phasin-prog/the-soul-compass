@@ -3,6 +3,7 @@ import { ArticleFilters } from '@/components/articles/ArticleFilters';
 import { getPublishedArticles } from '@/lib/articles';
 import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
+import { parseLocale } from '@/lib/locale';
 import { getAlternateUrls } from '@/lib/metadata';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = locale === 'en' ? 'en' : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
 
   return {
@@ -34,7 +35,7 @@ export async function generateMetadata({
 
 export default async function ArticlesPage({ params, searchParams }: PageProps) {
   const [{ locale }, query] = await Promise.all([params, searchParams]);
-  const localeKey = locale === 'en' ? 'en' : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
   const articles = await getPublishedArticles(localeKey);
   const requestedCategory = Array.isArray(query.category)

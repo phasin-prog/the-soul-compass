@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArticleBody } from '@/components/articles/ArticleBody';
 import { ArticleCard } from '@/components/articles/ArticleCard';
-import { ReferenceList } from '@/components/articles/ReferenceList';
+import { ReferenceList } from '@/components/ui/ReferenceList';
 import { RelatedConcepts } from '@/components/articles/RelatedConcepts';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ReadingProgress } from '@/components/ReadingProgress';
@@ -14,6 +14,8 @@ import {
   getStaticArticleParams,
 } from '@/lib/articles';
 import { categories } from '@/lib/content/categories';
+import { formatDate, getDifficultyLabel } from '@/lib/format';
+import { parseLocale } from '@/lib/locale';
 import { getArticleJsonLd } from '@/lib/metadata';
 import type { Locale } from '@/lib/site';
 
@@ -23,19 +25,6 @@ interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-const difficultyLabels = {
-  th: {
-    beginner: 'เริ่มต้น',
-    intermediate: 'ระดับกลาง',
-    advanced: 'ระดับลึก',
-  },
-  en: {
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced',
-  },
-} as const;
-
 export async function generateStaticParams() {
   return getStaticArticleParams();
 }
@@ -44,7 +33,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale: localeValue, slug } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale: Locale = parseLocale(localeValue);
   const article = await getArticleBySlug(locale, slug);
 
   if (!article) {
@@ -103,21 +92,15 @@ export async function generateMetadata({
 
 export default async function ArticleDetailPage({ params }: PageProps) {
   const { locale: localeValue, slug } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale: Locale = parseLocale(localeValue);
   const article = await getArticleBySlug(locale, slug);
 
   if (!article) notFound();
 
   const category = categories[article.category];
   const relatedArticles = await getRelatedArticles(article);
-  const formattedPublishedAt = new Date(article.publishedAt).toLocaleDateString(
-    locale === 'th' ? 'th-TH' : 'en-US',
-    { year: 'numeric', month: 'long', day: 'numeric' }
-  );
-  const formattedUpdatedAt = new Date(article.updatedAt).toLocaleDateString(
-    locale === 'th' ? 'th-TH' : 'en-US',
-    { year: 'numeric', month: 'long', day: 'numeric' }
-  );
+  const formattedPublishedAt = formatDate(locale, article.publishedAt);
+  const formattedUpdatedAt = formatDate(locale, article.updatedAt);
   const otherLocale: Locale = locale === 'th' ? 'en' : 'th';
   const translatedSlug = article.translations[otherLocale];
   const articleJsonLd = getArticleJsonLd(locale, {
@@ -209,7 +192,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
                   <dt className="sr-only">
                     {locale === 'th' ? 'ระดับ' : 'Difficulty'}
                   </dt>
-                  <dd>{difficultyLabels[locale][article.difficulty]}</dd>
+                  <dd>{getDifficultyLabel(locale, article.difficulty)}</dd>
                 </div>
               </dl>
 

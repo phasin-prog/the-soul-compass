@@ -15,6 +15,7 @@ import {
 } from '@/lib/articles';
 import { categories } from '@/lib/content/categories';
 import { getArticleJsonLd } from '@/lib/metadata';
+import { safeJsonLdStringify } from '@/lib/safe-json-ld';
 import type { Locale } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
@@ -135,7 +136,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       <ReadingProgress />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(articleJsonLd) }}
       />
 
       <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">

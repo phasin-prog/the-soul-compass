@@ -11,6 +11,7 @@ import {
 } from '@/lib/concepts';
 import { categories } from '@/lib/content/categories';
 import { getConceptJsonLd } from '@/lib/metadata';
+import { safeJsonLdStringify } from '@/lib/safe-json-ld';
 import type { Locale } from '@/lib/site';
 
 interface PageProps {
@@ -116,7 +117,7 @@ export default async function ConceptDetailPage({ params }: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(conceptJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(conceptJsonLd) }}
       />
 
       <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">

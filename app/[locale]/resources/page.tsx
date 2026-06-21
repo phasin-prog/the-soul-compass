@@ -18,8 +18,8 @@ export async function generateMetadata({
     title: t.nav.resources,
     description:
       localeKey === 'th'
-        ? 'แหล่งอ้างอิง หนังสือ และทรัพยากรสำหรับศึกษาจิตวิทยาเชิงลึก'
-        : 'References, books, and resources for studying depth psychology',
+        ? 'แหล่งอ้างอิง หนังสือ และทรัพยากรสำหรับศึกษาจิตวิทยา ประสาทวิทยาศาสตร์ และปรัชญา'
+        : 'References, books, and resources for studying psychology, neuroscience, and philosophy',
   };
 }
 
@@ -38,8 +38,8 @@ export default async function ResourcesPage({ params }: PageProps) {
           </h1>
           <p className="type-lead text-muted">
             {localeKey === 'th'
-              ? 'แหล่งอ้างอิง หนังสือ บทความวิชาการ และทรัพยากรสำหรับศึกษาจิตวิทยาเชิงลึก จิตวิเคราะห์ และปรัชญา'
-              : 'References, books, academic papers, and resources for studying depth psychology, psychoanalysis, and philosophy'}
+              ? 'แหล่งอ้างอิง หนังสือ บทความวิชาการ และทรัพยากรจากจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ สังคมศาสตร์ และปรัชญา'
+              : 'References, books, academic papers, and resources across psychology, neuroscience, social science, and philosophy'}
           </p>
         </div>
 

@@ -219,6 +219,23 @@ article {
   font-weight: 600;
 }
 
+.article-body > p:first-child {
+  color: var(--text);
+  font-size: var(--text-lead);
+  line-height: 1.85;
+}
+
+.article-body hr {
+  height: 1px;
+  margin-block: 2.5rem;
+  border: 0;
+  background: var(--border);
+}
+
+.article-body code {
+  overflow-wrap: anywhere;
+}
+
 .type-display {
   font-family: var(--font-display), ui-serif, Georgia, serif;
   font-size: var(--text-display);

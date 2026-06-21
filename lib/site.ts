@@ -8,8 +8,8 @@ export const siteConfig = {
     en: "The Soul's Compass",
   },
   description: {
-    th: 'พื้นที่สำหรับอ่านจิตใจมนุษย์อย่างลึกกว่าแบบทดสอบ',
-    en: 'A space for understanding the human psyche beyond personality tests',
+    th: 'พื้นที่ศึกษาจิตใจมนุษย์ผ่านจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ และปรัชญา',
+    en: 'A space for studying mind across psychology, neuroscience, and philosophy',
   },
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://thesoulscompass.com',
   author: 'Witcha Prasomsin',

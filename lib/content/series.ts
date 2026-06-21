@@ -32,7 +32,7 @@ export async function getSeries(): Promise<SeriesMeta[]> {
   return [];
 }
 
-export async function getSeriesBySlug(slug: string): Promise<Series | null> {
+export async function getSeriesBySlug(): Promise<Series | null> {
   // TODO: Implement
   return null;
 }

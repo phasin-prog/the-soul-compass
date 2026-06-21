@@ -13,12 +13,7 @@ export async function generateStaticParams() {
   return [];
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
-
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Series Title',
     description: 'Series description',
@@ -26,7 +21,7 @@ export async function generateMetadata({
 }
 
 export default async function SeriesDetailPage({ params }: PageProps) {
-  const { locale, slug } = await params;
+  const { locale } = await params;
   const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
   const t = getT(localeKey);
 

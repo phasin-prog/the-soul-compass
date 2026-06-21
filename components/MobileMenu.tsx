@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
+import { AuthNav } from './AuthNav';
 
 interface MobileMenuProps {
   locale: Locale;
@@ -116,6 +117,14 @@ export function MobileMenu({ locale }: MobileMenuProps) {
             >
               {t.nav.resources}
             </Link>
+
+            <hr className="my-3 border-border" />
+
+            <AuthNav
+              locale={locale}
+              mobile
+              onNavigate={() => setIsOpen(false)}
+            />
 
             <hr className="my-3 border-border" />
 

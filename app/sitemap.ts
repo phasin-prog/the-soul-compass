@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next';
+import { getStaticPublishedArticles } from '@/lib/articles';
+import { getPublishedConcepts } from '@/lib/concepts';
 import { locales } from '@/lib/site';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thesoulscompass.com';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes: MetadataRoute.Sitemap = [];
 
   // Root redirects to /th
@@ -15,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   });
 
   // For each locale
-  locales.forEach((locale) => {
+  for (const locale of locales) {
     // Home
     routes.push({
       url: `${baseUrl}/${locale}`,
@@ -84,7 +86,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.8,
       });
     });
-  });
+
+    const articles = await getStaticPublishedArticles(locale);
+
+    for (const article of articles) {
+      routes.push({
+        url: `${baseUrl}/${locale}/articles/${article.slug}`,
+        lastModified: new Date(article.updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.8,
+      });
+    }
+
+    const concepts = await getPublishedConcepts(locale);
+
+    for (const concept of concepts) {
+      routes.push({
+        url: `${baseUrl}/${locale}/concepts/${concept.slug}`,
+        lastModified: new Date(concept.updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.75,
+      });
+    }
+  }
 
   return routes;
 }

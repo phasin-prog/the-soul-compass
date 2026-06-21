@@ -1,83 +1,82 @@
 import type { Metadata } from 'next';
+import { ArticleFilters } from '@/components/articles/ArticleFilters';
+import { getPublishedArticles } from '@/lib/articles';
+import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
-import { siteConfig } from '@/lib/site';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { getAlternateUrls } from '@/lib/metadata';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  params: Promise<{
-    locale: string;
-  }>;
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ category?: string | string[] }>;
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const localeKey = locale === 'en' ? 'en' : 'th';
   const t = getT(localeKey);
 
   return {
     title: t.nav.articles,
-    description: siteConfig.description[localeKey],
+    description:
+      localeKey === 'th'
+        ? 'บทความระยะยาวเกี่ยวกับจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม ปรัชญา Typology และ TPDT'
+        : 'Long-form articles across psychology, neuroscience, social psychology, philosophy, typology, and TPDT.',
+    alternates: {
+      canonical: `/${localeKey}/articles`,
+      languages: getAlternateUrls('/articles'),
+    },
   };
 }
 
-export default async function ArticlesPage({ params }: PageProps) {
-  const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+export default async function ArticlesPage({ params, searchParams }: PageProps) {
+  const [{ locale }, query] = await Promise.all([params, searchParams]);
+  const localeKey = locale === 'en' ? 'en' : 'th';
   const t = getT(localeKey);
+  const articles = await getPublishedArticles(localeKey);
+  const requestedCategory = Array.isArray(query.category)
+    ? query.category[0]
+    : query.category;
+  const initialCategory =
+    requestedCategory && isCategoryId(requestedCategory)
+      ? requestedCategory
+      : undefined;
 
   return (
-    <div className="container mx-auto px-5 py-16 sm:px-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="type-page-title mb-4 text-text">
-            {t.nav.articles}
-          </h1>
-          <p className="type-lead text-muted">
+    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+      <div className="mx-auto max-w-6xl">
+        <header className="mb-12 max-w-4xl sm:mb-16">
+          <h1 className="type-page-title text-text">{t.nav.articles}</h1>
+          <p className="type-lead mt-5 text-text-soft">
             {localeKey === 'th'
-              ? 'บทความเกี่ยวกับจิตวิทยาเชิงลึก จิตวิเคราะห์ และปรัชญา'
-              : 'Articles on depth psychology, psychoanalysis, and philosophy'}
+              ? 'บทความสำหรับอ่านช้า ๆ เปรียบเทียบแนวคิด และติดตามข้อถกเถียงเรื่องจิตใจมนุษย์โดยไม่ลดทอนให้เหลือคำตอบสำเร็จรูป'
+              : 'Long-form reading for comparing ideas and following debates about the human psyche without reducing them to ready-made answers.'}
           </p>
-        </div>
+        </header>
 
-        {/* Filter Bar */}
-        <div className="mb-8 flex flex-wrap gap-2 border-b border-border pb-8">
-          <Badge variant="accent">{t.ui.viewAll}</Badge>
-          <Badge>{t.categories.analyticalPsychology}</Badge>
-          <Badge>{t.categories.psychoanalysis}</Badge>
-          <Badge>{t.categories.philosophy}</Badge>
-          <Badge>{t.categories.typology}</Badge>
-          <Badge>{t.categories.tpdt}</Badge>
-        </div>
-
-        {/* Articles Grid - Placeholder */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} hover className="opacity-50">
-              <div className="flex flex-col gap-3">
-                <div className="h-6 w-24 rounded-full bg-surface-soft" />
-                <div className="h-12 w-full rounded-md bg-surface-soft" />
-                <div className="h-16 w-full rounded-md bg-surface-soft" />
-                <div className="flex gap-2 mt-2">
-                  <div className="h-4 w-24 rounded-md bg-surface-soft" />
-                  <div className="h-4 w-16 rounded-md bg-surface-soft" />
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Coming Soon Message */}
-        <div className="mt-12 text-center">
-          <p className="text-muted">
-            {localeKey === 'th'
-              ? 'บทความจะเปิดให้อ่านเร็วๆ นี้'
-              : 'Articles coming soon'}
-          </p>
-        </div>
+        {articles.length === 0 ? (
+          <div className="border-y border-border py-14">
+            <h2 className="type-section-title text-text">
+              {localeKey === 'th'
+                ? 'ยังไม่มีบทความที่เผยแพร่'
+                : 'No published articles yet'}
+            </h2>
+            <p className="mt-3 max-w-xl text-muted">
+              {localeKey === 'th'
+                ? 'บทความจากคลังเนื้อหาและ Wiki Studio จะปรากฏที่นี่เมื่อมีสถานะเผยแพร่'
+                : 'Articles from the content library and Wiki Studio will appear here once published.'}
+            </p>
+          </div>
+        ) : (
+          <ArticleFilters
+            articles={articles}
+            locale={localeKey}
+            initialCategory={initialCategory}
+          />
+        )}
       </div>
     </div>
   );

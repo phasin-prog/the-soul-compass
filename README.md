@@ -1,8 +1,8 @@
 # The Soul's Compass
 
-> Next.js 15 · TypeScript · Tailwind CSS · Vercel
+> Next.js 16 · TypeScript · Tailwind CSS · Supabase · Cloudflare R2 · Vercel
 
-พื้นที่สำหรับอ่านจิตใจมนุษย์อย่างลึกกว่าแบบทดสอบ — จิตวิทยาเชิงลึก จิตวิเคราะห์ และปรัชญา
+พื้นที่ศึกษาจิตใจมนุษย์ผ่านจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม และปรัชญา
 
 **Live Site:** https://thesoulscompass.vercel.app *(coming soon)*
 
@@ -11,7 +11,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18.x or 20.x
+- Node.js 20.9 or newer
 - npm or pnpm
 
 ### Installation
@@ -88,16 +88,55 @@ lib/
 
 ## 🌐 Environment Variables
 
-Copy `env.local.example` to `.env.local`:
+The publishing Studio uses Supabase as the public metadata/index layer and
+Cloudflare R2 as the private Markdown/object store:
 
-```env
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
-
-For production, set:
 ```env
 NEXT_PUBLIC_SITE_URL=https://thesoulscompass.com
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
+R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+R2_BUCKET_NAME=<bucket>
+R2_ACCESS_KEY_ID=<access-key>
+R2_SECRET_ACCESS_KEY=<secret-key>
+POSTHOG_PROJECT_TOKEN=phc_...
+POSTHOG_LOGS_ENDPOINT=https://us.i.posthog.com/i/v1/logs
+OTEL_SERVICE_NAME=the-souls-compass
 ```
+
+Legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` remain
+supported while migrating to the newer Supabase key format.
+
+### CMS database setup
+
+Apply the checked-in migration once per Supabase environment:
+
+```bash
+npx supabase login
+npx supabase link --project-ref <project-ref>
+npx supabase db push
+npm run cms:check
+```
+
+The migration creates `public.article_publications`, enables RLS, grants
+anonymous read access only to published rows, and keeps all writes behind the
+server-only Supabase secret key.
+
+### Publishing flow
+
+1. Draft and review content is written privately to R2.
+2. Publishing upserts typed metadata and the R2 object key to Supabase.
+3. Next.js invalidates only the article list/locale/slug cache tags.
+4. No Git commit, Vercel deployment, or full-site rebuild is required.
+
+Public requests read cached metadata from Supabase and cached Markdown from R2.
+The body cache key includes the content hash, so an updated publication does
+not reuse stale Markdown.
+
+Server-side CMS lifecycle logs are batched through OpenTelemetry and sent to
+PostHog after the response completes. The project token stays in environment
+variables and is not committed to the repository.
 
 ---
 
@@ -129,13 +168,16 @@ NEXT_PUBLIC_SITE_URL=https://thesoulscompass.com
 **Categories:**
 1. Analytical Psychology — Carl Jung's depth psychology
 2. Psychoanalysis — Freud, Klein, Lacan
-3. Philosophy — Philosophical perspectives
-4. Typology — Jungian psychological types
-5. TPDT — Theory in development (with warning banner)
+3. Neuroscience — Brain, nervous system, cognition, and affect
+4. Social Psychology — Groups, identity, attribution, and social influence
+5. Philosophy — Philosophical perspectives
+6. Philosophy of Mind — Consciousness, self, and the mind-body problem
+7. Typology — Jungian psychological types
+8. TPDT — Theory in development (with warning banner)
 
 **Content Types:**
 - Articles (long-form)
-- Concepts (glossary entries)
+- Concepts (structured, interconnected knowledge nodes)
 - Series (curated collections)
 - Resources (books, papers, videos)
 
@@ -186,6 +228,7 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
+npm run cms:check    # Verify Supabase table and R2 read/write access
 ```
 
 ---
@@ -203,9 +246,7 @@ npm run lint         # Run ESLint
 - QA + Deployment
 
 **Next Steps:**
-- Add real content (articles, concepts)
-- MDX integration
-- CMS setup (optional)
+- Continue publishing reviewed articles and concepts
 - Analytics (optional)
 
 ---

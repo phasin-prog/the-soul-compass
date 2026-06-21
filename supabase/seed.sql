@@ -1,0 +1,1 @@
+-- Seed content is intentionally managed by the application and R2.

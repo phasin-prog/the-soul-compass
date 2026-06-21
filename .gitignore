@@ -29,6 +29,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+/.tmp/
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -47,3 +48,6 @@ next-env.d.ts
 # Local AI tool configuration (may contain credentials or machine-specific paths)
 /claude.json
 /.codex/
+/.agents/
+/.playwright-cli/
+

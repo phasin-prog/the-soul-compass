@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { categories } from '@/lib/content/categories';
 import { CategoryPage } from '@/components/CategoryPage';
-import type { Locale } from '@/lib/site';
 
 interface PageProps {
   params: Promise<{ locale: string }>;

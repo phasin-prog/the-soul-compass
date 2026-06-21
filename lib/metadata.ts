@@ -38,8 +38,8 @@ export function getOrganizationJsonLd(locale: Locale) {
     logo: `${baseUrl}/logo.png`,
     description:
       locale === 'th'
-        ? 'พื้นที่สำหรับอ่านจิตใจมนุษย์อย่างลึกกว่าแบบทดสอบ'
-        : 'A space for understanding the human psyche beyond personality tests',
+        ? 'พื้นที่ศึกษาจิตใจมนุษย์ผ่านจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ และปรัชญา'
+        : 'A space for studying mind across psychology, neuroscience, and philosophy',
     sameAs: [],
   };
 }
@@ -55,8 +55,8 @@ export function getWebSiteJsonLd(locale: Locale) {
     url: `${baseUrl}/${locale}`,
     description:
       locale === 'th'
-        ? 'พื้นที่สำหรับอ่านจิตใจมนุษย์อย่างลึกกว่าแบบทดสอบ — จิตวิทยาเชิงลึก จิตวิเคราะห์ และปรัชญา'
-        : 'A serious knowledge platform for depth psychology, analytical psychology, psychoanalysis, and philosophy',
+        ? 'พื้นที่ความรู้เรื่องจิตใจมนุษย์ที่เชื่อมจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม และปรัชญา'
+        : 'A serious knowledge platform connecting multiple psychologies, neuroscience, social psychology, and philosophy',
     inLanguage: locale === 'th' ? 'th-TH' : 'en-US',
   };
 }
@@ -96,6 +96,37 @@ export function getArticleJsonLd(
         url: `${baseUrl}/logo.png`,
       },
     },
+    articleSection: article.category,
     inLanguage: locale === 'th' ? 'th-TH' : 'en-US',
+  };
+}
+
+export function getConceptJsonLd(
+  locale: Locale,
+  concept: {
+    title: string;
+    description: string;
+    slug: string;
+    category: string;
+    tradition: string;
+    updatedAt: string;
+  }
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    name: concept.title,
+    description: concept.description,
+    url: `${baseUrl}/${locale}/concepts/${concept.slug}`,
+    inDefinedTermSet: {
+      '@type': 'DefinedTermSet',
+      name: "The Soul's Compass Concept Library",
+      url: `${baseUrl}/${locale}/concepts`,
+    },
+    termCode: concept.slug,
+    inLanguage: locale === 'th' ? 'th-TH' : 'en-US',
+    additionalType: concept.category,
+    subjectOf: concept.tradition,
+    dateModified: concept.updatedAt,
   };
 }

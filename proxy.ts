@@ -1,13 +1,12 @@
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { locales, defaultLocale } from './lib/site';
+import { defaultLocale, locales } from './lib/site';
 
 const localeSet = new Set(locales);
 
-export function proxy(request: NextRequest) {
+export default clerkMiddleware(async (auth, request) => {
   const pathname = request.nextUrl.pathname;
 
-  // Skip middleware for static files and API routes
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -16,7 +15,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if pathname already has a locale
   const pathnameSegments = pathname.split('/').filter(Boolean);
   const firstSegment = pathnameSegments[0];
 
@@ -24,15 +22,26 @@ export function proxy(request: NextRequest) {
     firstSegment &&
     localeSet.has(firstSegment as (typeof locales)[number])
   ) {
+    if (pathnameSegments[1] === 'studio') {
+      const { isAuthenticated } = await auth();
+
+      if (!isAuthenticated) {
+        const signInUrl = new URL(`/${firstSegment}/sign-in`, request.url);
+        signInUrl.searchParams.set(
+          'redirect_url',
+          `${request.nextUrl.pathname}${request.nextUrl.search}`
+        );
+        return NextResponse.redirect(signInUrl);
+      }
+    }
+
     return NextResponse.next();
   }
 
-  // Redirect root to default locale
   if (pathname === '/') {
     return NextResponse.redirect(new URL(`/${defaultLocale}`, request.url));
   }
 
-  // Detect locale from Accept-Language header
   const acceptLanguage = request.headers.get('accept-language');
   let detectedLocale = defaultLocale;
 
@@ -53,21 +62,13 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Redirect to detected locale
   return NextResponse.redirect(
     new URL(`/${detectedLocale}${pathname}`, request.url)
   );
-}
+});
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.svg|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.webp).*)',
   ],
 };

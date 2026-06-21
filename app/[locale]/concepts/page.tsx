@@ -1,93 +1,85 @@
 import type { Metadata } from 'next';
+import { ConceptFilters } from '@/components/concepts/ConceptFilters';
+import { getPublishedConcepts } from '@/lib/concepts';
+import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { getAlternateUrls } from '@/lib/metadata';
 
 interface PageProps {
-  params: Promise<{
-    locale: string;
-  }>;
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ category?: string | string[] }>;
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const localeKey = locale === 'en' ? 'en' : 'th';
   const t = getT(localeKey);
 
   return {
     title: t.nav.concepts,
     description:
       localeKey === 'th'
-        ? 'คลังแนวคิดและศัพท์เฉพาะทางจิตวิทยาเชิงลึก'
-        : 'Glossary of depth psychology concepts and terms',
+        ? 'คลังแนวคิดเชิงโครงสร้างจากจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม ปรัชญา Typology และ TPDT'
+        : 'A structured concept library spanning multiple psychologies, neuroscience, social psychology, philosophy, typology, and TPDT.',
+    alternates: {
+      canonical: `/${localeKey}/concepts`,
+      languages: getAlternateUrls('/concepts'),
+    },
   };
 }
 
-export default async function ConceptsPage({ params }: PageProps) {
-  const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+export default async function ConceptsPage({ params, searchParams }: PageProps) {
+  const [{ locale }, query] = await Promise.all([params, searchParams]);
+  const localeKey = locale === 'en' ? 'en' : 'th';
   const t = getT(localeKey);
+  const concepts = await getPublishedConcepts(localeKey);
+  const requestedCategory = Array.isArray(query.category)
+    ? query.category[0]
+    : query.category;
+  const initialCategory =
+    requestedCategory && isCategoryId(requestedCategory)
+      ? requestedCategory
+      : undefined;
 
   return (
-    <div className="container mx-auto px-5 py-16 sm:px-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="type-page-title mb-4 text-text">
-            {t.nav.concepts}
-          </h1>
-          <p className="type-lead text-muted">
+    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+      <div className="mx-auto max-w-6xl">
+        <header className="mb-12 max-w-4xl sm:mb-16">
+          <h1 className="type-page-title text-text">{t.nav.concepts}</h1>
+          <p className="type-lead mt-5 text-text-soft">
             {localeKey === 'th'
-              ? 'คลังแนวคิดและศัพท์เฉพาะทางจิตวิทยาเชิงลึก จิตวิเคราะห์ และปรัชญา'
-              : 'A glossary of concepts and terms in depth psychology, psychoanalysis, and philosophy'}
+              ? 'แผนที่ความรู้สำหรับแยกความหมายของคำ เปรียบเทียบสำนัก และติดตามว่าแนวคิดหนึ่งเชื่อมกับแนวคิดอื่นอย่างไร'
+              : 'A knowledge map for distinguishing terms, comparing traditions, and following how one concept connects to another.'}
           </p>
-        </div>
+          <p className="mt-5 max-w-3xl text-muted">
+            {localeKey === 'th'
+              ? 'แต่ละหน้าเป็นโหนดที่รวมคำนิยาม คำอธิบายเชิงมนุษย์ ความหมายทางเทคนิค ความเข้าใจผิด ตัวอย่าง นักคิด และเอกสารอ้างอิง—ไม่ใช่พจนานุกรมคำสั้น ๆ'
+              : 'Each page is a reusable node containing definitions, human and technical explanations, misunderstandings, examples, thinkers, and references.'}
+          </p>
+        </header>
 
-        {/* Search Box - Placeholder */}
-        <div className="mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder={t.ui.search}
-              disabled
-              className="min-h-12 w-full rounded-lg border border-border-strong bg-surface px-4 py-3 text-text placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-70"
-            />
+        {concepts.length > 0 ? (
+          <ConceptFilters
+            concepts={concepts}
+            locale={localeKey}
+            initialCategory={initialCategory}
+          />
+        ) : (
+          <div className="border-y border-border py-14">
+            <h2 className="type-section-title text-text">
+              {localeKey === 'th'
+                ? 'ยังไม่มีแนวคิดที่เผยแพร่'
+                : 'No published concepts yet'}
+            </h2>
+            <p className="mt-3 max-w-xl text-muted">
+              {localeKey === 'th'
+                ? 'โหนดแนวคิดจะปรากฏที่นี่เมื่อมีสถานะเผยแพร่'
+                : 'Concept nodes will appear here once published.'}
+            </p>
           </div>
-        </div>
-
-        {/* Filter Bar */}
-        <div className="mb-8 flex flex-wrap gap-2 border-b border-border pb-8">
-          <Badge variant="accent">{t.ui.viewAll}</Badge>
-          <Badge>{t.categories.analyticalPsychology}</Badge>
-          <Badge>{t.categories.psychoanalysis}</Badge>
-          <Badge>{t.categories.philosophy}</Badge>
-        </div>
-
-        {/* Concepts Grid - Placeholder */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-            <Card key={i} hover className="opacity-50">
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-start gap-2">
-                  <div className="h-6 w-32 rounded-md bg-surface-soft" />
-                  <div className="h-5 w-16 rounded-full bg-surface-soft" />
-                </div>
-                <div className="h-10 w-full rounded-md bg-surface-soft" />
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Coming Soon Message */}
-        <div className="mt-12 text-center">
-          <p className="text-muted">
-            {localeKey === 'th'
-              ? 'แนวคิดจะเปิดให้อ่านเร็วๆ นี้'
-              : 'Concepts coming soon'}
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );

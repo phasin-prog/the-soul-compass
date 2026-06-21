@@ -6,7 +6,7 @@ brand
 
 ## Users
 
-Thai- and English-speaking readers who want to study the human psyche through depth psychology, psychoanalysis, philosophy, and typology. They arrive to read slowly, compare ideas, and build a more rigorous understanding than personality quizzes can provide.
+Thai- and English-speaking readers who want to study mind across psychology, neuroscience, social psychology, philosophy, typology, and developing theoretical frameworks. They arrive to read slowly, compare methods and traditions, and build a more rigorous understanding than personality quizzes or single-school explanations can provide.
 
 ## Product Purpose
 

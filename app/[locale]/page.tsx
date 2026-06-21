@@ -1,7 +1,9 @@
 import { getT } from '@/lib/i18n';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { ArticleCard } from '@/components/articles/ArticleCard';
 import { categories } from '@/lib/content/categories';
+import { getPublishedArticles } from '@/lib/articles';
 import Link from 'next/link';
 
 interface PageProps {
@@ -14,17 +16,17 @@ export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
   const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
   const t = getT(localeKey);
+  const articles = await getPublishedArticles(localeKey);
+  const featuredArticles = [
+    ...articles.filter((article) => article.featured),
+    ...articles.filter((article) => !article.featured),
+  ].slice(0, 3);
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="container mx-auto px-5 py-24 sm:px-8 md:py-32">
         <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-6">
-            <span className="type-meta inline-flex min-h-9 items-center rounded-full border border-border-strong bg-surface px-4 text-accent">
-              {t.ui.comingSoon}
-            </span>
-          </div>
           <h1 className="type-display mb-6 text-text">
             {localeKey === 'th' ? (
               <>
@@ -60,7 +62,7 @@ export default async function HomePage({ params }: PageProps) {
             {Object.values(categories).map((category) => (
               <Link
                 key={category.id}
-                href={`/${localeKey}/${category.slug}`}
+                href={`/${localeKey}/concepts?category=${category.id}`}
                 className="block h-full"
               >
                 <Card hover className="h-full">
@@ -83,7 +85,6 @@ export default async function HomePage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Featured Articles Placeholder */}
       <section className="container mx-auto px-5 py-16 sm:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -94,18 +95,23 @@ export default async function HomePage({ params }: PageProps) {
               {t.ui.viewAll} →
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="h-full opacity-50">
-                <div className="flex flex-col gap-3">
-                  <div className="h-6 w-20 rounded-md bg-surface-soft" />
-                  <div className="h-16 w-full rounded-md bg-surface-soft" />
-                  <div className="h-20 w-full rounded-md bg-surface-soft" />
-                  <div className="mt-2 h-4 w-32 rounded-md bg-surface-soft" />
-                </div>
-              </Card>
-            ))}
-          </div>
+          {featuredArticles.length > 0 ? (
+            <div className="grid gap-x-8 md:grid-cols-2">
+              {featuredArticles.map((article) => (
+                <ArticleCard
+                  key={article.slug}
+                  article={article}
+                  locale={localeKey}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="border-y border-border py-10 text-muted">
+              {localeKey === 'th'
+                ? 'ยังไม่มีบทความที่เผยแพร่'
+                : 'No published articles yet.'}
+            </p>
+          )}
         </div>
       </section>
     </div>

@@ -4,12 +4,18 @@
 
 import type { Locale } from '../site';
 
-export type CategoryId =
-  | 'analytical-psychology'
-  | 'psychoanalysis'
-  | 'philosophy'
-  | 'typology'
-  | 'tpdt';
+export const categoryIds = [
+  'analytical-psychology',
+  'psychoanalysis',
+  'neuroscience',
+  'social-psychology',
+  'philosophy',
+  'philosophy-of-mind',
+  'typology',
+  'tpdt',
+] as const;
+
+export type CategoryId = (typeof categoryIds)[number];
 
 export interface Category {
   id: CategoryId;
@@ -46,6 +52,32 @@ export const categories: Record<CategoryId, Category> = {
     slug: 'psychoanalysis',
     color: 'var(--plum)',
   },
+  'neuroscience': {
+    id: 'neuroscience',
+    name: {
+      th: 'ประสาทวิทยาศาสตร์',
+      en: 'Neuroscience',
+    },
+    description: {
+      th: 'สมอง ระบบประสาท และกลไกของการรับรู้',
+      en: 'The brain, nervous system, and mechanisms of cognition',
+    },
+    slug: 'neuroscience',
+    color: 'var(--blue)',
+  },
+  'social-psychology': {
+    id: 'social-psychology',
+    name: {
+      th: 'จิตวิทยาสังคม',
+      en: 'Social Psychology',
+    },
+    description: {
+      th: 'ตัวตน ความสัมพันธ์ กลุ่ม และอิทธิพลทางสังคม',
+      en: 'Self, relationships, groups, and social influence',
+    },
+    slug: 'social-psychology',
+    color: 'var(--clay)',
+  },
   'philosophy': {
     id: 'philosophy',
     name: {
@@ -58,6 +90,19 @@ export const categories: Record<CategoryId, Category> = {
     },
     slug: 'philosophy',
     color: 'var(--blue)',
+  },
+  'philosophy-of-mind': {
+    id: 'philosophy-of-mind',
+    name: {
+      th: 'ปรัชญาจิต',
+      en: 'Philosophy of Mind',
+    },
+    description: {
+      th: 'จิตสำนึก ตัวตน การรับรู้ และปัญหากาย–จิต',
+      en: 'Consciousness, selfhood, perception, and the mind-body problem',
+    },
+    slug: 'philosophy-of-mind',
+    color: 'var(--celadon)',
   },
   'typology': {
     id: 'typology',
@@ -86,3 +131,7 @@ export const categories: Record<CategoryId, Category> = {
     color: 'var(--clay)',
   },
 };
+
+export function isCategoryId(value: string): value is CategoryId {
+  return categoryIds.includes(value as CategoryId);
+}

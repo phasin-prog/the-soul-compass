@@ -28,16 +28,12 @@ export async function getResources(): Promise<Resource[]> {
   return [];
 }
 
-export async function getResourcesByCategory(
-  category: CategoryId
-): Promise<Resource[]> {
+export async function getResourcesByCategory(): Promise<Resource[]> {
   // TODO: Implement
   return [];
 }
 
-export async function getFeaturedResources(
-  limit: number = 6
-): Promise<Resource[]> {
+export async function getFeaturedResources(): Promise<Resource[]> {
   // TODO: Implement
   return [];
 }

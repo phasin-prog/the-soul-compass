@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
 import { MobileMenu } from './MobileMenu';
+import { AuthNav } from './AuthNav';
 
 interface HeaderProps {
   locale: Locale;
@@ -70,6 +71,7 @@ export function Header({ locale }: HeaderProps) {
           >
             {locale === 'th' ? 'EN' : 'TH'}
           </Link>
+          <AuthNav locale={locale} />
         </nav>
 
         <MobileMenu locale={locale} />

@@ -4,9 +4,9 @@ export const en: Translation = {
   meta: {
     siteName: "The Soul's Compass",
     siteDescription:
-      'A serious knowledge platform for depth psychology, analytical psychology, psychoanalysis, and philosophy.',
+      'A serious knowledge platform spanning psychology, neuroscience, social inquiry, and philosophy.',
     siteTagline:
-      'The psyche is not a personality label. It is a living field of image, conflict, desire, and transformation.',
+      'Studying mind through theory, evidence, experiment, and debate—without reducing people to labels.',
   },
   nav: {
     home: 'Home',
@@ -85,7 +85,7 @@ export const en: Translation = {
   },
   footer: {
     description:
-      "Studying the human psyche through Jung, Freud, Adler, Lacan, and philosophy — not to collect theories, but to understand what it means to be human.",
+      'Studying mind across traditions—from depth psychology and psychoanalysis to neuroscience, social psychology, philosophy, and developing theory.',
     copyright: "© The Soul's Compass",
     disclaimer:
       'This site offers educational content on psychology and philosophy. It is not clinical advice or medical treatment.',

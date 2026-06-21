@@ -36,21 +36,24 @@ export default async function AboutPage({ params }: PageProps) {
           <div className="prose-reading">
             <p className="type-lead mb-6 text-text">
               The Soul’s Compass เป็นพื้นที่สำหรับศึกษาจิตใจมนุษย์อย่างจริงจัง
-              ผ่านจิตวิทยาเชิงลึก จิตวิทยาวิเคราะห์ จิตวิเคราะห์ และปรัชญา
+              ผ่านจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม
+              ปรัชญา และกรอบทฤษฎีที่กำลังพัฒนา
             </p>
 
-            <h2>เราไม่ใช่แบบทดสอบ</h2>
+            <h2>ไม่ยึดสำนักเดียวเป็นคำตอบทั้งหมด</h2>
             <p>
-              เราไม่ได้ทำ personality test เราไม่สัญญาว่าจะ unlock your potential
-              หรือ transform your life ในสามคลิก
-              เราเสนอพื้นที่สำหรับคนที่ต้องการเข้าใจจิตใจมนุษย์อย่างลึกกว่าป้ายกำกับบุคลิกภาพ
+              จิตวิเคราะห์และจิตวิทยาเชิงลึกเป็นส่วนสำคัญของพื้นที่นี้
+              แต่ไม่ใช่ขอบเขตทั้งหมด เราสนใจทั้งงานทดลอง กลไกสมอง
+              บริบททางสังคม ประสบการณ์บุคคลที่หนึ่ง และข้อถกเถียงเชิงปรัชญา
+              แต่ละสำนักตอบคำถามคนละแบบ และต้องถูกอ่านด้วยมาตรฐานของมันเอง
             </p>
 
-            <h2>Jung ≠ MBTI</h2>
+            <h2>เราไม่ใช่แบบทดสอบบุคลิกภาพ</h2>
             <p>
-              Carl Jung ไม่ได้สร้าง MBTI และทฤษฎีประเภทบุคลิกภาพของ Jung
-              ไม่ใช่แบบทดสอบเพื่อหา 16 types
-              แต่เป็นเครื่องมือสำหรับทำความเข้าใจพลวัตของจิตใจที่ซับซ้อนกว่ามาก
+              เราไม่ลดมนุษย์ให้เหลือตัวอักษร สี หรือคะแนนเดียว
+              Typology เป็นเพียงหนึ่งกรอบสำหรับตั้งคำถาม
+              ไม่ใช่คำอธิบายแทนพัฒนาการ สมอง ความสัมพันธ์ วัฒนธรรม
+              และประวัติชีวิตทั้งหมด
             </p>
 
             <h2>ไม่ใช่คำปรึกษาทางคลินิก</h2>
@@ -69,20 +72,24 @@ export default async function AboutPage({ params }: PageProps) {
         ) : (
           <div className="prose-reading">
             <p className="type-lead mb-6 text-text">
-              The Soul’s Compass is for people who want to study the psyche without flattening it into personality types.
-              Depth psychology, analytical psychology, psychoanalysis, philosophy.
+              The Soul’s Compass is a serious space for studying mind across
+              psychology, neuroscience, social psychology, philosophy, and
+              developing theoretical frameworks.
+            </p>
+
+            <h2>No single tradition explains everything</h2>
+            <p>
+              Depth psychology and psychoanalysis matter here, but they are not
+              the boundary of the project. Experimental evidence, brain
+              mechanisms, social context, first-person experience, and
+              philosophical argument each answer different kinds of questions.
             </p>
 
             <h2>We are not a personality test</h2>
             <p>
-              No tests. No promises about unlocking your potential in three clicks.
-              If you’re tired of four-letter codes and want to read about the psyche as something complex, this might be for you.
-            </p>
-
-            <h2>Jung ≠ MBTI</h2>
-            <p>
-              Carl Jung did not create the MBTI. His typology describes how the psyche works, not how to sort people.
-              The test came later, by people who simplified his theory into something you could score.
+              Typology is one lens, not a substitute for development, brain,
+              relationships, culture, or personal history. Human beings do not
+              collapse into four letters, one color, or one score.
             </p>
 
             <h2>Not clinical advice</h2>

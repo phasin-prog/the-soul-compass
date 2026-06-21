@@ -1,10 +1,15 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import { Anuphan, Pridi } from 'next/font/google';
-import { locales, siteConfig } from '@/lib/site';
-import { getAlternateUrls, getOrganizationJsonLd, getWebSiteJsonLd } from '@/lib/metadata';
-import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import {
+  getAlternateUrls,
+  getOrganizationJsonLd,
+  getWebSiteJsonLd,
+} from '@/lib/metadata';
+import { locales, siteConfig } from '@/lib/site';
 import '../globals.css';
 
 const display = Pridi({
@@ -31,7 +36,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const localeKey = locale === 'en' ? 'en' : 'th';
 
   return {
     metadataBase: new URL(siteConfig.url),
@@ -73,42 +78,42 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
-
-  // JSON-LD structured data
+  const localeKey = locale === 'en' ? 'en' : 'th';
   const organizationJsonLd = getOrganizationJsonLd(localeKey);
   const websiteJsonLd = getWebSiteJsonLd(localeKey);
 
   return (
-    <html
-      lang={locale}
-      className={`${display.variable} ${body.variable} h-full antialiased`}
-      style={{
-        colorScheme: 'dark',
-      }}
-    >
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-        />
-      </head>
-      <body className="min-h-full flex flex-col bg-background text-text">
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
-        >
-          Skip to main content
-        </a>
-        <Header locale={localeKey} />
-        <main id="main-content" className="flex-1">{children}</main>
-        <Footer locale={localeKey} />
-        <ScrollToTop />
-      </body>
-    </html>
+    <ClerkProvider afterSignOutUrl={`/${localeKey}`}>
+      <html
+        lang={localeKey}
+        className={`${display.variable} ${body.variable} h-full antialiased`}
+        style={{ colorScheme: 'dark' }}
+      >
+        <head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          />
+        </head>
+        <body className="flex min-h-full flex-col bg-background text-text">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+          >
+            Skip to main content
+          </a>
+          <Header locale={localeKey} />
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
+          <Footer locale={localeKey} />
+          <ScrollToTop />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,130 +1,328 @@
 import type { Metadata } from 'next';
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
+import { notFound } from 'next/navigation';
+import { ArticleCard } from '@/components/articles/ArticleCard';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { ConceptReferenceList } from '@/components/concepts/ConceptReferenceList';
+import { ConceptRelationList } from '@/components/concepts/ConceptRelationList';
+import {
+  getConceptArticles,
+  getConceptBySlug,
+  getStaticConceptParams,
+} from '@/lib/concepts';
 import { categories } from '@/lib/content/categories';
-import { getT } from '@/lib/i18n';
+import { getConceptJsonLd } from '@/lib/metadata';
+import type { Locale } from '@/lib/site';
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-// Placeholder
-async function getConcept(slug: string) {
-  return null;
-}
+const difficultyLabels = {
+  th: {
+    beginner: 'เริ่มต้น',
+    intermediate: 'ระดับกลาง',
+    advanced: 'ระดับลึก',
+  },
+  en: {
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced',
+  },
+} as const;
 
 export async function generateStaticParams() {
-  // TODO: Implement when we have real concepts
-  return [];
+  return getStaticConceptParams();
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { locale, slug } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const { locale: localeValue, slug } = await params;
+  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const concept = await getConceptBySlug(locale, slug);
+
+  if (!concept) {
+    return {
+      title: locale === 'th' ? 'ไม่พบแนวคิด' : 'Concept not found',
+    };
+  }
+
+  const canonical = `/${locale}/concepts/${concept.slug}`;
+  const languages: Record<string, string> = {
+    [locale]: canonical,
+  };
+
+  for (const [translationLocale, translationSlug] of Object.entries(
+    concept.translations
+  )) {
+    if (translationSlug) {
+      languages[translationLocale] =
+        `/${translationLocale}/concepts/${translationSlug}`;
+    }
+  }
 
   return {
-    title: 'Concept Term',
-    description: 'Concept definition',
+    title: concept.seoTitle,
+    description: concept.seoDescription,
+    alternates: {
+      canonical,
+      languages,
+    },
+    openGraph: {
+      type: 'article',
+      url: canonical,
+      title: concept.seoTitle,
+      description: concept.seoDescription,
+      modifiedTime: concept.updatedAt,
+      tags: [
+        concept.category,
+        concept.tradition,
+        ...concept.thinkers,
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: concept.seoTitle,
+      description: concept.seoDescription,
+    },
   };
 }
 
 export default async function ConceptDetailPage({ params }: PageProps) {
-  const { locale, slug } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
-  const t = getT(localeKey);
+  const { locale: localeValue, slug } = await params;
+  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const concept = await getConceptBySlug(locale, slug);
 
-  // Placeholder data
-  const category = categories['analytical-psychology'];
+  if (!concept) notFound();
+
+  const [relatedArticles] = await Promise.all([
+    getConceptArticles(concept),
+  ]);
+  const category = categories[concept.category];
+  const formattedUpdatedAt = new Date(concept.updatedAt).toLocaleDateString(
+    locale === 'th' ? 'th-TH' : 'en-US',
+    { year: 'numeric', month: 'long', day: 'numeric' }
+  );
+  const conceptJsonLd = getConceptJsonLd(locale, {
+    title: concept.title,
+    description: concept.seoDescription,
+    slug: concept.slug,
+    category: category.name[locale],
+    tradition: concept.tradition,
+    updatedAt: concept.updatedAt,
+  });
 
   return (
-    <div className="container mx-auto px-5 py-16 sm:px-8">
-      <article className="max-w-4xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <div
-              className="w-12 h-1 rounded-full mb-6"
-              style={{ backgroundColor: category.color }}
-            />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(conceptJsonLd) }}
+      />
 
-            <h1 className="type-page-title mb-4 text-text">
-              {localeKey === 'th' ? 'แนวคิดตัวอย่าง' : 'Sample Concept'}
+      <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">
+        <article className="mx-auto !max-w-6xl">
+          <Breadcrumbs
+            locale={locale}
+            items={[
+              {
+                label: locale === 'th' ? 'คลังแนวคิด' : 'Concepts',
+                href: `/${locale}/concepts`,
+              },
+              { label: concept.title, href: '' },
+            ]}
+          />
+
+          <header className="border-b border-border pb-10 sm:pb-12">
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className="inline-flex min-h-8 items-center rounded-full border px-3 text-sm"
+                style={{
+                  borderColor: `color-mix(in oklch, ${category.color} 45%, transparent)`,
+                  color: category.color,
+                }}
+              >
+                {category.name[locale]}
+              </span>
+              <span className="type-meta text-muted">{concept.tradition}</span>
+            </div>
+
+            <h1 className="type-page-title mt-6 max-w-4xl text-text">
+              {concept.title}
             </h1>
 
-            <div className="mb-8">
-              <Badge variant="accent">{category.name[localeKey]}</Badge>
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-text-soft">
+              <p>
+                <span className="text-muted">
+                  {locale === 'th' ? 'คำเดิม:' : 'Original term:'}
+                </span>{' '}
+                {concept.originalTerm}
+              </p>
+              <p>
+                <span className="text-muted">
+                  {locale === 'th' ? 'คำไทย:' : 'Thai term:'}
+                </span>{' '}
+                {concept.thaiTerm}
+              </p>
             </div>
 
-            {/* Definition */}
-            <section className="mb-12">
-              <h2 className="type-section-title mb-4 text-text">
-                {t.concept.definition}
-              </h2>
-              <p className="type-lead text-muted">
-                {localeKey === 'th'
-                  ? 'คำนิยามของแนวคิดจะปรากฏที่นี่ เนื้อหาจริงจะถูกเพิ่มเข้ามาในภายหลัง'
-                  : 'The definition of the concept will appear here. Real content will be added later.'}
-              </p>
-            </section>
+            <p className="type-lead mt-7 max-w-4xl text-text">
+              {concept.shortDefinition}
+            </p>
+          </header>
 
-            {/* Extended Explanation */}
-            <section className="mb-12">
-              <p className="mb-6 leading-[1.82] text-text-soft">
-                {localeKey === 'th'
-                  ? 'คำอธิบายเพิ่มเติมเกี่ยวกับแนวคิดนี้ รวมถึงบริบทประวัติศาสตร์ การใช้งานในทฤษฎี และความสำคัญในจิตวิทยาเชิงลึก'
-                  : 'Extended explanation about this concept, including historical context, usage in theory, and significance in depth psychology.'}
-              </p>
-            </section>
+          <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-16">
+            <div className="space-y-14">
+              <section aria-labelledby="human-explanation-title">
+                <h2
+                  id="human-explanation-title"
+                  className="type-section-title text-text"
+                >
+                  {locale === 'th'
+                    ? 'คำอธิบายให้เห็นภาพ'
+                    : 'Human explanation'}
+                </h2>
+                <p className="mt-5 max-w-[68ch] leading-[1.82] text-text-soft">
+                  {concept.humanExplanation}
+                </p>
+              </section>
 
-            {/* References */}
-            <section className="mb-12">
-              <h2 className="type-section-title mb-4 text-text">
-                {t.concept.relatedArticles}
-              </h2>
-              <p className="text-muted">
-                {localeKey === 'th'
-                  ? 'รายการอ้างอิงจะปรากฏที่นี่'
-                  : 'References will appear here'}
-              </p>
-            </section>
+              <section
+                aria-labelledby="technical-explanation-title"
+                className="border-y border-border py-8"
+              >
+                <h2
+                  id="technical-explanation-title"
+                  className="type-section-title text-text"
+                >
+                  {locale === 'th'
+                    ? 'ความหมายทางวิชาการ / เทคนิค'
+                    : 'Academic / technical explanation'}
+                </h2>
+                <p className="mt-5 max-w-[68ch] leading-[1.82] text-text-soft">
+                  {concept.technicalExplanation}
+                </p>
+              </section>
+
+              <section aria-labelledby="misunderstandings-title">
+                <h2
+                  id="misunderstandings-title"
+                  className="type-section-title text-text"
+                >
+                  {locale === 'th'
+                    ? 'ความเข้าใจผิดที่พบบ่อย'
+                    : 'Common misunderstandings'}
+                </h2>
+                <ul className="mt-5 border-y border-border">
+                  {concept.commonMisunderstandings.map((item) => (
+                    <li
+                      key={item}
+                      className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-t border-border py-4 first:border-t-0"
+                    >
+                      <span className="font-serif text-xl text-accent" aria-hidden="true">
+                        ≠
+                      </span>
+                      <span className="leading-7 text-text-soft">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section aria-labelledby="examples-title">
+                <h2 id="examples-title" className="type-section-title text-text">
+                  {locale === 'th'
+                    ? 'ตัวอย่างในชีวิตจริง'
+                    : 'Examples in real life'}
+                </h2>
+                <ul className="mt-5 space-y-4">
+                  {concept.examples.map((example) => (
+                    <li
+                      key={example}
+                      className="grid grid-cols-[0.75rem_minmax(0,1fr)] gap-4"
+                    >
+                      <span
+                        className="mt-[0.8rem] size-1.5 rounded-full bg-accent"
+                        aria-hidden="true"
+                      />
+                      <span className="leading-7 text-text-soft">{example}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <ConceptRelationList
+                conceptTitle={concept.title}
+                relations={concept.relatedConcepts}
+                locale={locale}
+              />
+
+              <ConceptReferenceList
+                references={concept.references}
+                locale={locale}
+              />
+            </div>
+
+            <aside className="lg:sticky lg:top-28 lg:self-start">
+              <dl className="border-y border-border">
+                <div className="border-b border-border py-5">
+                  <dt className="type-meta text-muted">
+                    {locale === 'th' ? 'สำนัก / กรอบทฤษฎี' : 'Tradition'}
+                  </dt>
+                  <dd className="mt-2 text-text">{concept.tradition}</dd>
+                </div>
+                <div className="border-b border-border py-5">
+                  <dt className="type-meta text-muted">
+                    {locale === 'th' ? 'นักคิดที่เกี่ยวข้อง' : 'Related thinkers'}
+                  </dt>
+                  <dd className="mt-3">
+                    <ul className="space-y-2 text-text-soft">
+                      {concept.thinkers.map((thinker) => (
+                        <li key={thinker}>{thinker}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                <div className="border-b border-border py-5">
+                  <dt className="type-meta text-muted">
+                    {locale === 'th' ? 'ระดับความลึก' : 'Difficulty'}
+                  </dt>
+                  <dd className="mt-2 text-text">
+                    {difficultyLabels[locale][concept.difficulty]}
+                  </dd>
+                </div>
+                <div className="py-5">
+                  <dt className="type-meta text-muted">
+                    {locale === 'th' ? 'แก้ไขล่าสุด' : 'Last updated'}
+                  </dt>
+                  <dd className="mt-2 text-text">
+                    <time dateTime={concept.updatedAt}>
+                      {formattedUpdatedAt}
+                    </time>
+                  </dd>
+                </div>
+              </dl>
+            </aside>
           </div>
 
-          {/* Sidebar */}
-          <aside className="lg:col-span-1">
-            <div className="sticky top-24">
-              {/* Related Concepts */}
-              <Card className="mb-6">
-                <h3 className="mb-3 text-sm font-semibold text-text">
-                  {t.concept.relatedConcepts}
-                </h3>
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="text-sm leading-relaxed text-muted">
-                      {localeKey === 'th' ? 'แนวคิดที่เกี่ยวข้อง' : 'Related Concept'} {i}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Related Articles */}
-              <Card>
-                <h3 className="mb-3 text-sm font-semibold text-text">
-                  {t.concept.relatedArticles}
-                </h3>
-                <div className="space-y-2">
-                  {[1, 2].map((i) => (
-                    <div key={i} className="text-sm leading-relaxed text-muted">
-                      {localeKey === 'th' ? 'บทความที่เกี่ยวข้อง' : 'Related Article'} {i}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          </aside>
-        </div>
-      </article>
-    </div>
+          {relatedArticles.length > 0 ? (
+            <aside className="mt-16 border-t border-border pt-10">
+              <h2 className="type-section-title text-text">
+                {locale === 'th'
+                  ? 'บทความที่ใช้แนวคิดนี้'
+                  : 'Articles using this concept'}
+              </h2>
+              <div className="mt-4 grid gap-x-8 md:grid-cols-2">
+                {relatedArticles.map((article) => (
+                  <ArticleCard
+                    key={article.slug}
+                    article={article}
+                    locale={locale}
+                  />
+                ))}
+              </div>
+            </aside>
+          ) : null}
+        </article>
+      </div>
+    </>
   );
 }

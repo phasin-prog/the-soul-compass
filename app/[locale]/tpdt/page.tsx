@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { categories } from '@/lib/content/categories';
 import { CategoryPage } from '@/components/CategoryPage';
 import { WarningBanner } from '@/components/WarningBanner';
+import { generateCategoryMetadata } from '@/lib/category-page';
 import { getT } from '@/lib/i18n';
+import { parseLocale } from '@/lib/locale';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -14,17 +16,12 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
-
-  return {
-    title: category.name[localeKey],
-    description: category.description[localeKey],
-  };
+  return generateCategoryMetadata('tpdt', locale);
 }
 
 export default async function TPDTPage({ params }: PageProps) {
   const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
 
   return (

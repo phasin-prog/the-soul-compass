@@ -1,5 +1,5 @@
 import { SignIn } from '@clerk/nextjs';
-import type { Locale } from '@/lib/site';
+import { parseLocale } from '@/lib/locale';
 
 export default async function SignInPage({
   params,
@@ -7,7 +7,7 @@ export default async function SignInPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: localeValue } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale = parseLocale(localeValue);
 
   return (
     <div className="mx-auto grid min-h-[70vh] max-w-6xl items-center gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_auto]">

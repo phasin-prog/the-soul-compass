@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { categories } from '@/lib/content/categories';
+import { formatDate, getDifficultyLabel } from '@/lib/format';
 import type { Locale } from '@/lib/site';
 import type { ArticleSummary } from '@/types/article';
 
@@ -9,29 +10,13 @@ interface ArticleCardProps {
   featured?: boolean;
 }
 
-const difficultyLabels = {
-  th: {
-    beginner: 'เริ่มต้น',
-    intermediate: 'ระดับกลาง',
-    advanced: 'ระดับลึก',
-  },
-  en: {
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced',
-  },
-} as const;
-
 export function ArticleCard({
   article,
   locale,
   featured = false,
 }: ArticleCardProps) {
   const category = categories[article.category];
-  const formattedDate = new Date(article.publishedAt).toLocaleDateString(
-    locale === 'th' ? 'th-TH' : 'en-US',
-    { year: 'numeric', month: 'short', day: 'numeric' }
-  );
+  const formattedDate = formatDate(locale, article.publishedAt, 'short');
 
   return (
     <article
@@ -64,7 +49,7 @@ export function ArticleCard({
                 {category.name[locale]}
               </span>
               <span className="type-meta text-muted">
-                {difficultyLabels[locale][article.difficulty]}
+                {getDifficultyLabel(locale, article.difficulty)}
               </span>
             </div>
 

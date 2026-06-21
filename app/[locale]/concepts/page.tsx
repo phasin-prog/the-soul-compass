@@ -3,6 +3,7 @@ import { ConceptFilters } from '@/components/concepts/ConceptFilters';
 import { getPublishedConcepts } from '@/lib/concepts';
 import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
+import { parseLocale } from '@/lib/locale';
 import { getAlternateUrls } from '@/lib/metadata';
 
 interface PageProps {
@@ -14,7 +15,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const localeKey = locale === 'en' ? 'en' : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
 
   return {
@@ -32,7 +33,7 @@ export async function generateMetadata({
 
 export default async function ConceptsPage({ params, searchParams }: PageProps) {
   const [{ locale }, query] = await Promise.all([params, searchParams]);
-  const localeKey = locale === 'en' ? 'en' : 'th';
+  const localeKey = parseLocale(locale);
   const t = getT(localeKey);
   const concepts = await getPublishedConcepts(localeKey);
   const requestedCategory = Array.isArray(query.category)

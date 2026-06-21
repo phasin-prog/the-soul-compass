@@ -2,6 +2,7 @@ import {
   isCategoryId,
   type CategoryId,
 } from '@/lib/content/categories';
+import { parseLocale } from '@/lib/locale';
 import type { Locale } from '@/lib/site';
 import {
   articleDifficulties,
@@ -90,7 +91,7 @@ export function normalizeWikiArticleMeta(
   if (!value || typeof value !== 'object') return null;
 
   const raw = value as Record<string, unknown>;
-  const locale: Locale = raw.locale === 'en' ? 'en' : 'th';
+  const locale: Locale = parseLocale(String(raw.locale ?? ''));
   const status: WikiArticleStatus =
     raw.status === 'published' ||
     raw.status === 'review' ||

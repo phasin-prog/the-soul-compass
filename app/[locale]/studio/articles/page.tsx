@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { requireStudioUser } from '@/lib/auth/studio';
+import { formatDate } from '@/lib/format';
+import { parseLocale } from '@/lib/locale';
 import { listWikiArticles } from '@/lib/r2/wiki-store';
-import type { Locale } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export default async function StudioArticlesPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: localeValue } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale = parseLocale(localeValue);
   const userId = await requireStudioUser(locale);
   const articles = await listWikiArticles(userId);
   const counts = {
@@ -131,9 +132,7 @@ export default async function StudioArticlesPage({
               <div className="flex items-center gap-5 text-sm text-muted sm:text-right">
                 <span>{article.outgoingLinks.length} links</span>
                 <time dateTime={article.updatedAt}>
-                  {new Date(article.updatedAt).toLocaleDateString(
-                    locale === 'th' ? 'th-TH' : 'en-US'
-                  )}
+                  {formatDate(locale, article.updatedAt, 'short')}
                 </time>
               </div>
             </article>

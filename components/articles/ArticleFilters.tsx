@@ -7,6 +7,7 @@ import {
   categoryIds,
   type CategoryId,
 } from '@/lib/content/categories';
+import { normalizeSearch } from '@/lib/search';
 import type { Locale } from '@/lib/site';
 import type { ArticleDifficulty, ArticleSummary } from '@/types/article';
 
@@ -50,10 +51,6 @@ const copy = {
   },
 } as const;
 
-function normalizeSearchValue(value: string): string {
-  return value.normalize('NFKC').trim().toLocaleLowerCase();
-}
-
 export function ArticleFilters({
   articles,
   locale,
@@ -68,7 +65,7 @@ export function ArticleFilters({
     useState<DifficultyFilter>('all');
 
   const filteredArticles = useMemo(() => {
-    const normalizedQuery = normalizeSearchValue(query);
+    const normalizedQuery = normalizeSearch(query);
 
     return articles.filter((article) => {
       if (category !== 'all' && article.category !== category) return false;

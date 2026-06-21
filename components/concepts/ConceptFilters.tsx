@@ -7,6 +7,7 @@ import {
   categoryIds,
   type CategoryId,
 } from '@/lib/content/categories';
+import { normalizeSearch } from '@/lib/search';
 import type { Locale } from '@/lib/site';
 import type { ConceptDifficulty, ConceptSummary } from '@/types/concept';
 
@@ -50,10 +51,6 @@ const copy = {
   },
 } as const;
 
-function normalize(value: string): string {
-  return value.normalize('NFKC').trim().toLocaleLowerCase();
-}
-
 function getAlphabetKey(title: string): string {
   const firstCharacter = Array.from(title.trim())[0];
   return firstCharacter ? firstCharacter.toLocaleUpperCase() : '#';
@@ -83,7 +80,7 @@ export function ConceptFilters({
   }, [concepts]);
 
   const groupedConcepts = useMemo(() => {
-    const normalizedQuery = normalize(query);
+    const normalizedQuery = normalizeSearch(query);
     const filtered = concepts.filter((concept) => {
       if (category !== 'all' && concept.category !== category) return false;
       if (difficulty !== 'all' && concept.difficulty !== difficulty) {
@@ -91,7 +88,7 @@ export function ConceptFilters({
       }
       if (!normalizedQuery) return true;
 
-      const searchable = normalize(
+      const searchable = normalizeSearch(
         [
           concept.title,
           concept.originalTerm,

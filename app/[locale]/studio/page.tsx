@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import type { Locale } from '@/lib/site';
+import { parseLocale } from '@/lib/locale';
 
 export default async function StudioPage({
   params,
@@ -7,6 +7,6 @@ export default async function StudioPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: localeValue } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale = parseLocale(localeValue);
   redirect(`/${locale}/studio/articles`);
 }

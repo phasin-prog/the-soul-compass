@@ -1,6 +1,6 @@
 import { ArticleStudioEditor } from '@/components/studio/ArticleStudioEditor';
 import { requireStudioUser } from '@/lib/auth/studio';
-import type { Locale } from '@/lib/site';
+import { parseLocale } from '@/lib/locale';
 
 export default async function NewStudioArticlePage({
   params,
@@ -8,7 +8,7 @@ export default async function NewStudioArticlePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: localeValue } = await params;
-  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const locale = parseLocale(localeValue);
   await requireStudioUser(locale);
 
   return (

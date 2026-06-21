@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { getStaticPublishedArticles } from '@/lib/articles';
+import { getPublishedArticles } from '@/lib/articles';
 import { getPublishedConcepts } from '@/lib/concepts';
 import { locales } from '@/lib/site';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thesoulscompass.com';
+
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes: MetadataRoute.Sitemap = [];
@@ -87,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
 
-    const articles = await getStaticPublishedArticles(locale);
+    const articles = await getPublishedArticles(locale);
 
     for (const article of articles) {
       routes.push({

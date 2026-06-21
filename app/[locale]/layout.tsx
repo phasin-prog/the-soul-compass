@@ -11,6 +11,7 @@ import {
   getOrganizationJsonLd,
   getWebSiteJsonLd,
 } from '@/lib/metadata';
+import { safeJsonLdStringify } from '@/lib/safe-json-ld';
 import { locales, siteConfig } from '@/lib/site';
 import '../globals.css';
 
@@ -94,11 +95,11 @@ export default async function LocaleLayout({
         <head>
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(organizationJsonLd) }}
           />
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(websiteJsonLd) }}
           />
         </head>
         <body className="flex min-h-full flex-col bg-background text-text">

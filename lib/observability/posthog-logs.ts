@@ -27,14 +27,29 @@ export function schedulePostHogLog(
     globalThis.__posthogLogger ||
     provider.getLogger(process.env.OTEL_SERVICE_NAME || 'the-souls-compass');
 
-  logger.emit({
-    body,
-    severityNumber: severityByLevel[level],
-    severityText: level.toUpperCase(),
-    attributes,
-  });
+  try {
+    logger.emit({
+      body,
+      severityNumber: severityByLevel[level],
+      severityText: level.toUpperCase(),
+      attributes,
+    });
+  } catch (error) {
+    console.error(
+      '[observability] Failed to emit log event.',
+      error instanceof Error ? error.message : error
+    );
+    return;
+  }
 
   after(async () => {
-    await provider.forceFlush();
+    try {
+      await provider.forceFlush();
+    } catch (error) {
+      console.error(
+        '[observability] Failed to flush PostHog logs.',
+        error instanceof Error ? error.message : error
+      );
+    }
   });
 }

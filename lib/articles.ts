@@ -282,8 +282,16 @@ async function getRemotePublishedArticles(
     return articles.map((article) => toSummary(mapPublishedArticle(article)));
   } catch (error) {
     if (isUnprovisionedPublishedBackend(error)) return [];
-    console.error('Published article backend is unavailable.', error);
-    return [];
+
+    console.error(
+      `[articles] Failed to load published articles for locale "${locale}".`,
+      error instanceof Error ? error.message : error
+    );
+    throw new Error(
+      `Published article backend is unavailable: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
   }
 }
 
@@ -336,8 +344,16 @@ export const getArticleBySlug = cache(
       return body === null ? null : mapPublishedArticle(remoteArticle, body);
     } catch (error) {
       if (isUnprovisionedPublishedBackend(error)) return null;
-      console.error(`Unable to load published article "${slug}".`, error);
-      return null;
+
+      console.error(
+        `[articles] Failed to load published article "${slug}" (locale: ${locale}).`,
+        error instanceof Error ? error.message : error
+      );
+      throw new Error(
+        `Unable to load published article "${slug}": ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      );
     }
   }
 );

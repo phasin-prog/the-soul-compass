@@ -506,7 +506,12 @@ export async function publishStudioArticle(
     try {
       await publishWikiArticle(publishedArticle, publishedMarkdownKey);
     } catch (error) {
-      await saveWikiArticle(draftArticle).catch(() => undefined);
+      await saveWikiArticle(draftArticle).catch((rollbackError) => {
+        console.error(
+          `[studio] Rollback failed after publish error for article "${draftArticle.id}".`,
+          rollbackError instanceof Error ? rollbackError.message : rollbackError
+        );
+      });
       throw error;
     }
   } catch (error) {
@@ -582,7 +587,12 @@ export async function unpublishStudioArticle(
     try {
       await unpublishWikiArticle(currentArticle);
     } catch (error) {
-      await saveWikiArticle(currentArticle).catch(() => undefined);
+      await saveWikiArticle(currentArticle).catch((rollbackError) => {
+        console.error(
+          `[studio] Rollback failed after unpublish error for article "${currentArticle.id}".`,
+          rollbackError instanceof Error ? rollbackError.message : rollbackError
+        );
+      });
       throw error;
     }
   } catch (error) {

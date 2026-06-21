@@ -282,7 +282,7 @@ export function ArticleStudioEditor({
             });
           }
         }
-      } catch {
+      } catch (error) {
         setSaveState('error');
 
         if (manual) {
@@ -293,6 +293,11 @@ export function ArticleStudioEditor({
               onClick: () => void performSave(true),
             },
           });
+        } else {
+          console.error(
+            '[studio] Auto-save failed. User data may not be persisted.',
+            error instanceof Error ? error.message : error
+          );
         }
       } finally {
         savingRef.current = false;

@@ -71,10 +71,17 @@ export async function getWikiArticle(
 
   if (!metadataText || content === null) return null;
 
-  const metadata = normalizeWikiArticleMeta(
-    JSON.parse(metadataText),
-    keys.markdownKey
-  );
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(metadataText);
+  } catch {
+    console.error(
+      `Corrupt wiki article metadata for ${articleId} (owner: ${ownerId}). Treating as missing.`
+    );
+    return null;
+  }
+
+  const metadata = normalizeWikiArticleMeta(parsed, keys.markdownKey);
 
   if (
     !metadata ||
@@ -118,8 +125,18 @@ export async function listWikiArticles(
       const value = await readTextObject(key);
       if (!value) return null;
 
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(value);
+      } catch {
+        console.error(
+          `Corrupt wiki article metadata at key "${key}". Skipping entry.`
+        );
+        return null;
+      }
+
       const markdownKey = key.replace(/meta\.json$/, 'article.md');
-      return normalizeWikiArticleMeta(JSON.parse(value), markdownKey);
+      return normalizeWikiArticleMeta(parsed, markdownKey);
     })
   );
 

@@ -26,7 +26,7 @@ export default async function SignUpPage({
         path={`/${locale}/sign-up`}
         routing="path"
         signInUrl={`/${locale}/sign-in`}
-        fallbackRedirectUrl={`/${locale}/studio`}
+        fallbackRedirectUrl={`/${locale}/studio/articles`}
         appearance={{
           elements: {
             rootBox: 'w-full',

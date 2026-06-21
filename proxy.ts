@@ -1,10 +1,54 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import type { NextFetchEvent, NextRequest } from 'next/server';
 import { defaultLocale, locales } from './lib/site';
 
 const localeSet = new Set(locales);
 
-export default clerkMiddleware(async (auth, request) => {
+const studioAuthProxy = clerkMiddleware(async (auth, request) => {
+  const { isAuthenticated } = await auth();
+
+  if (!isAuthenticated) {
+    const locale = request.nextUrl.pathname.split('/').filter(Boolean)[0];
+    const signInUrl = new URL(`/${locale}/sign-in`, request.url);
+    signInUrl.searchParams.set(
+      'redirect_url',
+      `${request.nextUrl.pathname}${request.nextUrl.search}`
+    );
+    return NextResponse.redirect(signInUrl);
+  }
+});
+
+async function runStudioAuthProxy(
+  request: NextRequest,
+  event: NextFetchEvent
+) {
+  const response = await studioAuthProxy(request, event);
+
+  if (response instanceof Response) {
+    const rewrite = response.headers.get('x-middleware-rewrite');
+
+    if (rewrite) {
+      const rewriteUrl = new URL(rewrite);
+      const isSameRequest =
+        rewriteUrl.origin === request.nextUrl.origin &&
+        rewriteUrl.pathname === request.nextUrl.pathname &&
+        rewriteUrl.search === request.nextUrl.search;
+
+      if (isSameRequest) {
+        response.headers.delete('x-middleware-rewrite');
+        response.headers.set('x-middleware-next', '1');
+      }
+    }
+  }
+
+  return response;
+}
+
+export default async function proxy(
+  request: NextRequest,
+  event: NextFetchEvent
+) {
   const pathname = request.nextUrl.pathname;
 
   if (
@@ -23,16 +67,7 @@ export default clerkMiddleware(async (auth, request) => {
     localeSet.has(firstSegment as (typeof locales)[number])
   ) {
     if (pathnameSegments[1] === 'studio') {
-      const { isAuthenticated } = await auth();
-
-      if (!isAuthenticated) {
-        const signInUrl = new URL(`/${firstSegment}/sign-in`, request.url);
-        signInUrl.searchParams.set(
-          'redirect_url',
-          `${request.nextUrl.pathname}${request.nextUrl.search}`
-        );
-        return NextResponse.redirect(signInUrl);
-      }
+      return runStudioAuthProxy(request, event);
     }
 
     return NextResponse.next();
@@ -65,7 +100,7 @@ export default clerkMiddleware(async (auth, request) => {
   return NextResponse.redirect(
     new URL(`/${detectedLocale}${pathname}`, request.url)
   );
-});
+}
 
 export const config = {
   matcher: [

@@ -20,7 +20,7 @@ export function slugifyWikiValue(value: string): string {
     .normalize('NFKC')
     .toLocaleLowerCase()
     .trim()
-    .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
+    .replace(/[^\p{Letter}\p{Mark}\p{Number}]+/gu, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 180);
 }

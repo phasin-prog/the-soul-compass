@@ -50,4 +50,5 @@ next-env.d.ts
 /.codex/
 /.agents/
 /.playwright-cli/
+/plugins/
 

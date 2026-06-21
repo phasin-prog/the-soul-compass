@@ -1,7 +1,12 @@
 import type { CategoryId } from '@/lib/content/categories';
 import type { Locale } from '@/lib/site';
 
-export const articleStatuses = ['draft', 'review', 'published'] as const;
+export const articleStatuses = [
+  'draft',
+  'review',
+  'published',
+  'archived',
+] as const;
 export type ArticleStatus = (typeof articleStatuses)[number];
 
 export const articleDifficulties = [

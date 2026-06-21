@@ -24,6 +24,7 @@ export function getWikiArticleKeys(ownerId: string, articleId: string) {
   return {
     prefix,
     markdownKey: `${prefix}/article.md`,
+    publishedMarkdownKey: `${prefix}/published.md`,
     metadataKey: `${prefix}/meta.json`,
   };
 }
@@ -154,6 +155,27 @@ export async function saveWikiArticle(article: WikiArticle): Promise<void> {
       CacheControl: 'private, no-store',
     })
   );
+}
+
+export async function savePublishedWikiContent(
+  article: WikiArticle
+): Promise<string> {
+  const { publishedMarkdownKey } = getWikiArticleKeys(
+    article.ownerId,
+    article.id
+  );
+
+  await getR2Client().send(
+    new PutObjectCommand({
+      Bucket: getR2BucketName(),
+      Key: publishedMarkdownKey,
+      Body: article.content,
+      ContentType: 'text/markdown; charset=utf-8',
+      CacheControl: 'public, max-age=3600',
+    })
+  );
+
+  return publishedMarkdownKey;
 }
 
 export async function deleteWikiArticle(

@@ -18,7 +18,7 @@ export interface WikiLink {
 }
 
 export interface WikiArticleMeta {
-  schemaVersion: 2;
+  schemaVersion: 3;
   id: string;
   publicId: string;
   ownerId: string;
@@ -28,9 +28,9 @@ export interface WikiArticleMeta {
   slug: string;
   locale: Locale;
   excerpt: string;
-  category: CategoryId;
-  school: ArticleSchool;
-  difficulty: ArticleDifficulty;
+  category: CategoryId | '';
+  school: ArticleSchool | '';
+  difficulty: ArticleDifficulty | '';
   coverImage: ArticleCoverImage | null;
   tags: string[];
   aliases: string[];
@@ -46,6 +46,8 @@ export interface WikiArticleMeta {
   status: WikiArticleStatus;
   markdownKey: string;
   contentHash: string;
+  publishedContentHash: string | null;
+  publishedSlug: string | null;
   readingMinutes: number;
   createdAt: string;
   updatedAt: string;

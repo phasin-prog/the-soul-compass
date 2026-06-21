@@ -28,7 +28,7 @@ export function AuthNav({
     return (
       <>
         <Link
-          href={`/${locale}/studio`}
+          href={`/${locale}/studio/articles`}
           onClick={onNavigate}
           className={linkClassName}
         >

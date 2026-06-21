@@ -14,6 +14,7 @@ import {
   type ArticleReference,
   type ArticleSchool,
 } from '@/types/article';
+import { categorySchools } from './article-metadata';
 import {
   ARTICLE_PUBLICATIONS_CACHE_TAG,
   articleCacheTag,
@@ -137,9 +138,15 @@ function toPublishedArticle(
   };
 }
 
-export async function publishWikiArticle(article: WikiArticle): Promise<void> {
+export async function publishWikiArticle(
+  article: WikiArticle,
+  markdownKey = article.markdownKey
+): Promise<void> {
   if (article.status !== 'published' || !article.publishedAt) {
     throw new Error('Only published articles can be added to the public index.');
+  }
+  if (!isCategoryId(article.category)) {
+    throw new Error('Published articles require a category.');
   }
 
   const row: ArticlePublicationRow = {
@@ -151,8 +158,8 @@ export async function publishWikiArticle(article: WikiArticle): Promise<void> {
     subtitle: article.subtitle,
     excerpt: article.excerpt,
     category: article.category,
-    school: article.school,
-    difficulty: article.difficulty,
+    school: article.school || categorySchools[article.category],
+    difficulty: article.difficulty || 'intermediate',
     reading_time: article.readingMinutes,
     published_at: article.publishedAt,
     updated_at: article.updatedAt,
@@ -164,11 +171,11 @@ export async function publishWikiArticle(article: WikiArticle): Promise<void> {
     related_articles: article.relatedArticles,
     references: article.references,
     series_id: article.seriesId || null,
-    seo_title: article.seoTitle,
+    seo_title: article.seoTitle || article.title,
     seo_description: article.seoDescription,
     translations: article.translations,
     featured: article.featured,
-    markdown_key: article.markdownKey,
+    markdown_key: markdownKey,
     content_hash: article.contentHash,
   };
 

@@ -19,20 +19,20 @@ export default async function StudioLayout({
       <div className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3 sm:px-8">
           <Link
-            href={`/${locale}/studio`}
+            href={`/${locale}/studio/articles`}
             className="flex min-h-11 items-center font-medium text-text hover:text-accent"
           >
-            Wiki Studio
+            Studio
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-sm" aria-label="Studio">
             <Link
-              href={`/${locale}/studio`}
+              href={`/${locale}/studio/articles`}
               className="flex min-h-11 items-center rounded-md px-3 text-muted hover:bg-surface-raised hover:text-text"
             >
               บทความทั้งหมด
             </Link>
             <Link
-              href={`/${locale}/studio/new`}
+              href={`/${locale}/studio/articles/new`}
               className="flex min-h-11 items-center rounded-md bg-accent-soft px-3 font-medium text-accent hover:bg-accent hover:text-accent-ink"
             >
               + บทความใหม่

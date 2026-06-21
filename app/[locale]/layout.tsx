@@ -4,6 +4,7 @@ import { Anuphan, Pridi } from 'next/font/google';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { StudioToaster } from '@/components/studio/StudioToaster';
 import {
   getAlternateUrls,
   getOrganizationJsonLd,
@@ -112,6 +113,7 @@ export default async function LocaleLayout({
           </main>
           <Footer locale={localeKey} />
           <ScrollToTop />
+          <StudioToaster />
         </body>
       </html>
     </ClerkProvider>

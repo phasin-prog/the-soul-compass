@@ -92,20 +92,22 @@ export function normalizeWikiArticleMeta(
   const raw = value as Record<string, unknown>;
   const locale: Locale = raw.locale === 'en' ? 'en' : 'th';
   const status: WikiArticleStatus =
-    raw.status === 'published' || raw.status === 'review'
+    raw.status === 'published' ||
+    raw.status === 'review' ||
+    raw.status === 'archived'
       ? raw.status
       : 'draft';
   const category = isCategoryId(String(raw.category))
     ? (raw.category as CategoryId)
-    : 'analytical-psychology';
+    : '';
   const school = articleSchools.includes(raw.school as ArticleSchool)
     ? (raw.school as ArticleSchool)
-    : categorySchools[category] || 'Analytical Psychology';
+    : '';
   const difficulty = articleDifficulties.includes(
     raw.difficulty as (typeof articleDifficulties)[number]
   )
     ? (raw.difficulty as (typeof articleDifficulties)[number])
-    : 'intermediate';
+    : '';
   const title = typeof raw.title === 'string' ? raw.title : '';
   const excerpt = typeof raw.excerpt === 'string' ? raw.excerpt : '';
 
@@ -120,7 +122,7 @@ export function normalizeWikiArticleMeta(
   }
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     id: raw.id,
     publicId: raw.publicId,
     ownerId: raw.ownerId,
@@ -162,6 +164,18 @@ export function normalizeWikiArticleMeta(
         ? raw.markdownKey
         : fallbackMarkdownKey,
     contentHash: typeof raw.contentHash === 'string' ? raw.contentHash : '',
+    publishedContentHash:
+      typeof raw.publishedContentHash === 'string'
+        ? raw.publishedContentHash
+        : status === 'published' && typeof raw.contentHash === 'string'
+          ? raw.contentHash
+          : null,
+    publishedSlug:
+      typeof raw.publishedSlug === 'string'
+        ? raw.publishedSlug
+        : status === 'published' && typeof raw.slug === 'string'
+          ? raw.slug
+          : null,
     readingMinutes:
       typeof raw.readingMinutes === 'number' && raw.readingMinutes > 0
         ? raw.readingMinutes

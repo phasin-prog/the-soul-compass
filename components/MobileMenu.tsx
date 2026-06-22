@@ -118,6 +118,13 @@ export function MobileMenu({ locale }: MobileMenuProps) {
               {t.nav.resources}
             </Link>
             <Link
+              href={`/${locale}/external-links`}
+              onClick={() => setIsOpen(false)}
+              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
+            >
+              {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
+            </Link>
+            <Link
               href={`/${locale}/support`}
               onClick={() => setIsOpen(false)}
               className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"

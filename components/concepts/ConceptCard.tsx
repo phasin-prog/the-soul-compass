@@ -16,7 +16,7 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
     <article className="border-t border-border">
       <Link
         href={`/${locale}/concepts/${concept.slug}`}
-        className="group grid min-h-32 gap-4 py-6 focus-visible:outline-offset-8 sm:grid-cols-[minmax(11rem,0.65fr)_minmax(0,1.35fr)] sm:items-start"
+        className="group grid min-h-36 gap-5 py-6 focus-visible:outline-offset-8 md:grid-cols-[minmax(11rem,0.55fr)_minmax(0,1.15fr)_minmax(10rem,0.55fr)] md:items-start"
       >
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -27,7 +27,7 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
               <span className="text-sm text-muted">{concept.thaiTerm}</span>
             ) : null}
           </div>
-          <p className="type-meta mt-2 text-faint">
+          <p className="type-meta mt-2 text-muted">
             {getDifficultyLabel(locale, concept.difficulty)}
           </p>
         </div>
@@ -45,13 +45,28 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
             </span>
             <span className="type-meta text-muted">{concept.tradition}</span>
           </div>
-          <p className="max-w-3xl text-muted">{concept.shortDefinition}</p>
-          <span className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-accent">
+          <p className="max-w-3xl text-text-soft">{concept.shortDefinition}</p>
+        </div>
+
+        <div>
+          <p className="type-meta font-medium text-muted">
+            {locale === 'th' ? 'แนวคิดที่เชื่อมโยง' : 'Related concepts'}
+          </p>
+          {concept.relatedConcepts.length > 0 ? (
+            <p className="mt-2 text-sm leading-7 text-text-soft">
+              {concept.relatedConcepts
+                .slice(0, 3)
+                .map((relation) => relation.title)
+                .join(' · ')}
+            </p>
+          ) : (
+            <p className="mt-2 text-sm text-muted">
+              {locale === 'th' ? 'ยังไม่มีความสัมพันธ์ที่ระบุ' : 'No mapped relations yet'}
+            </p>
+          )}
+          <span className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-accent">
             {locale === 'th' ? 'เปิดโหนดแนวคิด' : 'Open concept node'}
-            <span
-              aria-hidden="true"
-              className="ml-2 transition-transform duration-200 group-hover:translate-x-1"
-            >
+            <span aria-hidden="true" className="ml-2 transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>
           </span>

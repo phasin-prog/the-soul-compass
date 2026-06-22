@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ArticleFilters } from '@/components/articles/ArticleFilters';
+import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
 import { getPublishedArticles } from '@/lib/articles';
 import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
@@ -59,6 +60,9 @@ export default async function ArticlesPage({ params, searchParams }: PageProps) 
         </header>
 
         {articles.length === 0 ? (
+          localeKey === 'en' ? (
+            <LocaleAvailabilityNotice section="articles" />
+          ) : (
           <div className="border-y border-border py-14">
             <h2 className="type-section-title text-text">
               {localeKey === 'th'
@@ -71,6 +75,7 @@ export default async function ArticlesPage({ params, searchParams }: PageProps) 
                 : 'Articles from the content library and Wiki Studio will appear here once published.'}
             </p>
           </div>
+          )
         ) : (
           <ArticleFilters
             articles={articles}

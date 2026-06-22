@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ConceptCard } from '@/components/concepts/ConceptCard';
 import {
   categories,
@@ -15,6 +16,8 @@ interface ConceptFiltersProps {
   concepts: ConceptSummary[];
   locale: Locale;
   initialCategory?: CategoryId;
+  initialDifficulty?: ConceptDifficulty;
+  initialQuery?: string;
 }
 
 type CategoryFilter = 'all' | CategoryId;
@@ -60,14 +63,46 @@ export function ConceptFilters({
   concepts,
   locale,
   initialCategory,
+  initialDifficulty,
+  initialQuery = '',
 }: ConceptFiltersProps) {
   const t = copy[locale];
-  const [query, setQuery] = useState('');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<CategoryFilter>(
     initialCategory ?? 'all'
   );
   const [difficulty, setDifficulty] =
-    useState<DifficultyFilter>('all');
+    useState<DifficultyFilter>(initialDifficulty ?? 'all');
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      const normalizedQuery = query.trim();
+
+      if (normalizedQuery) params.set('q', normalizedQuery);
+      else params.delete('q');
+
+      if (category === 'all') params.delete('category');
+      else params.set('category', category);
+
+      if (difficulty === 'all') params.delete('difficulty');
+      else params.set('difficulty', difficulty);
+
+      const nextUrl = params.size ? `${pathname}?${params}` : pathname;
+      const currentUrl = searchParams.size
+        ? `${pathname}?${searchParams}`
+        : pathname;
+
+      if (nextUrl !== currentUrl) {
+        router.replace(nextUrl, { scroll: false });
+      }
+    }, 250);
+
+    return () => window.clearTimeout(timeout);
+  }, [category, difficulty, pathname, query, router, searchParams]);
 
   const categoryCounts = useMemo(() => {
     const counts = new Map<CategoryId, number>();
@@ -145,7 +180,9 @@ export function ConceptFilters({
             </label>
             <input
               id="concept-search"
+              name="q"
               type="search"
+              autoComplete="off"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={t.searchPlaceholder}

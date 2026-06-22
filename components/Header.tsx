@@ -26,7 +26,7 @@ export function Header({ locale }: HeaderProps) {
           >
             ◇
           </span>
-          <span className="font-serif text-lg leading-none text-text sm:text-xl">
+          <span className="font-serif text-lg font-medium leading-none text-text sm:text-xl">
             {siteConfig.name[locale]}
           </span>
         </Link>

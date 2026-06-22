@@ -1,0 +1,4 @@
+interface:
+  display_name: "Soul Compass Design Agent"
+  short_description: "Design UI for a credible reading archive"
+  default_prompt: "Use $soul-compass-design-agent to audit and improve this page while preserving the archive's editorial character."

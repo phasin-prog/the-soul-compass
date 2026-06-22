@@ -174,7 +174,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
                 </p>
               ) : null}
 
-              <dl className="type-meta mt-8 flex flex-wrap gap-x-5 gap-y-3 text-muted">
+              <dl className="type-meta mt-8 flex flex-wrap gap-x-6 gap-y-3 border-y border-border py-4 text-text-soft">
                 <div className="flex gap-2">
                   <dt className="sr-only">
                     {locale === 'th' ? 'ผู้เขียน' : 'Author'}
@@ -207,6 +207,14 @@ export default async function ArticleDetailPage({ params }: PageProps) {
                   <dd>{difficultyLabels[locale][article.difficulty]}</dd>
                 </div>
               </dl>
+
+              <div className="mt-6 flex flex-wrap gap-2" aria-label={locale === 'th' ? 'ป้ายกำกับ' : 'Tags'}>
+                {article.tags.map((tag) => (
+                  <span key={tag} className="type-meta rounded-full bg-surface px-3 py-1.5 text-text-soft">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
 
               <div className="mt-7">
                 <BookmarkButton

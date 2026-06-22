@@ -49,6 +49,12 @@ next-env.d.ts
 # Local AI tool configuration (may contain credentials or machine-specific paths)
 /claude.json
 /.codex/
+!/.codex/
+/.codex/*
+!/.codex/skills/
+/.codex/skills/*
+!/.codex/skills/soul-compass-design-agent/
+!/.codex/skills/soul-compass-design-agent/**
 /.agents/
 /.playwright-cli/
 /plugins/

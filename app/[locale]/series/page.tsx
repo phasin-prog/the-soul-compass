@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SeriesFilters } from '@/components/series/SeriesFilters';
+import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
 import { getT } from '@/lib/i18n';
 import { getAlternateUrls } from '@/lib/metadata';
 import { getPublishedSeries } from '@/lib/series';
@@ -60,6 +61,9 @@ export default async function SeriesListingPage({ params }: PageProps) {
         {series.length > 0 ? (
           <SeriesFilters locale={localeKey} series={series} />
         ) : (
+          localeKey === 'en' ? (
+            <LocaleAvailabilityNotice section="series" />
+          ) : (
           <div className="border-y border-border py-14">
             <h2 className="type-section-title text-text">
               {localeKey === 'th'
@@ -72,6 +76,7 @@ export default async function SeriesListingPage({ params }: PageProps) {
                 : 'Reading paths will appear here once ordered and reviewed.'}
             </p>
           </div>
+          )
         )}
       </div>
     </div>

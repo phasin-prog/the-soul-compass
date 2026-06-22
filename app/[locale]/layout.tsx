@@ -1,6 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
-import { Anuphan, Pridi } from 'next/font/google';
+import { Noto_Sans_Thai_Looped, Noto_Serif_Thai } from 'next/font/google';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -15,14 +15,14 @@ import { safeJsonLdStringify } from '@/lib/safe-json-ld';
 import { locales, siteConfig } from '@/lib/site';
 import '../globals.css';
 
-const display = Pridi({
+const display = Noto_Serif_Thai({
   variable: '--font-display',
   subsets: ['thai', 'latin'],
-  weight: ['300', '400', '500'],
+  weight: ['400', '500', '600'],
   display: 'swap',
 });
 
-const body = Anuphan({
+const body = Noto_Sans_Thai_Looped({
   variable: '--font-body',
   subsets: ['thai', 'latin'],
   weight: 'variable',
@@ -97,6 +97,7 @@ export default async function LocaleLayout({
         style={{ colorScheme: 'dark' }}
       >
         <head>
+          <meta name="theme-color" content="#0c1219" />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(organizationJsonLd) }}

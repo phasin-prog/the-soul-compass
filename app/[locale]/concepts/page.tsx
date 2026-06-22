@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ConceptFilters } from '@/components/concepts/ConceptFilters';
+import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
 import { getPublishedConcepts } from '@/lib/concepts';
 import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
@@ -8,12 +9,14 @@ import { getAlternateUrls } from '@/lib/metadata';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ category?: string | string[] }>;
+  searchParams: Promise<{
+    category?: string | string[];
+    difficulty?: string | string[];
+    q?: string | string[];
+  }>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const localeKey = parseLocale(locale);
   const t = getT(localeKey);
@@ -22,8 +25,8 @@ export async function generateMetadata({
     title: t.nav.concepts,
     description:
       localeKey === 'th'
-        ? 'คลังแนวคิดเชิงโครงสร้างจากจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม ปรัชญา Typology และ TPDT'
-        : 'A structured concept library spanning multiple psychologies, neuroscience, social psychology, philosophy, typology, and TPDT.',
+        ? 'คลังแนวคิดแบบเชื่อมโยงจากจิตวิทยา ประสาทวิทยาศาสตร์ ปรัชญา Typology และ TPDT'
+        : 'A connected concept library spanning psychology, neuroscience, philosophy, typology, and TPDT.',
     alternates: {
       canonical: `/${localeKey}/concepts`,
       languages: getAlternateUrls('/concepts'),
@@ -43,21 +46,33 @@ export default async function ConceptsPage({ params, searchParams }: PageProps) 
     requestedCategory && isCategoryId(requestedCategory)
       ? requestedCategory
       : undefined;
+  const requestedDifficulty = Array.isArray(query.difficulty)
+    ? query.difficulty[0]
+    : query.difficulty;
+  const initialDifficulty =
+    requestedDifficulty === 'beginner' ||
+    requestedDifficulty === 'intermediate' ||
+    requestedDifficulty === 'advanced'
+      ? requestedDifficulty
+      : undefined;
+  const initialQuery = Array.isArray(query.q) ? query.q[0] : query.q;
 
   return (
     <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-12 max-w-4xl sm:mb-16">
-          <h1 className="type-page-title text-text">{t.nav.concepts}</h1>
-          <p className="type-lead mt-5 text-text-soft">
+        <header className="mb-12 grid gap-7 border-b border-border pb-10 sm:mb-16 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
+          <div>
+            <h1 className="type-page-title text-text">{t.nav.concepts}</h1>
+            <p className="type-lead mt-5 text-text-soft">
+              {localeKey === 'th'
+                ? 'แผนที่ความรู้สำหรับแยกความหมาย เปรียบเทียบสำนัก และติดตามว่าแนวคิดหนึ่งเชื่อมกับแนวคิดอื่นอย่างไร'
+                : 'A knowledge map for distinguishing terms, comparing traditions, and following how one concept connects to another.'}
+            </p>
+          </div>
+          <p className="max-w-xl text-text-soft lg:justify-self-end">
             {localeKey === 'th'
-              ? 'แผนที่ความรู้สำหรับแยกความหมายของคำ เปรียบเทียบสำนัก และติดตามว่าแนวคิดหนึ่งเชื่อมกับแนวคิดอื่นอย่างไร'
-              : 'A knowledge map for distinguishing terms, comparing traditions, and following how one concept connects to another.'}
-          </p>
-          <p className="mt-5 max-w-3xl text-muted">
-            {localeKey === 'th'
-              ? 'แต่ละหน้าเป็นโหนดที่รวมคำนิยาม คำอธิบายเชิงมนุษย์ ความหมายทางเทคนิค ความเข้าใจผิด ตัวอย่าง นักคิด และเอกสารอ้างอิง—ไม่ใช่พจนานุกรมคำสั้น ๆ'
-              : 'Each page is a reusable node containing definitions, human and technical explanations, misunderstandings, examples, thinkers, and references.'}
+              ? 'แต่ละหน้าคือโหนดที่รวมคำจำกัดความ คำอธิบาย ตัวอย่าง ความเข้าใจผิด นักคิด และแหล่งอ้างอิง—ไม่ใช่รายการพจนานุกรมที่แยกขาดจากกัน'
+              : 'Each page is a reusable node containing definitions, explanations, examples, misunderstandings, thinkers, and references—not an isolated dictionary entry.'}
           </p>
         </header>
 
@@ -66,20 +81,24 @@ export default async function ConceptsPage({ params, searchParams }: PageProps) 
             concepts={concepts}
             locale={localeKey}
             initialCategory={initialCategory}
+            initialDifficulty={initialDifficulty}
+            initialQuery={initialQuery}
           />
         ) : (
+          localeKey === 'en' ? (
+            <LocaleAvailabilityNotice section="concepts" />
+          ) : (
           <div className="border-y border-border py-14">
             <h2 className="type-section-title text-text">
-              {localeKey === 'th'
-                ? 'ยังไม่มีแนวคิดที่เผยแพร่'
-                : 'No published concepts yet'}
+              {localeKey === 'th' ? 'ยังไม่มีแนวคิดที่เผยแพร่' : 'No published concepts yet'}
             </h2>
             <p className="mt-3 max-w-xl text-muted">
               {localeKey === 'th'
-                ? 'โหนดแนวคิดจะปรากฏที่นี่เมื่อมีสถานะเผยแพร่'
-                : 'Concept nodes will appear here once published.'}
+                ? 'โหนดแนวคิดจะปรากฏที่นี่เมื่อผ่านการตรวจทานและเผยแพร่'
+                : 'Concept nodes will appear here once reviewed and published.'}
             </p>
           </div>
+          )
         )}
       </div>
     </div>

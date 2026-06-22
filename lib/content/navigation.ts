@@ -84,6 +84,16 @@ export const mainNav: NavItem[] = [
       en: 'Resources',
     },
     href: '/resources',
+    children: [
+      {
+        label: { th: 'คลังอ้างอิง', en: 'Reference archive' },
+        href: '/resources',
+      },
+      {
+        label: { th: 'ลิงก์ภายนอก', en: 'External links' },
+        href: '/external-links',
+      },
+    ],
   },
   {
     label: {

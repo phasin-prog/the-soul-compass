@@ -19,6 +19,7 @@ export const th: Translation = {
     about: 'About',
     manifesto: 'Manifesto',
     resources: 'แหล่งอ้างอิง',
+    support: 'สนับสนุน',
     contact: 'ติดต่อ',
   },
   categories: {

@@ -31,7 +31,7 @@ export function Header({ locale }: HeaderProps) {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-5 lg:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-4 xl:flex" aria-label="Main navigation">
           <Link
             href={`/${locale}/articles`}
             className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
@@ -55,6 +55,12 @@ export function Header({ locale }: HeaderProps) {
             className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
           >
             {t.nav.resources}
+          </Link>
+          <Link
+            href={`/${locale}/support`}
+            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-accent"
+          >
+            {t.nav.support}
           </Link>
           <Link
             href={`/${locale}/about`}

@@ -31,7 +31,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="grid size-11 place-items-center rounded-md text-muted transition-colors duration-200 hover:bg-surface hover:text-text lg:hidden"
+        className="grid size-11 place-items-center rounded-md text-muted transition-colors duration-200 hover:bg-surface hover:text-text xl:hidden"
         aria-label={isOpen ? t.ui.closeMenu : t.ui.openMenu}
         aria-expanded={isOpen}
         aria-controls="mobile-navigation"
@@ -65,7 +65,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
       <dialog
         ref={dialogRef}
         id="mobile-navigation"
-        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(22rem,88vw)] max-w-none overflow-y-auto overscroll-contain border-l border-border bg-surface p-0 text-text backdrop:bg-background/82 backdrop:backdrop-blur-sm lg:hidden"
+        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(22rem,88vw)] max-w-none overflow-y-auto overscroll-contain border-l border-border bg-surface p-0 text-text backdrop:bg-background/82 backdrop:backdrop-blur-sm xl:hidden"
         onClose={() => setIsOpen(false)}
         onClick={(event) => {
           if (event.target === event.currentTarget) setIsOpen(false);
@@ -116,6 +116,13 @@ export function MobileMenu({ locale }: MobileMenuProps) {
               className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
             >
               {t.nav.resources}
+            </Link>
+            <Link
+              href={`/${locale}/support`}
+              onClick={() => setIsOpen(false)}
+              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
+            >
+              {t.nav.support}
             </Link>
 
             <hr className="my-3 border-border" />

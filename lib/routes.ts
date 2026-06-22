@@ -16,6 +16,19 @@ export const routes = {
 
   concepts: (locale: Locale) => `/${locale}/concepts`,
   concept: (locale: Locale, slug: string) => `/${locale}/concepts/${slug}`,
+  externalLinks: (locale: Locale) => `/${locale}/external-links`,
+
+  // Member routes
+  login: (locale: Locale) => `/${locale}/login`,
+  register: (locale: Locale) => `/${locale}/register`,
+  account: (locale: Locale) => `/${locale}/account`,
+  bookmarks: (locale: Locale) => `/${locale}/account/bookmarks`,
+  readingHistory: (locale: Locale) => `/${locale}/account/reading-history`,
+  savedConcepts: (locale: Locale) => `/${locale}/account/saved-concepts`,
+  admin: (locale: Locale) => `/${locale}/admin`,
+  adminArticles: (locale: Locale) => `/${locale}/admin/articles`,
+  adminConcepts: (locale: Locale) => `/${locale}/admin/concepts`,
+  adminExternalLinks: (locale: Locale) => `/${locale}/admin/external-links`,
 
   // Category routes
   analyticalPsychology: (locale: Locale) => `/${locale}/analytical-psychology`,
@@ -40,6 +53,9 @@ export const routes = {
 
   // Static pages
   resources: (locale: Locale) => `/${locale}/resources`,
+  reference: (locale: Locale, slug: string) =>
+    `/${locale}/resources/${slug}`,
+  support: (locale: Locale) => `/${locale}/support`,
   about: (locale: Locale) => `/${locale}/about`,
   manifesto: (locale: Locale) => `/${locale}/manifesto`,
   contact: (locale: Locale) => `/${locale}/contact`,

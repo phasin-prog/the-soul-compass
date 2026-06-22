@@ -21,6 +21,7 @@ export const en: Translation = {
     about: 'About',
     manifesto: 'Manifesto',
     resources: 'Resources',
+    support: 'Support',
     contact: 'Contact',
   },
   categories: {

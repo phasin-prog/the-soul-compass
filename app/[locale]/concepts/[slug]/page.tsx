@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArticleCard } from '@/components/articles/ArticleCard';
+import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ConceptRelationList } from '@/components/concepts/ConceptRelationList';
 import { ReferenceList } from '@/components/ui/ReferenceList';
@@ -155,6 +156,15 @@ export default async function ConceptDetailPage({ params }: PageProps) {
             <p className="type-lead mt-7 max-w-4xl text-text">
               {concept.shortDefinition}
             </p>
+
+            <div className="mt-7">
+              <BookmarkButton
+                locale={locale}
+                targetId={concept.id}
+                targetSlug={concept.slug}
+                targetType="concept"
+              />
+            </div>
           </header>
 
           <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-16">

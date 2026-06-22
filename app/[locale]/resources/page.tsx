@@ -1,7 +1,15 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getT } from '@/lib/i18n';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { ReferenceFilters } from '@/components/resources/ReferenceFilters';
+import {
+  referenceSourceLevelDescriptions,
+  referenceSourceLevelLabels,
+  referenceSourceLevelStyles,
+} from '@/lib/content/reference-taxonomy';
+import { getAlternateUrls } from '@/lib/metadata';
+import { getPublishedReferences } from '@/lib/references';
+import type { Locale } from '@/lib/site';
+import { referenceSourceLevels } from '@/types/reference';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -10,105 +18,98 @@ interface PageProps {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
-  const t = getT(localeKey);
+  const { locale: localeValue } = await params;
+  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
 
   return {
-    title: t.nav.resources,
+    title: locale === 'th' ? 'คลังอ้างอิง' : 'Reference archive',
     description:
-      localeKey === 'th'
-        ? 'แหล่งอ้างอิง หนังสือ และทรัพยากรสำหรับศึกษาจิตวิทยา ประสาทวิทยาศาสตร์ และปรัชญา'
-        : 'References, books, and resources for studying psychology, neuroscience, and philosophy',
+      locale === 'th'
+        ? 'ฐานข้อมูลหนังสือ บทความ งานต้นทาง งานตีความ และบันทึกทฤษฎีภายในของ The Soul’s Compass'
+        : 'A structured archive of books, papers, primary texts, interpretations, and internal theory notes used by The Soul’s Compass.',
+    alternates: {
+      canonical: `/${locale}/resources`,
+      languages: getAlternateUrls('/resources'),
+    },
   };
 }
 
 export default async function ResourcesPage({ params }: PageProps) {
-  const { locale } = await params;
-  const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
-  const t = getT(localeKey);
+  const { locale: localeValue } = await params;
+  const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const references = await getPublishedReferences();
 
   return (
-    <div className="container mx-auto px-5 py-16 sm:px-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="type-page-title mb-4 text-text">
-            {t.nav.resources}
-          </h1>
-          <p className="type-lead text-muted">
-            {localeKey === 'th'
-              ? 'แหล่งอ้างอิง หนังสือ บทความวิชาการ และทรัพยากรจากจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ สังคมศาสตร์ และปรัชญา'
-              : 'References, books, academic papers, and resources across psychology, neuroscience, social science, and philosophy'}
+    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+      <main className="mx-auto max-w-6xl">
+        <header className="max-w-4xl">
+          <p className="type-meta text-accent">
+            {locale === 'th'
+              ? 'ห้องอ่านและระเบียนบรรณานุกรม'
+              : 'Reading room and bibliography'}
           </p>
-        </div>
+          <h1 className="type-page-title mt-3 text-text">
+            {locale === 'th' ? 'คลังอ้างอิง' : 'Reference archive'}
+          </h1>
+          <p className="type-lead mt-5 text-text-soft">
+            {locale === 'th'
+              ? 'ฐานข้อมูลแหล่งต้นทาง งานวิชาการ งานตีความ และบันทึกภายในที่รองรับเนื้อหาของ The Soul’s Compass'
+              : 'A structured record of primary texts, scholarship, interpretations, and internal notes supporting The Soul’s Compass.'}
+          </p>
+          <p className="mt-5 max-w-3xl text-muted">
+            {locale === 'th'
+              ? 'ข้อมูลที่ยังไม่ยืนยันจะเว้นว่างไว้ ระเบียนเหล่านี้ไม่เติมเลขหน้า ฉบับพิมพ์ ผู้แปล สำนักพิมพ์ ISBN DOI หรือคำกล่าวอ้างที่ไม่มีหลักฐาน'
+              : 'Unverified fields remain blank. These records do not invent page numbers, editions, translators, publishers, ISBNs, DOIs, or unsupported claims.'}
+          </p>
+          <Link
+            href={`/${locale}/external-links`}
+            className="mt-6 inline-flex min-h-11 items-center font-medium text-accent underline decoration-accent/40 underline-offset-4"
+          >
+            {locale === 'th'
+              ? 'เปิดสารบัญลิงก์ภายนอก →'
+              : 'Browse external links →'}
+          </Link>
+        </header>
 
-        {/* Filter Bar */}
-        <div className="mb-8 flex flex-wrap gap-2 border-b border-border pb-8">
-          <Badge variant="accent">{t.ui.viewAll}</Badge>
-          <Badge>{localeKey === 'th' ? 'หนังสือ' : 'Books'}</Badge>
-          <Badge>{localeKey === 'th' ? 'บทความ' : 'Papers'}</Badge>
-          <Badge>{localeKey === 'th' ? 'วิดีโอ' : 'Videos'}</Badge>
-          <Badge>{localeKey === 'th' ? 'เว็บไซต์' : 'Websites'}</Badge>
-        </div>
+        <section
+          aria-labelledby="source-classification-title"
+          className="mt-12 sm:mt-14"
+        >
+          <h2
+            id="source-classification-title"
+            className="type-section-title text-text"
+          >
+            {locale === 'th'
+              ? 'การจำแนกระดับแหล่งข้อมูล'
+              : 'Source classification'}
+          </h2>
+          <div className="mt-6 grid border-y border-border sm:grid-cols-2 lg:grid-cols-4">
+            {referenceSourceLevels.map((level, index) => (
+              <div
+                key={level}
+                className={`py-5 sm:px-5 ${
+                  index > 0 ? 'border-t border-border sm:border-t-0' : ''
+                } ${
+                  index % 2 === 1 ? 'sm:border-l' : ''
+                } ${index > 1 ? 'lg:border-l' : ''}`}
+              >
+                <p
+                  className={`type-meta inline-flex min-h-8 items-center rounded-full border px-3 ${referenceSourceLevelStyles[level]}`}
+                >
+                  {referenceSourceLevelLabels[level][locale]}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {referenceSourceLevelDescriptions[level][locale]}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        {/* Resources by Category */}
-        <div className="space-y-12">
-          {/* Books */}
-          <section>
-            <h2 className="type-section-title mb-6 text-text">
-              {localeKey === 'th' ? 'หนังสือแนะนำ' : 'Recommended Books'}
-            </h2>
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="opacity-50">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="mb-2 h-6 w-3/4 rounded-md bg-surface-soft" />
-                        <div className="mb-3 h-4 w-1/2 rounded-md bg-surface-soft" />
-                        <div className="h-12 w-full rounded-md bg-surface-soft" />
-                      </div>
-                      <Badge>
-                        {localeKey === 'th' ? 'หนังสือ' : 'Book'}
-                      </Badge>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          {/* Papers */}
-          <section>
-            <h2 className="type-section-title mb-6 text-text">
-              {localeKey === 'th' ? 'บทความวิชาการ' : 'Academic Papers'}
-            </h2>
-            <div className="space-y-4">
-              {[1, 2].map((i) => (
-                <Card key={i} className="opacity-50">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="mb-2 h-6 w-3/4 rounded-md bg-surface-soft" />
-                        <div className="mb-3 h-4 w-1/2 rounded-md bg-surface-soft" />
-                      </div>
-                      <Badge>
-                        {localeKey === 'th' ? 'บทความ' : 'Paper'}
-                      </Badge>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
+        <div className="mt-12">
+          <ReferenceFilters locale={locale} references={references} />
         </div>
-
-        {/* Coming Soon */}
-        <div className="mt-12 text-center">
-          <p className="text-muted">{t.ui.comingSoon}</p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

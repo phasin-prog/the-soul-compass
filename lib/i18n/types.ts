@@ -27,6 +27,7 @@ export type Translation = {
     about: string
     manifesto: string
     resources: string
+    support: string
     contact: string
   }
   categories: {

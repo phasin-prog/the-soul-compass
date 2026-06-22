@@ -86,7 +86,11 @@ export default async function LocaleLayout({
   const websiteJsonLd = getWebSiteJsonLd(localeKey);
 
   return (
-    <ClerkProvider afterSignOutUrl={`/${localeKey}`}>
+    <ClerkProvider
+      afterSignOutUrl={`/${localeKey}`}
+      signInUrl={`/${localeKey}/login`}
+      signUpUrl={`/${localeKey}/register`}
+    >
       <html
         lang={localeKey}
         className={`${display.variable} ${body.variable} h-full antialiased`}

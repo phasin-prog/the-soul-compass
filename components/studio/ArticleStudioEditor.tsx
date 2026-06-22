@@ -411,7 +411,9 @@ export function ArticleStudioEditor({
         setFieldErrors(result.fieldErrors || {});
         toast.error('เผยแพร่ไม่สำเร็จ', {
           description:
-            'ฉบับร่างยังถูกเก็บไว้ กรุณาตรวจสอบแล้วลองใหม่',
+            result.message === 'เผยแพร่ไม่สำเร็จ'
+              ? 'ฉบับร่างยังถูกเก็บไว้ กรุณาตรวจสอบแล้วลองใหม่'
+              : result.message,
           action: {
             label: 'ลองอีกครั้ง',
             onClick: () => void handlePublish(),
@@ -451,7 +453,12 @@ export function ArticleStudioEditor({
         });
         router.refresh();
       } else {
-        toast.error('ยกเลิกการเผยแพร่ไม่สำเร็จ');
+        toast.error('ยกเลิกการเผยแพร่ไม่สำเร็จ', {
+          description:
+            result.message === 'ยกเลิกการเผยแพร่ไม่สำเร็จ'
+              ? 'กรุณาลองอีกครั้ง'
+              : result.message,
+        });
       }
     } catch {
       toast.error('ยกเลิกการเผยแพร่ไม่สำเร็จ');
@@ -480,7 +487,10 @@ export function ArticleStudioEditor({
         router.refresh();
       } else {
         toast.error('ลบบทความไม่สำเร็จ', {
-          description: 'กรุณาลองอีกครั้ง',
+          description:
+            result.message === 'ลบบทความไม่สำเร็จ'
+              ? 'กรุณาลองอีกครั้ง'
+              : result.message,
         });
       }
     } catch {

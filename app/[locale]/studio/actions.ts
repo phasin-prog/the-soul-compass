@@ -11,6 +11,7 @@ import {
   type CategoryId,
 } from '@/lib/content/categories';
 import { schedulePostHogLog } from '@/lib/observability/posthog-logs';
+import { isEditor, normalizeUserRole } from '@/lib/roles';
 import {
   deleteWikiArticle,
   getWikiArticle,
@@ -108,13 +109,17 @@ function normalizeLocale(value: string): Locale {
 async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
   const [{ userId }, user] = await Promise.all([auth(), currentUser()]);
 
-  if (!userId) return null;
+  if (!userId || !user) return null;
 
-  const email = user?.primaryEmailAddress?.emailAddress;
+  const role = normalizeUserRole(user.publicMetadata.role, 'member');
+
+  if (!isEditor(role)) return null;
+
+  const email = user.primaryEmailAddress?.emailAddress;
   const name =
-    user?.fullName ||
-    user?.firstName ||
-    user?.username ||
+    user.fullName ||
+    user.firstName ||
+    user.username ||
     email ||
     'The Soul’s Compass';
 
@@ -124,7 +129,8 @@ async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
 function authenticationError(): StudioActionResult {
   return {
     status: 'error',
-    message: 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง',
+    message:
+      'เซสชันหมดอายุหรือบัญชีไม่มีสิทธิ์บรรณาธิการ กรุณาเข้าสู่ระบบด้วยบัญชี Editor หรือ Admin',
   };
 }
 
@@ -134,6 +140,24 @@ function validationError(error: z.ZodError): StudioActionResult {
     message: 'กรุณาตรวจข้อมูลที่กรอกอีกครั้ง',
     fieldErrors: error.flatten().fieldErrors,
   };
+}
+
+function getCmsInfrastructureErrorMessage(error: unknown): string | null {
+  if (!(error instanceof Error)) return null;
+
+  if (
+    error.message.includes(
+      "Could not find the table 'public.article_publications'"
+    )
+  ) {
+    return 'ยังไม่พบตาราง article_publications ใน Supabase โปรดรัน migration ของ CMS ก่อนเผยแพร่';
+  }
+
+  if (error.message.includes('Missing required environment variable:')) {
+    return 'ยังตั้งค่า environment สำหรับ CMS ไม่ครบ โปรดตรวจสอบ Supabase และ R2';
+  }
+
+  return null;
 }
 
 function createPublicId(): string {
@@ -164,11 +188,9 @@ function invalidatePublicArticleCaches(
 }
 
 function revalidateStudioRoutes(locale: Locale, articleId?: string) {
-  revalidatePath(`/${locale}/studio`);
   revalidatePath(`/${locale}/studio/articles`);
 
   if (articleId) {
-    revalidatePath(`/${locale}/studio/${articleId}`);
     revalidatePath(`/${locale}/studio/articles/${articleId}/edit`);
   }
 }
@@ -524,7 +546,8 @@ export async function publishStudioArticle(
 
     return {
       status: 'error',
-      message: 'เผยแพร่ไม่สำเร็จ',
+      message:
+        getCmsInfrastructureErrorMessage(error) || 'เผยแพร่ไม่สำเร็จ',
       articleId: draftArticle.id,
       slug: draftArticle.slug,
       updatedAt: draftArticle.updatedAt,
@@ -605,7 +628,9 @@ export async function unpublishStudioArticle(
 
     return {
       status: 'error',
-      message: 'ยกเลิกการเผยแพร่ไม่สำเร็จ',
+      message:
+        getCmsInfrastructureErrorMessage(error) ||
+        'ยกเลิกการเผยแพร่ไม่สำเร็จ',
     };
   }
 
@@ -669,7 +694,7 @@ export async function deleteStudioArticle(
 
     return {
       status: 'error',
-      message: 'ลบบทความไม่สำเร็จ',
+      message: getCmsInfrastructureErrorMessage(error) || 'ลบบทความไม่สำเร็จ',
     };
   }
 

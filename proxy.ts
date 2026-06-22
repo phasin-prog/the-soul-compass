@@ -5,12 +5,12 @@ import { defaultLocale, locales } from './lib/site';
 
 const localeSet = new Set(locales);
 
-const studioAuthProxy = clerkMiddleware(async (auth, request) => {
+const protectedAreaProxy = clerkMiddleware(async (auth, request) => {
   const { isAuthenticated } = await auth();
 
   if (!isAuthenticated) {
     const locale = request.nextUrl.pathname.split('/').filter(Boolean)[0];
-    const signInUrl = new URL(`/${locale}/sign-in`, request.url);
+    const signInUrl = new URL(`/${locale}/login`, request.url);
     signInUrl.searchParams.set(
       'redirect_url',
       `${request.nextUrl.pathname}${request.nextUrl.search}`
@@ -19,11 +19,11 @@ const studioAuthProxy = clerkMiddleware(async (auth, request) => {
   }
 });
 
-async function runStudioAuthProxy(
+async function runProtectedAreaProxy(
   request: NextRequest,
   event: NextFetchEvent
 ) {
-  const response = await studioAuthProxy(request, event);
+  const response = await protectedAreaProxy(request, event);
 
   if (response instanceof Response) {
     const rewrite = response.headers.get('x-middleware-rewrite');
@@ -45,7 +45,7 @@ async function runStudioAuthProxy(
   return response;
 }
 
-export default async function middleware(
+export default async function proxy(
   request: NextRequest,
   event: NextFetchEvent
 ) {
@@ -67,7 +67,38 @@ export default async function middleware(
     localeSet.has(firstSegment as (typeof locales)[number])
   ) {
     if (pathnameSegments[1] === 'studio') {
-      return runStudioAuthProxy(request, event);
+      if (pathnameSegments.length === 2) {
+        return NextResponse.redirect(
+          new URL(`/${firstSegment}/studio/articles`, request.url)
+        );
+      }
+
+      if (pathnameSegments.length === 3 && pathnameSegments[2] === 'new') {
+        return NextResponse.redirect(
+          new URL(`/${firstSegment}/studio/articles/new`, request.url)
+        );
+      }
+
+      if (
+        pathnameSegments.length === 3 &&
+        pathnameSegments[2] !== 'articles'
+      ) {
+        return NextResponse.redirect(
+          new URL(
+            `/${firstSegment}/studio/articles/${pathnameSegments[2]}/edit`,
+            request.url
+          )
+        );
+      }
+
+      return runProtectedAreaProxy(request, event);
+    }
+
+    if (
+      pathnameSegments[1] === 'account' ||
+      pathnameSegments[1] === 'admin'
+    ) {
+      return runProtectedAreaProxy(request, event);
     }
 
     return NextResponse.next();

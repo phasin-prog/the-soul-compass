@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedArticles } from '@/lib/articles';
 import { getPublishedConcepts } from '@/lib/concepts';
+import { getPublishedReferences } from '@/lib/references';
+import { getPublishedSeries } from '@/lib/series';
 import { locales } from '@/lib/site';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thesoulscompass.com';
@@ -71,6 +73,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     });
 
+    routes.push({
+      url: `${baseUrl}/${locale}/external-links`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.65,
+    });
+
+    routes.push({
+      url: `${baseUrl}/${locale}/support`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    });
+
     // Categories
     const categories = [
       'analytical-psychology',
@@ -108,6 +124,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(concept.updatedAt),
         changeFrequency: 'monthly',
         priority: 0.75,
+      });
+    }
+
+    const series = await getPublishedSeries(locale);
+
+    for (const item of series) {
+      routes.push({
+        url: `${baseUrl}/${locale}/series/${item.slug}`,
+        lastModified: new Date(item.updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.75,
+      });
+    }
+
+    const references = await getPublishedReferences();
+
+    for (const reference of references) {
+      routes.push({
+        url: `${baseUrl}/${locale}/resources/${reference.slug}`,
+        lastModified: new Date(reference.updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.7,
       });
     }
   }

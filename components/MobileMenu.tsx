@@ -122,7 +122,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
               onClick={() => setIsOpen(false)}
               className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
             >
-              {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
+              {t.externalLinks.title}
             </Link>
             <Link
               href={`/${locale}/support`}

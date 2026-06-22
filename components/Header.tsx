@@ -60,7 +60,7 @@ export function Header({ locale }: HeaderProps) {
             href={`/${locale}/external-links`}
             className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
           >
-            {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
+            {t.externalLinks.title}
           </Link>
           <Link
             href={`/${locale}/support`}

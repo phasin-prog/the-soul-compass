@@ -3,6 +3,7 @@ import { ExternalLinkDisclaimer } from '@/components/external-links/ExternalLink
 import { ExternalLinkFilters } from '@/components/external-links/ExternalLinkFilters';
 import { getActiveExternalLinks } from '@/lib/external-links';
 import { getAlternateUrls } from '@/lib/metadata';
+import { getT } from '@/lib/i18n';
 import type { Locale } from '@/lib/site';
 
 export async function generateMetadata({
@@ -12,8 +13,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: localeValue } = await params;
   const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const t = getT(locale);
   return {
-    title: locale === 'th' ? 'ลิงก์ภายนอก' : 'External links',
+    title: t.externalLinks.title,
     description:
       locale === 'th'
         ? 'สารบัญองค์กร สมาคม สถาบัน สารานุกรม และแหล่งเรียนรู้ภายนอกที่คัดสรร'
@@ -32,6 +34,7 @@ export default async function ExternalLinksPage({
 }) {
   const { locale: localeValue } = await params;
   const locale: Locale = localeValue === 'en' ? 'en' : 'th';
+  const t = getT(locale);
   const links = await getActiveExternalLinks();
 
   return (
@@ -42,7 +45,7 @@ export default async function ExternalLinksPage({
             {locale === 'th' ? 'สารบัญแหล่งศึกษาต่อ' : 'Further study directory'}
           </p>
           <h1 className="type-page-title mt-3 text-text">
-            {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
+            {t.externalLinks.title}
           </h1>
           <p className="type-lead mt-5 text-text-soft">
             {locale === 'th'

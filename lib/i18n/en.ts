@@ -91,4 +91,11 @@ export const en: Translation = {
     disclaimer:
       'This site offers educational content on psychology and philosophy. It is not clinical advice or medical treatment.',
   },
+  externalLinks: {
+    title: 'External links',
+    filters: 'External link filters',
+    manage: 'External link management',
+    add: 'Add external link',
+    edit: 'Edit external link',
+  },
 }

@@ -1,60 +1,135 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+```
+# Environment variables
+.env*
+!.env.example
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Dependencies
+node_modules/
 
-# testing
-/coverage
+# Build outputs
+dist/
+build/
+.next/
+out/
 
-# next.js
-/.next/
-/out/
+# Logs
+*.log
 
-# production
-/build
+# Temporary files
+*.tmp
+*.swp
 
-# misc
+# OS generated files
 .DS_Store
-.idea/
-*.pem
+Thumbs.db
 
-# debug
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python related (if applicable)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.coverage.*
+.nyc_output/
+
+# Node related (if applicable)
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-/.tmp/
+node_modules/
+jspm_packages/
+.pnp.bzl
 
-# env files (can opt-in for committing if needed)
-.env*
+# Go related (if applicable)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.prof
+vendor/
 
-# vercel
-.vercel
+# Java related (if applicable)
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.hprof
+target/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# C/C++ related (if applicable)
+*.o
+*.a
+*.obj
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+*.ilk
+*.manifest
+*.res
+*.stackdump
+*.gch
+*.pch
+*.xcodeproj/
+*.xcworkspace/
+*.mobileprovision
+*.entitlements
+*.orig
+*.rej
 
-# Copilot Superpowers — installed skills (local only, not tracked by git)
-.agent/skills/
-.agent/skills-catalog.md
+# Compression
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 
-# Local AI tool configuration (may contain credentials or machine-specific paths)
-/claude.json
-/.codex/
-!/.codex/
-/.codex/*
-!/.codex/skills/
-/.codex/skills/*
-!/.codex/skills/soul-compass-design-agent/
-!/.codex/skills/soul-compass-design-agent/**
-/.agents/
-/.playwright-cli/
-/plugins/
+# Coverage
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+
+# Testing
+*.pytest_cache/
+.nyc_output/
+```

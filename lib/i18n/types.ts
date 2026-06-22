@@ -94,4 +94,11 @@ export type Translation = {
     copyright: string
     disclaimer: string
   }
+  externalLinks: {
+    title: string
+    filters: string
+    manage: string
+    add: string
+    edit: string
+  }
 }

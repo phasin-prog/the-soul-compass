@@ -6,6 +6,7 @@ import {
   externalLinkCategoryLabels,
   externalLinkTypeLabels,
 } from '@/lib/content/external-link-taxonomy';
+import { getT } from '@/lib/i18n';
 import type { Locale } from '@/lib/site';
 import {
   externalLinkCategories,
@@ -30,6 +31,7 @@ export function ExternalLinkFilters({
   links: ExternalLink[];
   locale: Locale;
 }) {
+  const t = getT(locale);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<CategoryFilter>('all');
   const [type, setType] = useState<TypeFilter>('all');
@@ -93,7 +95,7 @@ export function ExternalLinkFilters({
     'min-h-12 w-full rounded-lg border border-border bg-surface px-4 text-text focus:border-accent';
 
   return (
-    <section aria-label={locale === 'th' ? 'ตัวกรองลิงก์ภายนอก' : 'External link filters'}>
+    <section aria-label={t.externalLinks.filters}>
       <div className="border-y border-border py-6">
         <label htmlFor="external-link-search" className="sr-only">
           {labels.search}

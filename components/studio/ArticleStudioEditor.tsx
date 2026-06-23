@@ -23,6 +23,7 @@ import { MarkdownContent } from '@/components/wiki/MarkdownContent';
 import { categories } from '@/lib/content/categories';
 import type { Locale } from '@/lib/site';
 import {
+  categorySchools,
   formatConceptLinks,
   formatReferences,
 } from '@/lib/wiki/article-metadata';
@@ -239,10 +240,14 @@ export function ArticleStudioEditor({
   const [isUploading, setIsUploading] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
-  const [localBackupAvailable, setLocalBackupAvailable] = useState(false);
   const savingRef = useRef(false);
   const lastSavedRef = useRef(JSON.stringify(initial));
   const backupKey = `soul-studio:${article?.id || 'new'}:${locale}`;
+  const [localBackupAvailable, setLocalBackupAvailable] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const stored = window.localStorage.getItem(backupKey);
+    return Boolean(stored && stored !== JSON.stringify(initial));
+  });
 
   const updateField = useCallback(
     <Key extends keyof StudioArticleInput>(
@@ -266,13 +271,6 @@ export function ArticleStudioEditor({
     },
     []
   );
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(backupKey);
-    if (stored && stored !== JSON.stringify(initial)) {
-      setLocalBackupAvailable(true);
-    }
-  }, [backupKey, initial]);
 
   useEffect(() => {
     window.localStorage.setItem(backupKey, JSON.stringify(form));
@@ -990,7 +988,7 @@ export function ArticleStudioEditor({
                   if (category && category in categories) {
                     updateField(
                       'school',
-                      categories[category as keyof typeof categories].school
+                      categorySchools[category as keyof typeof categorySchools]
                     );
                   }
                 }}

@@ -59,6 +59,8 @@ const publicationColumns = [
   'content_hash',
 ].join(',');
 
+const publicationCacheVersion = 'cover-publication-fields-v1';
+
 interface ArticlePublicationRow {
   id: string;
   slug: string;
@@ -262,7 +264,7 @@ export async function listPublishedArticles(
 ): Promise<PublishedArticle[]> {
   return unstable_cache(
     () => queryPublishedArticles(locale),
-    ['article-publications', locale],
+    ['article-publications', publicationCacheVersion, locale],
     {
       revalidate: 3600,
       tags: [
@@ -279,7 +281,7 @@ export async function getPublishedArticle(
 ): Promise<PublishedArticle | null> {
   return unstable_cache(
     () => queryPublishedArticle(locale, slug),
-    ['article-publication', locale, slug],
+    ['article-publication', publicationCacheVersion, locale, slug],
     {
       revalidate: 3600,
       tags: [

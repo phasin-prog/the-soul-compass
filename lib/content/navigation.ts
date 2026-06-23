@@ -1,5 +1,5 @@
 /**
- * Navigation structure
+ * Navigation structure — single source of truth for Header and MobileMenu
  */
 
 import type { Locale } from '../site';
@@ -7,99 +7,42 @@ import type { Locale } from '../site';
 export interface NavItem {
   label: Record<Locale, string>;
   href: string;
-  children?: NavItem[];
 }
 
-export const mainNav: NavItem[] = [
+export const primaryNav: NavItem[] = [
   {
-    label: {
-      th: 'บทความ',
-      en: 'Articles',
-    },
-    href: '/articles',
+    label: { th: 'บทความ', en: 'Articles' },
+    href: 'articles',
   },
   {
-    label: {
-      th: 'จิตวิเคราะห์',
-      en: 'Psychology',
-    },
-    href: '#',
-    children: [
-      {
-        label: {
-          th: 'จิตวิทยาวิเคราะห์',
-          en: 'Analytical Psychology',
-        },
-        href: '/analytical-psychology',
-      },
-      {
-        label: {
-          th: 'จิตวิเคราะห์',
-          en: 'Psychoanalysis',
-        },
-        href: '/psychoanalysis',
-      },
-      {
-        label: {
-          th: 'ปรัชญา',
-          en: 'Philosophy',
-        },
-        href: '/philosophy',
-      },
-    ],
+    label: { th: 'แนวคิด', en: 'Concepts' },
+    href: 'concepts',
   },
   {
-    label: {
-      th: 'ทฤษฎีบุคลิกภาพ',
-      en: 'Typology',
-    },
-    href: '#',
-    children: [
-      {
-        label: {
-          th: 'Typology',
-          en: 'Typology',
-        },
-        href: '/typology',
-      },
-      {
-        label: {
-          th: 'TPDT',
-          en: 'TPDT',
-        },
-        href: '/tpdt',
-      },
-    ],
+    label: { th: 'ชุดอ่าน', en: 'Series' },
+    href: 'series',
   },
   {
-    label: {
-      th: 'แนวคิด',
-      en: 'Concepts',
-    },
-    href: '/concepts',
+    label: { th: 'ทรัพยากร', en: 'Resources' },
+    href: 'resources',
   },
   {
-    label: {
-      th: 'ทรัพยากร',
-      en: 'Resources',
-    },
-    href: '/resources',
-    children: [
-      {
-        label: { th: 'คลังอ้างอิง', en: 'Reference archive' },
-        href: '/resources',
-      },
-      {
-        label: { th: 'ลิงก์ภายนอก', en: 'External links' },
-        href: '/external-links',
-      },
-    ],
+    label: { th: 'เกี่ยวกับ', en: 'About' },
+    href: 'about',
+  },
+];
+
+export const secondaryNav: NavItem[] = [
+  {
+    label: { th: 'ลิงก์ภายนอก', en: 'External links' },
+    href: 'external-links',
   },
   {
-    label: {
-      th: 'เกี่ยวกับ',
-      en: 'About',
-    },
-    href: '/about',
+    label: { th: 'สนับสนุนโครงการ', en: 'Support' },
+    href: 'support',
+  },
+  {
+    label: { th: 'เจตนารมณ์', en: 'Manifesto' },
+    href: 'manifesto',
   },
 ];

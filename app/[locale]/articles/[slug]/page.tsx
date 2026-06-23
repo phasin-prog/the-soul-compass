@@ -8,6 +8,7 @@ import { ReferenceList } from '@/components/articles/ReferenceList';
 import { RelatedConcepts } from '@/components/articles/RelatedConcepts';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { ReadingProgress } from '@/components/ReadingProgress';
 import {
   getArticleBySlug,
@@ -149,15 +150,11 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
             <header className="border-b border-border pb-10 sm:pb-12">
               <div className="flex flex-wrap items-center gap-3">
-                <span
-                  className="inline-flex min-h-8 items-center rounded-full border px-3 text-sm"
-                  style={{
-                    borderColor: `color-mix(in oklch, ${category.color} 45%, transparent)`,
-                    color: category.color,
-                  }}
-                >
-                  {category.name[locale]}
-                </span>
+                <CategoryBadge
+                  color={category.color}
+                  name={category.name}
+                  locale={locale}
+                />
                 <span className="type-meta text-muted">
                   {locale === 'th' ? 'สำนัก / กรอบทฤษฎี' : 'Tradition'}:{' '}
                   {article.school}
@@ -210,9 +207,13 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
               <div className="mt-6 flex flex-wrap gap-2" aria-label={locale === 'th' ? 'ป้ายกำกับ' : 'Tags'}>
                 {article.tags.map((tag) => (
-                  <span key={tag} className="type-meta rounded-full bg-surface px-3 py-1.5 text-text-soft">
+                  <Link
+                    key={tag}
+                    href={`/${locale}/articles?tag=${encodeURIComponent(tag)}`}
+                    className="type-meta rounded-full bg-surface px-3 py-1.5 text-text-soft transition-colors duration-200 hover:bg-surface-raised hover:text-text"
+                  >
                     #{tag}
-                  </span>
+                  </Link>
                 ))}
               </div>
 

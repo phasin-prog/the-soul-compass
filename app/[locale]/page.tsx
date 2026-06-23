@@ -34,10 +34,13 @@ const categoryMarks: Record<CategoryId, string> = {
   tpdt: 'TPDT',
 };
 
-const categoryRoutes: Partial<Record<CategoryId, string>> = {
+const categoryRoutes: Record<CategoryId, string> = {
   'analytical-psychology': '/analytical-psychology',
   psychoanalysis: '/psychoanalysis',
   philosophy: '/philosophy',
+  'philosophy-of-mind': '/philosophy-of-mind',
+  neuroscience: '/neuroscience',
+  'social-psychology': '/social-psychology',
   typology: '/typology',
   tpdt: '/tpdt',
 };
@@ -160,9 +163,7 @@ export default async function HomePage({ params }: PageProps) {
           >
             {homeCategoryIds.map((categoryId) => {
               const category = categories[categoryId];
-              const route =
-                categoryRoutes[categoryId] ??
-                `/concepts?category=${categoryId}`;
+              const route = categoryRoutes[categoryId];
 
               return (
                 <Link
@@ -242,6 +243,42 @@ export default async function HomePage({ params }: PageProps) {
           </p>
         )}
       </section>
+
+      {articles.length > 3 ? (
+        <section
+          className="border-y border-border bg-surface px-5 py-16 sm:px-8 md:py-24"
+          aria-labelledby="recent-heading"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 id="recent-heading" className="type-page-title text-text">
+                  {localeKey === 'th' ? 'บทความล่าสุด' : 'Recent articles'}
+                </h2>
+                <p className="mt-3 max-w-2xl text-text-soft">
+                  {localeKey === 'th'
+                    ? 'บทความที่เผยแพร่ล่าสุดจากทุกหมวดความรู้'
+                    : 'The latest articles published across all knowledge domains.'}
+                </p>
+              </div>
+              <Button href={`/${localeKey}/articles`} variant="ghost">
+                {localeKey === 'th' ? 'ดูทั้งหมด' : 'View all'} →
+              </Button>
+            </div>
+
+            <div className="grid gap-x-8 md:grid-cols-2 lg:grid-cols-3">
+              {articles.slice(0, 6).map((article) => (
+                <ArticleCard
+                  key={article.slug}
+                  article={article}
+                  locale={localeKey}
+                  headingLevel="h3"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="border-y border-border bg-surface-raised px-5 py-16 sm:px-8 md:py-24">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(15rem,0.52fr)_minmax(0,1.48fr)] lg:items-start">

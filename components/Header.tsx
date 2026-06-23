@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
+import { primaryNav } from '@/lib/content/navigation';
 import { SoulIcon } from './icons/SoulIcon';
 import { ActiveLink } from './ActiveLink';
 import { AuthNavigation } from './auth/AuthNavigation';
@@ -13,13 +14,6 @@ interface HeaderProps {
 
 export function Header({ locale }: HeaderProps) {
   const t = getT(locale);
-  const navItems = [
-    { href: 'articles', label: t.nav.articles },
-    { href: 'concepts', label: t.nav.concepts },
-    { href: 'series', label: t.nav.series },
-    { href: 'resources', label: t.nav.resources },
-    { href: 'about', label: t.nav.about },
-  ];
 
   return (
     <header className="relative z-50 w-full border-b border-border bg-background md:sticky md:top-0">
@@ -43,14 +37,14 @@ export function Header({ locale }: HeaderProps) {
           className="hidden items-center gap-5 lg:flex"
           aria-label={locale === 'th' ? 'เมนูหลัก' : 'Main navigation'}
         >
-          {navItems.map((item) => (
+          {primaryNav.map((item) => (
             <ActiveLink
               key={item.href}
               href={`/${locale}/${item.href}`}
               className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
               activeClassName="text-accent"
             >
-              {item.label}
+              {item.label[locale]}
             </ActiveLink>
           ))}
 

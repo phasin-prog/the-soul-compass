@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { ArticleFilters } from '@/components/articles/ArticleFilters';
 import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
+import { ArticleCardSkeleton } from '@/components/ui/Skeleton';
 import { getPublishedArticles } from '@/lib/articles';
 import { isCategoryId } from '@/lib/content/categories';
 import { getT } from '@/lib/i18n';
@@ -77,11 +79,21 @@ export default async function ArticlesPage({ params, searchParams }: PageProps) 
           </div>
           )
         ) : (
-          <ArticleFilters
-            articles={articles}
-            locale={localeKey}
-            initialCategory={initialCategory}
-          />
+          <Suspense
+            fallback={
+              <div className="grid gap-x-8 md:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <ArticleCardSkeleton key={i} />
+                ))}
+              </div>
+            }
+          >
+            <ArticleFilters
+              articles={articles}
+              locale={localeKey}
+              initialCategory={initialCategory}
+            />
+          </Suspense>
         )}
       </div>
     </div>

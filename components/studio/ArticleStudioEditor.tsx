@@ -249,6 +249,17 @@ export function ArticleStudioEditor({
     return Boolean(stored && stored !== JSON.stringify(initial));
   });
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (saveState === 'unsaved') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveState]);
+
   const updateField = useCallback(
     <Key extends keyof StudioArticleInput>(
       key: Key,

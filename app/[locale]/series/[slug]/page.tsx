@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { ConceptReferenceList } from '@/components/concepts/ConceptReferenceList';
 import { SeriesCard } from '@/components/series/SeriesCard';
 import { SeriesPath } from '@/components/series/SeriesPath';
@@ -111,15 +112,11 @@ export default async function SeriesDetailPage({ params }: PageProps) {
 
         <header className="border-b border-border pb-10 sm:pb-12">
           <div className="flex flex-wrap items-center gap-3">
-            <span
-              className="inline-flex min-h-8 items-center rounded-full border px-3 text-sm"
-              style={{
-                borderColor: `color-mix(in oklch, ${category.color} 45%, transparent)`,
-                color: category.color,
-              }}
-            >
-              {category.name[locale]}
-            </span>
+            <CategoryBadge
+              color={category.color}
+              name={category.name}
+              locale={locale}
+            />
             <span className="type-meta text-muted">
               {seriesTypeLabels[series.type][locale]}
             </span>

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { SeriesFilters } from '@/components/series/SeriesFilters';
 import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
+import { SeriesCardSkeleton } from '@/components/ui/Skeleton';
 import { getT } from '@/lib/i18n';
 import { getAlternateUrls } from '@/lib/metadata';
 import { getPublishedSeries } from '@/lib/series';
@@ -59,7 +61,17 @@ export default async function SeriesListingPage({ params }: PageProps) {
         </header>
 
         {series.length > 0 ? (
-          <SeriesFilters locale={localeKey} series={series} />
+          <Suspense
+            fallback={
+              <div className="border-b border-border">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <SeriesCardSkeleton key={i} />
+                ))}
+              </div>
+            }
+          >
+            <SeriesFilters locale={localeKey} series={series} />
+          </Suspense>
         ) : (
           localeKey === 'en' ? (
             <LocaleAvailabilityNotice section="series" />

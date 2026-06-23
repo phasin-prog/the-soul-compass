@@ -22,7 +22,7 @@
   --text: var(--soul-ivory);
   --text-soft: #ddd5ca;
   --text-muted: #aaa198;
-  --text-faint: #8c8990;
+  --text-faint: #9a9aa0;
 
   --accent: var(--soul-gold);
   --accent-strong: #d0b06e;
@@ -525,6 +525,12 @@ article {
 .type-meta {
   font-size: var(--text-meta);
   line-height: 1.65;
+  font-variant-numeric: tabular-nums;
+}
+
+.type-caption {
+  font-size: 0.8125rem;
+  line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
 

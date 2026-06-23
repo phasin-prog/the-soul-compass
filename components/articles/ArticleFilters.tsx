@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 import {
   categories,
@@ -57,12 +58,29 @@ export function ArticleFilters({
   initialCategory,
 }: ArticleFiltersProps) {
   const t = copy[locale];
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<CategoryFilter>(
-    initialCategory ?? 'all'
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const query = searchParams.get('q') ?? '';
+  const category = (searchParams.get('category') ?? initialCategory ?? 'all') as CategoryFilter;
+  const difficulty = (searchParams.get('difficulty') ?? 'all') as DifficultyFilter;
+
+  const updateFilter = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value === 'all' || value === '') {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
   );
-  const [difficulty, setDifficulty] =
-    useState<DifficultyFilter>('all');
+
+  const resetFilters = useCallback(() => {
+    router.push('?', { scroll: false });
+  }, [router]);
 
   const filteredArticles = useMemo(() => {
     const normalizedQuery = normalizeSearch(query);
@@ -94,12 +112,6 @@ export function ArticleFilters({
   const hasActiveFilters =
     query.trim().length > 0 || category !== 'all' || difficulty !== 'all';
 
-  function resetFilters() {
-    setQuery('');
-    setCategory('all');
-    setDifficulty('all');
-  }
-
   return (
     <section aria-label={locale === 'th' ? 'รายการบทความ' : 'Article library'}>
       <div className="border-y border-border py-6">
@@ -114,8 +126,8 @@ export function ArticleFilters({
             <input
               id="article-search"
               type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              defaultValue={query}
+              onChange={(event) => updateFilter('q', event.target.value)}
               placeholder={t.searchPlaceholder}
               className="min-h-12 w-full rounded-lg border border-border bg-surface px-4 text-text placeholder:text-muted focus:border-accent"
             />
@@ -132,7 +144,7 @@ export function ArticleFilters({
               id="article-difficulty"
               value={difficulty}
               onChange={(event) =>
-                setDifficulty(event.target.value as DifficultyFilter)
+                updateFilter('difficulty', event.target.value)
               }
               className="min-h-12 w-full rounded-lg border border-border bg-surface px-4 text-text focus:border-accent"
             >
@@ -150,7 +162,7 @@ export function ArticleFilters({
         >
           <button
             type="button"
-            onClick={() => setCategory('all')}
+            onClick={() => updateFilter('category', 'all')}
             aria-pressed={category === 'all'}
             className={`min-h-11 rounded-full border px-4 text-sm transition-colors duration-200 ${
               category === 'all'
@@ -165,7 +177,7 @@ export function ArticleFilters({
             <button
               key={categoryId}
               type="button"
-              onClick={() => setCategory(categoryId)}
+              onClick={() => updateFilter('category', categoryId)}
               aria-pressed={category === categoryId}
               className={`min-h-11 rounded-full border px-4 text-sm transition-colors duration-200 ${
                 category === categoryId

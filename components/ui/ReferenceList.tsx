@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { SectionHeading } from '@/components/icons/SectionHeading';
+import { getReferenceSlugById } from '@/lib/references';
 import type { Locale } from '@/lib/site';
 
 export interface Reference {
@@ -13,22 +16,33 @@ interface ReferenceListProps {
   references: Reference[];
   locale: Locale;
   headingId?: string;
+  useSectionHeading?: boolean;
 }
 
 export function ReferenceList({
   references,
   locale,
   headingId = 'references-title',
+  useSectionHeading = false,
 }: ReferenceListProps) {
   if (references.length === 0) return null;
 
   return (
     <section aria-labelledby={headingId}>
-      <h2 id={headingId} className="type-section-title text-text">
-        {locale === 'th' ? 'เอกสารอ้างอิง' : 'References'}
-      </h2>
+      {useSectionHeading ? (
+        <SectionHeading
+          id={headingId}
+          icon="source"
+          title={locale === 'th' ? 'เอกสารอ้างอิง' : 'References'}
+        />
+      ) : (
+        <h2 id={headingId} className="type-section-title text-text">
+          {locale === 'th' ? 'เอกสารอ้างอิง' : 'References'}
+        </h2>
+      )}
       <ol className="mt-5 space-y-4">
         {references.map((reference, index) => {
+          const referenceSlug = getReferenceSlugById(reference.id);
           const content = (
             <>
               <span className="text-text">{reference.authors}</span>
@@ -46,7 +60,14 @@ export function ReferenceList({
               <span className="text-faint" aria-hidden="true">
                 {index + 1}.
               </span>
-              {reference.url ? (
+              {referenceSlug ? (
+                <Link
+                  href={`/${locale}/resources/${referenceSlug}`}
+                  className="underline decoration-border-strong underline-offset-4 hover:text-accent"
+                >
+                  {content}
+                </Link>
+              ) : reference.url ? (
                 <a
                   href={reference.url}
                   target="_blank"

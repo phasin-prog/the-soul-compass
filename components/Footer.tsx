@@ -27,6 +27,10 @@ export function Footer({ locale }: FooterProps) {
       href: `/${locale}/support`,
       label: locale === 'th' ? 'สนับสนุนโครงการ' : 'Support the project',
     },
+    {
+      href: `mailto:feedback@thesoulscompass.com`,
+      label: locale === 'th' ? 'ส่งความคิดเห็น' : 'Send feedback',
+    },
   ];
 
   return (

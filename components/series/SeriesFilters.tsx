@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
 import { SeriesCard } from '@/components/series/SeriesCard';
 import {
   seriesCategoryIds,
@@ -54,9 +55,29 @@ const copy = {
 
 export function SeriesFilters({ locale, series }: SeriesFiltersProps) {
   const t = copy[locale];
-  const [category, setCategory] = useState<CategoryFilter>('all');
-  const [difficulty, setDifficulty] = useState<DifficultyFilter>('all');
-  const [status, setStatus] = useState<StatusFilter>('all');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const category = (searchParams.get('category') ?? 'all') as CategoryFilter;
+  const difficulty = (searchParams.get('difficulty') ?? 'all') as DifficultyFilter;
+  const status = (searchParams.get('status') ?? 'all') as StatusFilter;
+
+  const updateFilter = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value === 'all' || value === '') {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  const resetFilters = useCallback(() => {
+    router.push('?', { scroll: false });
+  }, [router]);
 
   const availableCategories = useMemo(
     () =>
@@ -80,12 +101,6 @@ export function SeriesFilters({ locale, series }: SeriesFiltersProps) {
   const hasFilters =
     category !== 'all' || difficulty !== 'all' || status !== 'all';
 
-  function resetFilters() {
-    setCategory('all');
-    setDifficulty('all');
-    setStatus('all');
-  }
-
   return (
     <section
       aria-label={locale === 'th' ? 'ดัชนีเส้นทางการอ่าน' : 'Reading path index'}
@@ -99,7 +114,7 @@ export function SeriesFilters({ locale, series }: SeriesFiltersProps) {
             <select
               id="series-category"
               value={category}
-              onChange={(event) => setCategory(event.target.value as CategoryFilter)}
+              onChange={(event) => updateFilter('category', event.target.value)}
               className="min-h-12 w-full rounded-lg border border-border bg-surface px-4 text-text focus:border-accent"
             >
               <option value="all">{t.allCategories}</option>
@@ -118,7 +133,7 @@ export function SeriesFilters({ locale, series }: SeriesFiltersProps) {
             <select
               id="series-difficulty"
               value={difficulty}
-              onChange={(event) => setDifficulty(event.target.value as DifficultyFilter)}
+              onChange={(event) => updateFilter('difficulty', event.target.value)}
               className="min-h-12 w-full rounded-lg border border-border bg-surface px-4 text-text focus:border-accent"
             >
               <option value="all">{t.allDifficulties}</option>
@@ -137,7 +152,7 @@ export function SeriesFilters({ locale, series }: SeriesFiltersProps) {
             <select
               id="series-status"
               value={status}
-              onChange={(event) => setStatus(event.target.value as StatusFilter)}
+              onChange={(event) => updateFilter('status', event.target.value)}
               className="min-h-12 w-full rounded-lg border border-border bg-surface px-4 text-text focus:border-accent"
             >
               <option value="all">{t.allStatuses}</option>

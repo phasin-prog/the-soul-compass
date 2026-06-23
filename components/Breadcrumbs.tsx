@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';

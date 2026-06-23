@@ -1,6 +1,7 @@
-import Link from 'next/link';
-import { SectionHeading } from '@/components/icons/SectionHeading';
-import { getReferenceSlugById } from '@/lib/references';
+import {
+  ReferenceList as BaseReferenceList,
+  type Reference,
+} from '@/components/ui/ReferenceList';
 import type { Locale } from '@/lib/site';
 import type { ArticleReference } from '@/types/article';
 
@@ -10,58 +11,20 @@ interface ReferenceListProps {
 }
 
 export function ReferenceList({ references, locale }: ReferenceListProps) {
-  if (references.length === 0) return null;
+  const mappedReferences: Reference[] = references.map((ref) => ({
+    id: ref.id,
+    authors: ref.authors,
+    year: ref.year,
+    title: ref.title,
+    publication: ref.publication,
+    url: ref.url,
+  }));
 
   return (
-    <section aria-labelledby="references-title">
-      <SectionHeading
-        id="references-title"
-        icon="source"
-        title={locale === 'th' ? 'เอกสารอ้างอิง' : 'References'}
-      />
-      <ol className="mt-5 space-y-4">
-        {references.map((reference, index) => {
-          const referenceSlug = getReferenceSlugById(reference.id);
-          const content = (
-            <>
-              <span className="text-text">{reference.authors}</span>
-              {reference.year ? ` (${reference.year}).` : '.'}{' '}
-              <cite className="text-text-soft">{reference.title}</cite>
-              {reference.publication ? `. ${reference.publication}.` : '.'}
-            </>
-          );
-
-          return (
-            <li
-              key={reference.id}
-              className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-3 text-sm leading-7 text-muted"
-            >
-              <span className="text-faint" aria-hidden="true">
-                {index + 1}.
-              </span>
-              {referenceSlug ? (
-                <Link
-                  href={`/${locale}/resources/${referenceSlug}`}
-                  className="underline decoration-border-strong underline-offset-4 hover:text-accent"
-                >
-                  {content}
-                </Link>
-              ) : reference.url ? (
-                <a
-                  href={reference.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline decoration-border-strong underline-offset-4 hover:text-accent"
-                >
-                  {content}
-                </a>
-              ) : (
-                <span>{content}</span>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </section>
+    <BaseReferenceList
+      references={mappedReferences}
+      locale={locale}
+      useSectionHeading
+    />
   );
 }

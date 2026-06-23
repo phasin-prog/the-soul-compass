@@ -4,7 +4,7 @@ import Link from 'next/link';
 interface ButtonProps {
   children: ReactNode;
   href?: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   className?: string;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
@@ -25,6 +25,8 @@ export function Button({
       'border-border-strong bg-surface text-text hover:border-accent hover:bg-surface-raised',
     ghost:
       'border-transparent bg-transparent text-text-soft hover:bg-surface hover:text-accent',
+    danger:
+      'border-red-800/50 bg-red-950/30 text-red-300 hover:border-red-700/60 hover:bg-red-900/40',
   };
 
   const baseClasses = `

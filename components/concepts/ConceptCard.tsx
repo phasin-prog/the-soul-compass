@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SoulIcon } from '@/components/icons/SoulIcon';
+import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { categories } from '@/lib/content/categories';
 import { getDifficultyLabel } from '@/lib/format';
 import type { Locale } from '@/lib/site';
@@ -35,15 +36,11 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
 
         <div>
           <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span
-              className="inline-flex min-h-8 items-center rounded-full border px-3 text-sm"
-              style={{
-                borderColor: `color-mix(in oklch, ${category.color} 45%, transparent)`,
-                color: category.color,
-              }}
-            >
-              {category.name[locale]}
-            </span>
+            <CategoryBadge
+              color={category.color}
+              name={category.name}
+              locale={locale}
+            />
             <span className="type-meta text-muted">{concept.tradition}</span>
           </div>
           <p className="max-w-3xl text-text-soft">{concept.shortDefinition}</p>

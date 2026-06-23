@@ -7,6 +7,7 @@ import { isEditor, normalizeUserRole } from '@/lib/roles';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
+import { primaryNav, secondaryNav } from '@/lib/content/navigation';
 import { SoulIcon } from './icons/SoulIcon';
 import { ActiveLink } from './ActiveLink';
 
@@ -22,18 +23,6 @@ export function MobileMenu({ locale }: MobileMenuProps) {
     normalizeUserRole(user?.publicMetadata.role, 'member')
   );
   const t = getT(locale);
-  const primaryLinks = [
-    { href: 'articles', label: t.nav.articles },
-    { href: 'concepts', label: t.nav.concepts },
-    { href: 'series', label: t.nav.series },
-    { href: 'resources', label: t.nav.resources },
-  ];
-  const secondaryLinks = [
-    { href: 'external-links', label: locale === 'th' ? 'ลิงก์ภายนอก' : 'External links' },
-    { href: 'support', label: t.nav.support },
-    { href: 'about', label: t.nav.about },
-    { href: 'manifesto', label: t.nav.manifesto },
-  ];
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -88,7 +77,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
           </div>
 
           <div className="flex flex-col">
-            {primaryLinks.map((item) => (
+            {primaryNav.map((item) => (
               <ActiveLink
                 key={item.href}
                 href={`/${locale}/${item.href}`}
@@ -96,7 +85,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
                 className="flex min-h-12 items-center border-b border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
                 activeClassName="text-accent"
               >
-                {item.label}
+                {item.label[locale]}
               </ActiveLink>
             ))}
 
@@ -167,7 +156,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
 
             <hr className="my-3 border-border" />
 
-            {secondaryLinks.map((item) => (
+            {secondaryNav.map((item) => (
               <ActiveLink
                 key={item.href}
                 href={`/${locale}/${item.href}`}
@@ -175,7 +164,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
                 className="flex min-h-11 items-center px-1 text-base text-muted transition-colors duration-200 hover:text-accent"
                 activeClassName="text-accent"
               >
-                {item.label}
+                {item.label[locale]}
               </ActiveLink>
             ))}
 

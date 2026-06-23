@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     ".codex/**",
     ".impeccable/**",
     ".tmp/**",
+    "output/**",
+    "node_modules_*_diff*",
   ]),
 ]);
 

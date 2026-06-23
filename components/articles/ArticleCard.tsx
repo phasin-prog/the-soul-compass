@@ -8,22 +8,25 @@ interface ArticleCardProps {
   article: ArticleSummary;
   locale: Locale;
   featured?: boolean;
+  headingLevel?: 'h2' | 'h3';
 }
 
 export function ArticleCard({
   article,
   locale,
   featured = false,
+  headingLevel = 'h2',
 }: ArticleCardProps) {
   const category = categories[article.category];
   const formattedDate = formatDate(locale, article.publishedAt, 'short');
+  const Heading = headingLevel;
 
   return (
     <article
       className={
         featured
-          ? 'border-y border-border py-8 md:col-span-2 md:py-10'
-          : 'border-t border-border py-7'
+          ? 'border-y border-border py-9 md:col-span-2 md:py-12'
+          : 'border-b border-border py-8'
       }
     >
       <Link
@@ -33,27 +36,32 @@ export function ArticleCard({
         <div
           className={
             featured
-              ? 'grid gap-7 md:grid-cols-[minmax(0,1.45fr)_minmax(15rem,0.55fr)] md:items-end'
+              ? 'grid gap-8 md:grid-cols-[minmax(0,1.28fr)_minmax(16rem,0.72fr)] md:items-end'
               : 'flex h-full flex-col'
           }
         >
           <div>
-            <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="type-meta mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">
               <span
-                className="inline-flex min-h-8 items-center rounded-full border px-3 text-sm"
-                style={{
-                  borderColor: `color-mix(in oklch, ${category.color} 45%, transparent)`,
-                  color: category.color,
-                }}
+                className="font-semibold"
+                style={{ color: category.color }}
               >
                 {category.name[locale]}
               </span>
-              <span className="type-meta text-muted">
+              <span aria-hidden="true">/</span>
+              <span>
                 {getDifficultyLabel(locale, article.difficulty)}
+              </span>
+              <span aria-hidden="true">/</span>
+              <time dateTime={article.publishedAt}>{formattedDate}</time>
+              <span aria-hidden="true">/</span>
+              <span>
+                {article.readingTime}{' '}
+                {locale === 'th' ? 'นาที' : 'min read'}
               </span>
             </div>
 
-            <h2
+            <Heading
               className={
                 featured
                   ? 'type-page-title max-w-4xl text-text transition-colors duration-200 group-hover:text-accent'
@@ -61,13 +69,13 @@ export function ArticleCard({
               }
             >
               {article.title}
-            </h2>
+            </Heading>
 
             {article.subtitle ? (
               <p
                 className={
                   featured
-                    ? 'mt-4 max-w-3xl text-lg leading-8 text-text-soft'
+                    ? 'mt-5 max-w-3xl text-lg leading-9 text-text-soft'
                     : 'mt-3 line-clamp-2 text-text-soft'
                 }
               >
@@ -75,42 +83,25 @@ export function ArticleCard({
               </p>
             ) : null}
 
-            <p
-              className={
-                featured
-                  ? 'mt-5 max-w-3xl text-muted'
-                  : 'mt-4 line-clamp-3 text-muted'
-              }
-            >
-              {article.excerpt}
-            </p>
+            {!featured ? (
+              <p className="mt-4 line-clamp-3 text-muted">
+                {article.excerpt}
+              </p>
+            ) : null}
           </div>
 
           <div
             className={
               featured
-                ? 'border-t border-border pt-5 md:border-t-0 md:border-l md:pt-0 md:pl-7'
+                ? 'border-t border-border pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8'
                 : 'mt-auto pt-6'
             }
           >
-            <div className="type-meta flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">
-              <time dateTime={article.publishedAt}>{formattedDate}</time>
-              <span aria-hidden="true">·</span>
-              <span>
-                {article.readingTime}{' '}
-                {locale === 'th' ? 'นาที' : 'min read'}
-              </span>
-            </div>
+            {featured ? (
+              <p className="text-base leading-8 text-muted">{article.excerpt}</p>
+            ) : null}
 
-            <div className="mt-4 flex flex-wrap gap-2" aria-label="Tags">
-              {article.tags.slice(0, featured ? 5 : 3).map((tag) => (
-                <span key={tag} className="type-meta text-faint">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-
-            <span className="mt-5 inline-flex min-h-11 items-center text-sm font-medium text-accent">
+            <span className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-accent">
               {locale === 'th' ? 'อ่านบทความ' : 'Read article'}
               <span
                 aria-hidden="true"

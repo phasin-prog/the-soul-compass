@@ -36,7 +36,7 @@ export default async function ExternalLinksPage({
 
   return (
     <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
-      <main className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl">
         <header className="max-w-4xl">
           <p className="type-meta text-accent">
             {locale === 'th' ? 'สารบัญแหล่งศึกษาต่อ' : 'Further study directory'}
@@ -56,7 +56,7 @@ export default async function ExternalLinksPage({
         <div className="mt-10">
           <ExternalLinkFilters links={links} locale={locale} />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

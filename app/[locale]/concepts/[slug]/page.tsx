@@ -160,7 +160,6 @@ export default async function ConceptDetailPage({ params }: PageProps) {
             <div className="mt-7">
               <BookmarkButton
                 locale={locale}
-                targetId={concept.id}
                 targetSlug={concept.slug}
                 targetType="concept"
               />
@@ -314,6 +313,7 @@ export default async function ConceptDetailPage({ params }: PageProps) {
                     key={article.slug}
                     article={article}
                     locale={locale}
+                    headingLevel="h3"
                   />
                 ))}
               </div>

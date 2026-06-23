@@ -1,6 +1,10 @@
-import { SignIn } from '@clerk/nextjs';
+import { ClerkProvider, SignIn } from '@clerk/nextjs';
 import type { Metadata } from 'next';
-import { AuthShell, clerkAppearance } from '@/components/auth/AuthShell';
+import {
+  AuthShell,
+  clerkAppearance,
+  getClerkLocalization,
+} from '@/components/auth/AuthShell';
 import type { Locale } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -17,14 +21,21 @@ export default async function LoginPage({
   const locale: Locale = localeValue === 'en' ? 'en' : 'th';
 
   return (
-    <AuthShell locale={locale} mode="login">
-      <SignIn
-        path={`/${locale}/login`}
-        routing="path"
-        signUpUrl={`/${locale}/register`}
-        fallbackRedirectUrl={`/${locale}/account`}
-        appearance={clerkAppearance}
-      />
-    </AuthShell>
+    <ClerkProvider
+      localization={getClerkLocalization(locale)}
+      signInUrl={`/${locale}/login`}
+      signUpUrl={`/${locale}/register`}
+      afterSignOutUrl={`/${locale}`}
+    >
+      <AuthShell locale={locale} mode="login">
+        <SignIn
+          path={`/${locale}/login`}
+          routing="path"
+          signUpUrl={`/${locale}/register`}
+          fallbackRedirectUrl={`/${locale}/account`}
+          appearance={clerkAppearance}
+        />
+      </AuthShell>
+    </ClerkProvider>
   );
 }

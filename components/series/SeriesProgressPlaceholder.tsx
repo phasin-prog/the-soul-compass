@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { useUser } from '@clerk/nextjs';
 import type { Locale } from '@/lib/site';
 
 interface SeriesProgressPlaceholderProps {
@@ -15,12 +12,6 @@ export function SeriesProgressPlaceholder({
   locale,
   seriesSlug,
 }: SeriesProgressPlaceholderProps) {
-  const { isLoaded, isSignedIn } = useUser();
-
-  if (!isLoaded) {
-    return <div className="min-h-28 border-y border-border" aria-hidden="true" />;
-  }
-
   return (
     <aside className="border-y border-border py-6">
       <p className="type-meta text-accent">
@@ -34,24 +25,18 @@ export function SeriesProgressPlaceholder({
               : `This path contains ${itemCount} ordered items`}
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-            {isSignedIn
-              ? locale === 'th'
-                ? 'บัญชีของคุณพร้อมสำหรับการบันทึกความคืบหน้า เมื่อระบบฐานข้อมูลการอ่านเชื่อมต่อในระยะถัดไป'
-                : 'Your account is ready for saved progress when the reading database is connected in the next phase.'
-              : locale === 'th'
-                ? 'เนื้อหาทั้งหมดยังอ่านได้โดยไม่ต้องเข้าสู่ระบบ บัญชีสมาชิกจะใช้บันทึกตำแหน่งการอ่านในระยะถัดไป'
-                : 'All content remains public. A member account will save your place when progress storage is added.'}
+            {locale === 'th'
+              ? 'เนื้อหาทั้งหมดยังอ่านได้โดยไม่ต้องมีบัญชี พื้นที่สมาชิกจะใช้จัดเก็บเส้นทางอ่านเมื่อระบบบันทึกความคืบหน้าพร้อม'
+              : 'All content remains public. Reader accounts will organize paths when progress storage is ready.'}
           </p>
         </div>
 
-        {!isSignedIn ? (
-          <Link
-            href={`/${locale}/login?redirect_url=${encodeURIComponent(`/${locale}/series/${seriesSlug}`)}`}
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-border-strong px-4 text-sm font-medium text-text transition-colors hover:border-accent hover:text-accent"
-          >
-            {locale === 'th' ? 'เข้าสู่ระบบ' : 'Sign in'}
-          </Link>
-        ) : null}
+        <Link
+          href={`/${locale}/account?redirect_url=${encodeURIComponent(`/${locale}/series/${seriesSlug}`)}`}
+          className="inline-flex min-h-11 items-center justify-center rounded-md border border-border-strong px-4 text-sm font-medium text-text transition-colors hover:border-accent hover:text-accent"
+        >
+          {locale === 'th' ? 'เปิดบัญชีผู้อ่าน' : 'Open reader account'}
+        </Link>
       </div>
     </aside>
   );

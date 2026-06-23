@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { LocalizationResource } from '@clerk/shared/types';
 import type { Locale } from '@/lib/site';
 
 interface AuthShellProps {
@@ -25,6 +26,58 @@ export const clerkAppearance = {
       'bg-accent text-accent-ink hover:bg-accent-strong',
   },
 } as const;
+
+const thaiClerkLocalization: LocalizationResource = {
+  locale: 'th-TH',
+  socialButtonsBlockButton: 'ดำเนินการต่อด้วย {{provider|titleize}}',
+  socialButtonsBlockButtonManyInView: '{{provider|titleize}}',
+  dividerText: 'หรือ',
+  formFieldLabel__emailAddress: 'อีเมล',
+  formFieldLabel__emailAddress_username: 'อีเมลหรือชื่อผู้ใช้',
+  formFieldLabel__password: 'รหัสผ่าน',
+  formFieldInputPlaceholder__emailAddress: 'กรอกอีเมล',
+  formFieldInputPlaceholder__emailAddress_username: 'กรอกอีเมลหรือชื่อผู้ใช้',
+  formFieldInputPlaceholder__password: 'กรอกรหัสผ่าน',
+  formButtonPrimary: 'ดำเนินการต่อ',
+  signIn: {
+    start: {
+      title: 'เข้าสู่ระบบ The Soul’s Compass',
+      titleCombined: 'เข้าสู่ระบบ The Soul’s Compass',
+      subtitle: 'กลับสู่พื้นที่อ่านส่วนตัวของคุณ',
+      subtitleCombined: 'กลับสู่พื้นที่อ่านส่วนตัวของคุณ',
+      actionText: 'ยังไม่มีบัญชี?',
+      actionLink: 'สมัครสมาชิก',
+    },
+    password: {
+      title: 'กรอกรหัสผ่าน',
+      subtitle: 'ใช้รหัสผ่านสำหรับบัญชีของคุณ',
+      actionLink: 'ใช้วิธีอื่น',
+    },
+    forgotPassword: {
+      title: 'ตั้งรหัสผ่านใหม่',
+      subtitle: 'เราจะส่งรหัสยืนยันไปยังอีเมลของคุณ',
+      subtitle_email: 'เราจะส่งรหัสยืนยันไปยัง {{identifier}}',
+      formTitle: 'รหัสยืนยัน',
+      resendButton: 'ส่งรหัสอีกครั้ง',
+    },
+  },
+  signUp: {
+    start: {
+      title: 'สมัครสมาชิก The Soul’s Compass',
+      titleCombined: 'สมัครสมาชิก The Soul’s Compass',
+      subtitle: 'สร้างพื้นที่สำหรับเก็บเส้นทางการอ่านของคุณ',
+      subtitleCombined: 'สร้างพื้นที่สำหรับเก็บเส้นทางการอ่านของคุณ',
+      actionText: 'มีบัญชีอยู่แล้ว?',
+      actionLink: 'เข้าสู่ระบบ',
+    },
+  },
+};
+
+export function getClerkLocalization(
+  locale: Locale
+): LocalizationResource | undefined {
+  return locale === 'th' ? thaiClerkLocalization : undefined;
+}
 
 export function AuthShell({ children, locale, mode }: AuthShellProps) {
   const isLogin = mode === 'login';
@@ -54,7 +107,7 @@ export function AuthShell({ children, locale, mode }: AuthShellProps) {
               : 'An account keeps articles, concepts, and reading history together. Public knowledge remains readable without registration.'}
         </p>
       </div>
-      {children}
+      <div className="min-h-[30rem] w-full max-w-md">{children}</div>
     </div>
   );
 }

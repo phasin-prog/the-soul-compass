@@ -148,7 +148,7 @@ export default async function ReferenceDetailPage({ params }: PageProps) {
           </div>
 
           {reference.sourceLevel === 'internal' ? (
-            <div className="mt-8 border-l-2 border-clay bg-surface px-5 py-4">
+            <div className="mt-8 border-y border-clay/45 bg-surface px-5 py-4">
               <p className="font-medium text-clay">
                 {locale === 'th'
                   ? 'พัฒนาการทฤษฎีภายใน'

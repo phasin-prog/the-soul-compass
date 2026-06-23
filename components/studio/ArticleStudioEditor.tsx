@@ -656,7 +656,7 @@ export function ArticleStudioEditor({
                   type="button"
                   onClick={() => setShowPreview((current) => !current)}
                   aria-pressed={showPreview}
-                  className="inline-flex min-h-10 items-center rounded-md border border-border px-3 text-sm text-text-soft transition-colors duration-200 hover:border-accent hover:text-accent"
+                  className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-text-soft transition-colors duration-200 hover:border-accent hover:text-accent"
                 >
                   {showPreview ? 'ปิดตัวอย่าง' : 'ดูตัวอย่าง'}
                 </button>
@@ -890,7 +890,7 @@ export function ArticleStudioEditor({
                     <li key={backlink.id}>
                       <Link
                         href={`/${locale}/studio/articles/${backlink.id}/edit`}
-                        className="inline-flex min-h-10 items-center rounded-full bg-surface-raised px-4 text-sm text-text-soft transition-colors duration-200 hover:text-accent"
+                        className="inline-flex min-h-11 items-center rounded-full bg-surface-raised px-4 text-sm text-text-soft transition-colors duration-200 hover:text-accent"
                       >
                         {backlink.title}
                       </Link>

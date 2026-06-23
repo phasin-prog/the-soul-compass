@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { ActiveLink } from '@/components/ActiveLink';
 import { requireEditorialUser } from '@/lib/auth';
 import { roleLabels } from '@/lib/roles';
 import type { Locale } from '@/lib/site';
@@ -36,24 +37,27 @@ export default async function AdminLayout({
               className="flex flex-wrap items-center gap-1 text-sm"
               aria-label={locale === 'th' ? 'พื้นที่บรรณาธิการ' : 'Editorial'}
             >
-              <Link
+              <ActiveLink
                 href={`/${locale}/admin/articles`}
                 className="flex min-h-11 items-center rounded-md px-3 text-muted hover:bg-surface-raised hover:text-text"
+                activeClassName="bg-surface-raised text-accent"
               >
                 {locale === 'th' ? 'บทความ' : 'Articles'}
-              </Link>
-              <Link
+              </ActiveLink>
+              <ActiveLink
                 href={`/${locale}/admin/concepts`}
                 className="flex min-h-11 items-center rounded-md px-3 text-muted hover:bg-surface-raised hover:text-text"
+                activeClassName="bg-surface-raised text-accent"
               >
                 {locale === 'th' ? 'แนวคิด' : 'Concepts'}
-              </Link>
-              <Link
+              </ActiveLink>
+              <ActiveLink
                 href={`/${locale}/admin/external-links`}
                 className="flex min-h-11 items-center rounded-md px-3 text-muted hover:bg-surface-raised hover:text-text"
+                activeClassName="bg-surface-raised text-accent"
               >
                 {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
-              </Link>
+              </ActiveLink>
             </nav>
           </div>
           <p className="type-meta text-muted">

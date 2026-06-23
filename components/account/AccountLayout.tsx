@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { ActiveLink } from '@/components/ActiveLink';
 import { roleLabels } from '@/lib/roles';
 import type { Locale } from '@/lib/site';
 import type { User } from '@/types/user';
@@ -54,12 +54,14 @@ export function AccountLayout({
           <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
             {accountLinks[locale].map((item) => (
               <li key={item.href} className="shrink-0">
-                <Link
+                <ActiveLink
                   href={`/${locale}/account${item.href}`}
                   className="flex min-h-11 items-center rounded-md border border-border px-4 text-sm text-text-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent"
+                  activeClassName="border-accent bg-accent-soft text-accent"
+                  exact
                 >
                   {item.label}
-                </Link>
+                </ActiveLink>
               </li>
             ))}
           </ul>

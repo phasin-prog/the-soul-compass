@@ -12,6 +12,7 @@ interface PageProps {
   searchParams: Promise<{
     category?: string | string[];
     difficulty?: string | string[];
+    page?: string | string[];
     q?: string | string[];
   }>;
 }
@@ -56,6 +57,11 @@ export default async function ConceptsPage({ params, searchParams }: PageProps) 
       ? requestedDifficulty
       : undefined;
   const initialQuery = Array.isArray(query.q) ? query.q[0] : query.q;
+  const requestedPage = Array.isArray(query.page) ? query.page[0] : query.page;
+  const parsedPage = Number.parseInt(requestedPage ?? '1', 10);
+  const initialPage = Number.isFinite(parsedPage) && parsedPage > 0
+    ? parsedPage
+    : 1;
 
   return (
     <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
@@ -82,6 +88,7 @@ export default async function ConceptsPage({ params, searchParams }: PageProps) 
             locale={localeKey}
             initialCategory={initialCategory}
             initialDifficulty={initialDifficulty}
+            initialPage={initialPage}
             initialQuery={initialQuery}
           />
         ) : (

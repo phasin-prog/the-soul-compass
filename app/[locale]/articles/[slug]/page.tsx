@@ -127,7 +127,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <ReadingProgress />
+      <ReadingProgress locale={locale} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(articleJsonLd) }}
@@ -219,7 +219,6 @@ export default async function ArticleDetailPage({ params }: PageProps) {
               <div className="mt-7">
                 <BookmarkButton
                   locale={locale}
-                  targetId={article.id}
                   targetSlug={article.slug}
                   targetType="article"
                 />
@@ -287,6 +286,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
                     key={relatedArticle.slug}
                     article={relatedArticle}
                     locale={locale}
+                    headingLevel="h3"
                   />
                 ))}
               </div>

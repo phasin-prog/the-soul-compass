@@ -16,7 +16,7 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
     <article className="border-t border-border">
       <Link
         href={`/${locale}/concepts/${concept.slug}`}
-        className="group grid min-h-36 gap-5 py-6 focus-visible:outline-offset-8 md:grid-cols-[minmax(11rem,0.55fr)_minmax(0,1.15fr)_minmax(10rem,0.55fr)] md:items-start"
+        className="group grid min-h-32 gap-4 py-5 focus-visible:outline-offset-8 md:min-h-36 md:grid-cols-[minmax(11rem,0.55fr)_minmax(0,1.15fr)_minmax(10rem,0.55fr)] md:items-start md:gap-5 md:py-6"
       >
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -48,7 +48,7 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
           <p className="max-w-3xl text-text-soft">{concept.shortDefinition}</p>
         </div>
 
-        <div>
+        <div className="hidden md:block">
           <p className="type-meta font-medium text-muted">
             {locale === 'th' ? 'แนวคิดที่เชื่อมโยง' : 'Related concepts'}
           </p>

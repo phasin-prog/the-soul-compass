@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
+import { ActiveLink } from './ActiveLink';
 import { MobileMenu } from './MobileMenu';
-import { AuthNav } from './AuthNav';
 
 interface HeaderProps {
   locale: Locale;
@@ -11,79 +11,85 @@ interface HeaderProps {
 
 export function Header({ locale }: HeaderProps) {
   const t = getT(locale);
+  const navItems = [
+    { href: 'articles', label: t.nav.articles },
+    { href: 'concepts', label: t.nav.concepts },
+    { href: 'series', label: t.nav.series },
+    { href: 'resources', label: t.nav.resources },
+    { href: 'about', label: t.nav.about },
+  ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/82">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
+    <header className="relative z-50 w-full border-b border-border bg-background md:sticky md:top-0">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-18 sm:px-8">
         <Link
           href={`/${locale}`}
           className="group flex min-h-11 items-center gap-3"
-          aria-label={t.nav.home}
         >
           <span
             aria-hidden="true"
-            className="grid size-8 place-items-center rounded-full border border-accent/55 text-accent transition-colors duration-200 group-hover:border-accent"
+            className="grid size-8 place-items-center rounded-full border border-accent/55 text-accent transition-colors duration-200 group-hover:border-accent group-hover:bg-accent-soft"
           >
-            ◇
+            ◈
           </span>
           <span className="font-serif text-lg font-medium leading-none text-text sm:text-xl">
             {siteConfig.name[locale]}
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-4 xl:flex" aria-label="Main navigation">
-          <Link
-            href={`/${locale}/articles`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
-          >
-            {t.nav.articles}
-          </Link>
-          <Link
-            href={`/${locale}/concepts`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
-          >
-            {t.nav.concepts}
-          </Link>
-          <Link
-            href={`/${locale}/series`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
-          >
-            {t.nav.series}
-          </Link>
-          <Link
-            href={`/${locale}/resources`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
-          >
-            {t.nav.resources}
-          </Link>
-          <Link
-            href={`/${locale}/external-links`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
-          >
-            {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
-          </Link>
-          <Link
-            href={`/${locale}/support`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-accent"
-          >
-            {t.nav.support}
-          </Link>
-          <Link
-            href={`/${locale}/about`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
-          >
-            {t.nav.about}
-          </Link>
+        <nav
+          className="hidden items-center gap-5 lg:flex"
+          aria-label={locale === 'th' ? 'เมนูหลัก' : 'Main navigation'}
+        >
+          {navItems.map((item) => (
+            <ActiveLink
+              key={item.href}
+              href={`/${locale}/${item.href}`}
+              className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
+              activeClassName="text-accent"
+            >
+              {item.label}
+            </ActiveLink>
+          ))}
 
-          <Link
-            href={locale === 'th' ? '/en' : '/th'}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-border px-3 text-sm font-medium text-text-soft transition-colors duration-200 hover:border-accent hover:bg-accent-soft hover:text-accent"
-            aria-label={`Switch to ${locale === 'th' ? 'English' : 'Thai'}`}
-            lang={locale === 'th' ? 'en' : 'th'}
+          <div
+            className="flex items-center rounded-md border border-border p-1"
+            aria-label={t.ui.language}
           >
-            {locale === 'th' ? 'EN' : 'TH'}
-          </Link>
-          <AuthNav locale={locale} />
+            <Link
+              href="/th"
+              hrefLang="th"
+              lang="th"
+              aria-current={locale === 'th' ? 'page' : undefined}
+              className={`grid min-h-11 min-w-11 place-items-center rounded-sm px-2 text-xs font-semibold transition-colors duration-200 ${
+                locale === 'th'
+                  ? 'bg-accent text-accent-ink'
+                  : 'text-muted hover:bg-surface-raised hover:text-text'
+              }`}
+            >
+              TH
+            </Link>
+            <Link
+              href="/en"
+              hrefLang="en"
+              lang="en"
+              aria-current={locale === 'en' ? 'page' : undefined}
+              className={`grid min-h-11 min-w-11 place-items-center rounded-sm px-2 text-xs font-semibold transition-colors duration-200 ${
+                locale === 'en'
+                  ? 'bg-accent text-accent-ink'
+                  : 'text-muted hover:bg-surface-raised hover:text-text'
+              }`}
+            >
+              EN
+            </Link>
+          </div>
+          <ActiveLink
+            href={`/${locale}/account`}
+            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-accent"
+            activeClassName="text-accent"
+          >
+            {locale === 'th' ? 'บัญชี' : 'Account'}
+          </ActiveLink>
         </nav>
 
         <MobileMenu locale={locale} />

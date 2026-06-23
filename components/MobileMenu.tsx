@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
-import { AuthNav } from './AuthNav';
+import { ActiveLink } from './ActiveLink';
 
 interface MobileMenuProps {
   locale: Locale;
@@ -15,6 +15,18 @@ export function MobileMenu({ locale }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const t = getT(locale);
+  const primaryLinks = [
+    { href: 'articles', label: t.nav.articles },
+    { href: 'concepts', label: t.nav.concepts },
+    { href: 'series', label: t.nav.series },
+    { href: 'resources', label: t.nav.resources },
+  ];
+  const secondaryLinks = [
+    { href: 'external-links', label: locale === 'th' ? 'ลิงก์ภายนอก' : 'External links' },
+    { href: 'support', label: t.nav.support },
+    { href: 'about', label: t.nav.about },
+    { href: 'manifesto', label: t.nav.manifesto },
+  ];
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -31,7 +43,7 @@ export function MobileMenu({ locale }: MobileMenuProps) {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="grid size-11 place-items-center rounded-md text-muted transition-colors duration-200 hover:bg-surface hover:text-text xl:hidden"
+        className="grid size-11 place-items-center rounded-md text-muted transition-colors duration-200 hover:bg-surface hover:text-text lg:hidden"
         aria-label={isOpen ? t.ui.closeMenu : t.ui.openMenu}
         aria-expanded={isOpen}
         aria-controls="mobile-navigation"
@@ -65,13 +77,17 @@ export function MobileMenu({ locale }: MobileMenuProps) {
       <dialog
         ref={dialogRef}
         id="mobile-navigation"
-        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(22rem,88vw)] max-w-none overflow-y-auto overscroll-contain border-l border-border bg-surface p-0 text-text backdrop:bg-background/82 backdrop:backdrop-blur-sm xl:hidden"
+        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(23rem,92vw)] max-w-none overflow-y-auto overscroll-contain border-l border-border bg-surface p-0 text-text backdrop:bg-background/88 lg:hidden"
         onClose={() => setIsOpen(false)}
+        onCancel={() => setIsOpen(false)}
         onClick={(event) => {
           if (event.target === event.currentTarget) setIsOpen(false);
         }}
       >
-        <nav className="flex min-h-full flex-col p-6" aria-label="Mobile navigation">
+        <nav
+          className="flex min-h-full flex-col p-6"
+          aria-label={locale === 'th' ? 'เมนูสำหรับมือถือ' : 'Mobile navigation'}
+        >
           <div className="mb-8 flex items-center justify-between">
             <span className="font-serif text-lg text-text">
               {siteConfig.name[locale]}
@@ -88,85 +104,75 @@ export function MobileMenu({ locale }: MobileMenuProps) {
             </button>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <Link
-              href={`/${locale}/articles`}
+          <div className="flex flex-col">
+            {primaryLinks.map((item) => (
+              <ActiveLink
+                key={item.href}
+                href={`/${locale}/${item.href}`}
+                onClick={() => setIsOpen(false)}
+                className="flex min-h-12 items-center border-b border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
+                activeClassName="text-accent"
+              >
+                {item.label}
+              </ActiveLink>
+            ))}
+
+            <div className="my-6">
+              <p className="mb-3 text-sm text-muted">{t.ui.language}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/th"
+                  hrefLang="th"
+                  lang="th"
+                  aria-current={locale === 'th' ? 'page' : undefined}
+                  onClick={() => setIsOpen(false)}
+                  className={`grid min-h-11 place-items-center rounded-md border text-sm font-semibold ${
+                    locale === 'th'
+                      ? 'border-accent bg-accent text-accent-ink'
+                      : 'border-border text-muted hover:border-accent hover:text-text'
+                  }`}
+                >
+                  ไทย
+                </Link>
+                <Link
+                  href="/en"
+                  hrefLang="en"
+                  lang="en"
+                  aria-current={locale === 'en' ? 'page' : undefined}
+                  onClick={() => setIsOpen(false)}
+                  className={`grid min-h-11 place-items-center rounded-md border text-sm font-semibold ${
+                    locale === 'en'
+                      ? 'border-accent bg-accent text-accent-ink'
+                      : 'border-border text-muted hover:border-accent hover:text-text'
+                  }`}
+                >
+                  English
+                </Link>
+              </div>
+            </div>
+
+            <ActiveLink
+              href={`/${locale}/account`}
               onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
+              className="flex min-h-12 items-center border-y border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
+              activeClassName="text-accent"
             >
-              {t.nav.articles}
-            </Link>
-            <Link
-              href={`/${locale}/concepts`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {t.nav.concepts}
-            </Link>
-            <Link
-              href={`/${locale}/series`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {t.nav.series}
-            </Link>
-            <Link
-              href={`/${locale}/resources`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {t.nav.resources}
-            </Link>
-            <Link
-              href={`/${locale}/external-links`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {locale === 'th' ? 'ลิงก์ภายนอก' : 'External links'}
-            </Link>
-            <Link
-              href={`/${locale}/support`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {t.nav.support}
-            </Link>
+              {locale === 'th' ? 'บัญชีผู้อ่าน' : 'Reader account'}
+            </ActiveLink>
 
             <hr className="my-3 border-border" />
 
-            <AuthNav
-              locale={locale}
-              mobile
-              onNavigate={() => setIsOpen(false)}
-            />
-
-            <hr className="my-3 border-border" />
-
-            <Link
-              href={`/${locale}/about`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {t.nav.about}
-            </Link>
-            <Link
-              href={`/${locale}/manifesto`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg text-text transition-colors duration-200 hover:bg-surface-raised hover:text-accent"
-            >
-              {t.nav.manifesto}
-            </Link>
-
-            <hr className="my-3 border-border" />
-
-            <Link
-              href={locale === 'th' ? '/en' : '/th'}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center rounded-md px-3 text-lg font-medium text-accent transition-colors duration-200 hover:bg-accent-soft hover:text-text"
-              lang={locale === 'th' ? 'en' : 'th'}
-            >
-              {locale === 'th' ? 'English' : 'ไทย'}
-            </Link>
+            {secondaryLinks.map((item) => (
+              <ActiveLink
+                key={item.href}
+                href={`/${locale}/${item.href}`}
+                onClick={() => setIsOpen(false)}
+                className="flex min-h-11 items-center px-1 text-base text-muted transition-colors duration-200 hover:text-accent"
+                activeClassName="text-accent"
+              >
+                {item.label}
+              </ActiveLink>
+            ))}
           </div>
         </nav>
       </dialog>

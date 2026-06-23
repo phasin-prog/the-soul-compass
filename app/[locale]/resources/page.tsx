@@ -41,7 +41,7 @@ export default async function ResourcesPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
-      <main className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl">
         <header className="max-w-4xl">
           <p className="type-meta text-accent">
             {locale === 'th'
@@ -109,7 +109,7 @@ export default async function ResourcesPage({ params }: PageProps) {
         <div className="mt-12">
           <ReferenceFilters locale={locale} references={references} />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

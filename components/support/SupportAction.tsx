@@ -1,6 +1,3 @@
-'use client';
-
-import { useUser } from '@clerk/nextjs';
 import type { Locale } from '@/lib/site';
 import { siteConfig } from '@/lib/site';
 
@@ -15,7 +12,6 @@ export function SupportAction({
   showAccountStatus = true,
   tierName,
 }: SupportActionProps) {
-  const { isLoaded, isSignedIn, user } = useUser();
   const subject =
     locale === 'th'
       ? `สนับสนุน The Soul's Compass${tierName ? ` — ${tierName}` : ''}`
@@ -39,19 +35,10 @@ export function SupportAction({
       {showAccountStatus ? (
         <p
           className="mt-3 max-w-md text-sm leading-6 text-muted"
-          aria-live="polite"
         >
-          {!isLoaded
-            ? locale === 'th'
-              ? 'กำลังตรวจสถานะบัญชี'
-              : 'Checking account status'
-            : isSignedIn
-              ? locale === 'th'
-                ? `เข้าสู่ระบบแล้วในชื่อ ${user.fullName ?? user.username ?? 'สมาชิก'} ระบบชำระเงินจะเชื่อมกับบัญชีนี้ในอนาคต`
-                : `Signed in as ${user.fullName ?? user.username ?? 'member'}. Future payments can connect to this account.`
-              : locale === 'th'
-                ? 'สนับสนุนได้โดยไม่ต้องมีบัญชี หรือเข้าสู่ระบบหากต้องการเชื่อมสถานะผู้สนับสนุนในอนาคต'
-                : 'You can support without an account, or sign in to connect future supporter status.'}
+          {locale === 'th'
+            ? 'สนับสนุนได้โดยไม่ต้องมีบัญชี ระบบสมาชิกยังไม่ผูกกับการชำระเงิน'
+            : 'You can support without an account. Membership is not yet connected to payments.'}
         </p>
       ) : null}
     </div>

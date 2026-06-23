@@ -1,10 +1,8 @@
-import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
-import { Noto_Sans_Thai_Looped, Noto_Serif_Thai } from 'next/font/google';
+import { Anuphan, Pridi } from 'next/font/google';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
-import { StudioToaster } from '@/components/studio/StudioToaster';
 import { parseLocale } from '@/lib/locale';
 import {
   getAlternateUrls,
@@ -15,14 +13,14 @@ import { safeJsonLdStringify } from '@/lib/safe-json-ld';
 import { locales, siteConfig } from '@/lib/site';
 import '../globals.css';
 
-const display = Noto_Serif_Thai({
+const display = Pridi({
   variable: '--font-display',
   subsets: ['thai', 'latin'],
-  weight: ['400', '500', '600'],
+  weight: ['300', '400', '500', '600'],
   display: 'swap',
 });
 
-const body = Noto_Sans_Thai_Looped({
+const body = Anuphan({
   variable: '--font-body',
   subsets: ['thai', 'latin'],
   weight: 'variable',
@@ -86,43 +84,36 @@ export default async function LocaleLayout({
   const websiteJsonLd = getWebSiteJsonLd(localeKey);
 
   return (
-    <ClerkProvider
-      afterSignOutUrl={`/${localeKey}`}
-      signInUrl={`/${localeKey}/login`}
-      signUpUrl={`/${localeKey}/register`}
+    <html
+      lang={localeKey}
+      className={`${display.variable} ${body.variable} h-full antialiased`}
+      style={{ colorScheme: 'dark' }}
     >
-      <html
-        lang={localeKey}
-        className={`${display.variable} ${body.variable} h-full antialiased`}
-        style={{ colorScheme: 'dark' }}
-      >
-        <head>
-          <meta name="theme-color" content="#0c1219" />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(organizationJsonLd) }}
-          />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(websiteJsonLd) }}
-          />
-        </head>
-        <body className="flex min-h-full flex-col bg-background text-text">
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
-          >
-            Skip to main content
-          </a>
-          <Header locale={localeKey} />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <Footer locale={localeKey} />
-          <ScrollToTop />
-          <StudioToaster />
-        </body>
-      </html>
-    </ClerkProvider>
+      <head>
+        <meta name="theme-color" content="#101827" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(websiteJsonLd) }}
+        />
+      </head>
+      <body className="flex min-h-full flex-col bg-background text-text">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+        >
+          {localeKey === 'th' ? 'ข้ามไปยังเนื้อหาหลัก' : 'Skip to main content'}
+        </a>
+        <Header locale={localeKey} />
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
+        <Footer locale={localeKey} />
+        <ScrollToTop locale={localeKey} />
+      </body>
+    </html>
   );
 }

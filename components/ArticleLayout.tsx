@@ -48,7 +48,7 @@ export function ArticleLayout({
 
   return (
     <>
-      <ReadingProgress />
+      <ReadingProgress locale={locale} />
       <div className="container mx-auto px-4 py-16">
         <article className="max-w-3xl mx-auto">
           {/* Breadcrumbs */}

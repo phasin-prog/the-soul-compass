@@ -43,7 +43,7 @@ export function SeriesItem({ item, locale }: SeriesItemProps) {
       </h3>
       <p className="mt-2 max-w-3xl leading-7 text-muted">{item.description}</p>
       {item.href ? (
-        <span className="mt-3 inline-flex min-h-10 items-center text-sm font-medium text-accent">
+        <span className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-accent">
           {locale === 'th'
             ? item.type === 'article'
               ? 'อ่านบทความ'

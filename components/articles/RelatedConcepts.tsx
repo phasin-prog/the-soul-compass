@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SectionHeading } from '@/components/icons/SectionHeading';
 import type { Locale } from '@/lib/site';
 import type { ArticleConceptLink } from '@/types/article';
 
@@ -15,9 +16,11 @@ export function RelatedConcepts({
 
   return (
     <section aria-labelledby="related-concepts-title">
-      <h2 id="related-concepts-title" className="type-section-title text-text">
-        {locale === 'th' ? 'แนวคิดที่เกี่ยวข้อง' : 'Related concepts'}
-      </h2>
+      <SectionHeading
+        id="related-concepts-title"
+        icon="concept"
+        title={locale === 'th' ? 'แนวคิดที่เกี่ยวข้อง' : 'Related concepts'}
+      />
       <div className="mt-5 flex flex-wrap gap-3">
         {concepts.map((concept) => (
           <Link

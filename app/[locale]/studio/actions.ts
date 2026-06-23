@@ -21,6 +21,7 @@ import {
   saveWikiArticle,
 } from '@/lib/r2/wiki-store';
 import type { Locale } from '@/lib/site';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import {
   categorySchools,
   parseConceptLinks,
@@ -86,6 +87,7 @@ const articleInputSchema = z.object({
   translationTh: z.string().trim().max(180),
   translationEn: z.string().trim().max(180),
   coverImageUrl: optionalUrl,
+  coverImagePath: z.string().trim().max(500),
   coverImageAlt: z.string().trim().max(240),
   coverImageWidth: optionalDimension,
   coverImageHeight: optionalDimension,
@@ -129,6 +131,7 @@ async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
 function authenticationError(): StudioActionResult {
   return {
     status: 'error',
+    errorKind: 'auth',
     message:
       'เซสชันหมดอายุหรือบัญชีไม่มีสิทธิ์บรรณาธิการ กรุณาเข้าสู่ระบบด้วยบัญชี Editor หรือ Admin',
   };
@@ -137,6 +140,7 @@ function authenticationError(): StudioActionResult {
 function validationError(error: z.ZodError): StudioActionResult {
   return {
     status: 'error',
+    errorKind: 'validation',
     message: 'กรุณาตรวจข้อมูลที่กรอกอีกครั้ง',
     fieldErrors: error.flatten().fieldErrors,
   };
@@ -158,6 +162,28 @@ function getCmsInfrastructureErrorMessage(error: unknown): string | null {
   }
 
   return null;
+}
+
+function getInfrastructureErrorKind(
+  error: unknown
+): StudioActionResult['errorKind'] {
+  if (!(error instanceof Error)) return 'unknown';
+  const message = error.message.toLowerCase();
+
+  if (message.includes('storage') || message.includes('bucket')) {
+    return 'storage';
+  }
+  if (message.includes('supabase') || message.includes('database')) {
+    return 'database';
+  }
+  if (
+    message.includes('fetch failed') ||
+    message.includes('network') ||
+    message.includes('offline')
+  ) {
+    return 'network';
+  }
+  return 'unknown';
 }
 
 function createPublicId(): string {
@@ -191,7 +217,7 @@ function revalidateStudioRoutes(locale: Locale, articleId?: string) {
   revalidatePath(`/${locale}/studio/articles`);
 
   if (articleId) {
-    revalidatePath(`/${locale}/studio/articles/${articleId}/edit`);
+    revalidatePath(`/${locale}/studio/articles/${articleId}`);
   }
 }
 
@@ -233,7 +259,9 @@ function getMissingPublishFields(
   if (!article.slug.trim()) missing.push('slug');
   if (!article.excerpt.trim()) missing.push('excerpt');
   if (!isCategoryId(article.category)) missing.push('category');
-  if (!article.seoDescription.trim()) missing.push('seoDescription');
+  if (!article.difficulty) missing.push('difficulty');
+  if (!article.coverImage?.src) missing.push('coverImage');
+  if (!article.coverImage?.alt.trim()) missing.push('coverAlt');
 
   return missing;
 }
@@ -255,6 +283,7 @@ async function prepareArticle(
   if (!slug) {
     return {
       status: 'error',
+      errorKind: 'validation',
       message: 'ไม่สามารถสร้าง slug จากชื่อบทความนี้ได้',
       fieldErrors: {
         slug: ['กรุณาใส่ slug ที่มีตัวอักษรหรือตัวเลข'],
@@ -272,6 +301,7 @@ async function prepareArticle(
   ) {
     return {
       status: 'error',
+      errorKind: 'conflict',
       message: 'มีบทความที่ใช้ slug นี้แล้ว',
       fieldErrors: {
         slug: ['Slug ต้องไม่ซ้ำในภาษาเดียวกัน'],
@@ -313,7 +343,10 @@ async function prepareArticle(
     coverImage: result.data.coverImageUrl
       ? {
           src: result.data.coverImageUrl,
-          alt: result.data.coverImageAlt || result.data.title,
+          ...(result.data.coverImagePath
+            ? { path: result.data.coverImagePath }
+            : {}),
+          alt: result.data.coverImageAlt,
           width: parseDimension(result.data.coverImageWidth, 1600),
           height: parseDimension(result.data.coverImageHeight, 900),
         }
@@ -359,6 +392,7 @@ async function prepareArticle(
   if (!hasValidReferenceUrls(article)) {
     return {
       status: 'error',
+      errorKind: 'validation',
       message: 'URL ในเอกสารอ้างอิงอย่างน้อยหนึ่งรายการไม่ถูกต้อง',
       fieldErrors: {
         references: ['กรุณาใช้ URL เต็ม เช่น https://example.com/source'],
@@ -423,6 +457,7 @@ export async function saveStudioArticle(
   if (articleId && !currentArticle) {
     return {
       status: 'error',
+      errorKind: 'auth',
       message: 'ไม่พบบทความ หรือคุณไม่มีสิทธิ์แก้ไขบทความนี้',
     };
   }
@@ -446,6 +481,7 @@ export async function saveStudioArticle(
 
     return {
       status: 'error',
+      errorKind: getInfrastructureErrorKind(error),
       message: 'บันทึกไม่สำเร็จ',
     };
   }
@@ -483,6 +519,7 @@ export async function publishStudioArticle(
   if (articleId && !currentArticle) {
     return {
       status: 'error',
+      errorKind: 'auth',
       message: 'ไม่พบบทความ หรือคุณไม่มีสิทธิ์แก้ไขบทความนี้',
     };
   }
@@ -494,6 +531,7 @@ export async function publishStudioArticle(
   if (missingFields.length > 0) {
     return {
       status: 'error',
+      errorKind: 'validation',
       message: 'ยังเผยแพร่ไม่ได้',
       missingFields,
     };
@@ -546,6 +584,7 @@ export async function publishStudioArticle(
 
     return {
       status: 'error',
+      errorKind: getInfrastructureErrorKind(error),
       message:
         getCmsInfrastructureErrorMessage(error) || 'เผยแพร่ไม่สำเร็จ',
       articleId: draftArticle.id,
@@ -594,6 +633,7 @@ export async function unpublishStudioArticle(
   if (!currentArticle) {
     return {
       status: 'error',
+      errorKind: 'auth',
       message: 'ไม่พบบทความ หรือคุณไม่มีสิทธิ์แก้ไขบทความนี้',
     };
   }
@@ -628,6 +668,7 @@ export async function unpublishStudioArticle(
 
     return {
       status: 'error',
+      errorKind: getInfrastructureErrorKind(error),
       message:
         getCmsInfrastructureErrorMessage(error) ||
         'ยกเลิกการเผยแพร่ไม่สำเร็จ',
@@ -670,6 +711,7 @@ export async function deleteStudioArticle(
   if (!article) {
     return {
       status: 'error',
+      errorKind: 'auth',
       message: 'ไม่พบบทความ หรือคุณไม่มีสิทธิ์ลบบทความนี้',
     };
   }
@@ -694,6 +736,7 @@ export async function deleteStudioArticle(
 
     return {
       status: 'error',
+      errorKind: getInfrastructureErrorKind(error),
       message: getCmsInfrastructureErrorMessage(error) || 'ลบบทความไม่สำเร็จ',
     };
   }
@@ -712,5 +755,185 @@ export async function deleteStudioArticle(
     message: 'ลบบทความแล้ว',
     articleId,
     articleStatus: article.status,
+  };
+}
+
+const coverMimeTypes = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/avif',
+]);
+const coverExtensions: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+};
+const maxCoverBytes = 5 * 1024 * 1024;
+
+export async function uploadStudioCover(
+  articleId: string,
+  localeValue: string,
+  formData: FormData
+): Promise<StudioActionResult> {
+  normalizeLocale(localeValue);
+  const user = await getAuthenticatedUser();
+
+  if (!user) return authenticationError();
+
+  const article = await getWikiArticle(user.userId, articleId);
+  if (!article) {
+    return {
+      status: 'error',
+      errorKind: 'auth',
+      message: 'ไม่พบบทความ หรือคุณไม่มีสิทธิ์อัปโหลดภาพให้บทความนี้',
+    };
+  }
+
+  const file = formData.get('file');
+  const width = Number.parseInt(String(formData.get('width') || ''), 10);
+  const height = Number.parseInt(String(formData.get('height') || ''), 10);
+
+  if (!(file instanceof File)) {
+    return {
+      status: 'error',
+      errorKind: 'validation',
+      message: 'กรุณาเลือกไฟล์ภาพ',
+      fieldErrors: { coverImageUrl: ['กรุณาเลือกไฟล์ภาพ'] },
+    };
+  }
+  if (!coverMimeTypes.has(file.type)) {
+    return {
+      status: 'error',
+      errorKind: 'validation',
+      message: 'ไฟล์ภาพต้องเป็น JPEG, PNG, WebP หรือ AVIF',
+      fieldErrors: { coverImageUrl: ['ชนิดไฟล์ภาพไม่รองรับ'] },
+    };
+  }
+  if (file.size > maxCoverBytes) {
+    return {
+      status: 'error',
+      errorKind: 'validation',
+      message: 'ภาพปกต้องมีขนาดไม่เกิน 5MB',
+      fieldErrors: { coverImageUrl: ['ไฟล์มีขนาดใหญ่เกิน 5MB'] },
+    };
+  }
+
+  const extension = coverExtensions[file.type];
+  const path = `articles/${article.publicId}/cover-${Date.now()}-${randomUUID()}.${extension}`;
+  const storage = getSupabaseAdmin().storage.from('article-covers');
+  const { error } = await storage.upload(path, file, {
+    cacheControl: '31536000',
+    contentType: file.type,
+    upsert: false,
+  });
+
+  if (error) {
+    return {
+      status: 'error',
+      errorKind: 'storage',
+      message: `อัปโหลดภาพปกไม่สำเร็จ: ${error.message}`,
+    };
+  }
+
+  const { data } = storage.getPublicUrl(path);
+  return {
+    status: 'success',
+    message: 'อัปโหลดภาพปกแล้ว',
+    coverImage: {
+      src: data.publicUrl,
+      path,
+      alt: article.coverImage?.alt || '',
+      width: Number.isFinite(width) && width > 0 ? width : 1600,
+      height: Number.isFinite(height) && height > 0 ? height : 900,
+    },
+  };
+}
+
+export async function removeStudioCover(
+  articleId: string,
+  localeValue: string,
+  path: string
+): Promise<StudioActionResult> {
+  normalizeLocale(localeValue);
+  const user = await getAuthenticatedUser();
+
+  if (!user) return authenticationError();
+
+  const article = await getWikiArticle(user.userId, articleId);
+  if (!article || !path.startsWith(`articles/${article.publicId}/`)) {
+    return {
+      status: 'error',
+      errorKind: 'auth',
+      message: 'ไม่พบบทความ หรือไม่มีสิทธิ์ลบภาพนี้',
+    };
+  }
+
+  const { error } = await getSupabaseAdmin()
+    .storage.from('article-covers')
+    .remove([path]);
+
+  if (error) {
+    return {
+      status: 'error',
+      errorKind: 'storage',
+      message: `ลบภาพปกไม่สำเร็จ: ${error.message}`,
+    };
+  }
+
+  return { status: 'success', message: 'ลบภาพปกแล้ว' };
+}
+
+export async function archiveStudioArticle(
+  articleId: string,
+  localeValue: string
+): Promise<StudioActionResult> {
+  const locale = normalizeLocale(localeValue);
+  const user = await getAuthenticatedUser();
+
+  if (!user) return authenticationError();
+
+  const article = await getWikiArticle(user.userId, articleId);
+  if (!article) {
+    return {
+      status: 'error',
+      errorKind: 'auth',
+      message: 'ไม่พบบทความ หรือคุณไม่มีสิทธิ์เก็บถาวรบทความนี้',
+    };
+  }
+
+  const archivedArticle: WikiArticle = {
+    ...article,
+    status: 'archived',
+    updatedAt: new Date().toISOString(),
+  };
+
+  try {
+    if (article.status === 'published') {
+      await unpublishWikiArticle(article);
+      invalidatePublicArticleCaches(
+        locale,
+        article.publishedSlug || article.slug
+      );
+    }
+    await saveWikiArticle(archivedArticle);
+  } catch (error) {
+    return {
+      status: 'error',
+      errorKind: getInfrastructureErrorKind(error),
+      message: 'เก็บบทความถาวรไม่สำเร็จ',
+    };
+  }
+
+  revalidateStudioRoutes(locale, articleId);
+  revalidatePath(`/${locale}/articles`);
+  return {
+    status: 'success',
+    message: 'เก็บบทความถาวรแล้ว',
+    articleId,
+    slug: article.slug,
+    updatedAt: archivedArticle.updatedAt,
+    articleStatus: 'archived',
   };
 }

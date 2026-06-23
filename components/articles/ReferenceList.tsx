@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SectionHeading } from '@/components/icons/SectionHeading';
 import { getReferenceSlugById } from '@/lib/references';
 import type { Locale } from '@/lib/site';
 import type { ArticleReference } from '@/types/article';
@@ -13,9 +14,11 @@ export function ReferenceList({ references, locale }: ReferenceListProps) {
 
   return (
     <section aria-labelledby="references-title">
-      <h2 id="references-title" className="type-section-title text-text">
-        {locale === 'th' ? 'เอกสารอ้างอิง' : 'References'}
-      </h2>
+      <SectionHeading
+        id="references-title"
+        icon="source"
+        title={locale === 'th' ? 'เอกสารอ้างอิง' : 'References'}
+      />
       <ol className="mt-5 space-y-4">
         {references.map((reference, index) => {
           const referenceSlug = getReferenceSlugById(reference.id);

@@ -119,7 +119,7 @@ export default async function StudioArticlesPage({
                 </div>
                 <h2 className="truncate text-lg font-medium text-text">
                   <Link
-                    href={`/${locale}/studio/articles/${article.id}/edit`}
+                    href={`/${locale}/studio/articles/${article.id}`}
                     className="hover:text-accent"
                   >
                     {article.title}

@@ -30,6 +30,7 @@ export type ArticleSchool = (typeof articleSchools)[number];
 
 export interface ArticleCoverImage {
   src: string;
+  path?: string;
   alt: string;
   width: number;
   height: number;

@@ -85,7 +85,7 @@ export default async function proxy(
       ) {
         return NextResponse.redirect(
           new URL(
-            `/${firstSegment}/studio/articles/${pathnameSegments[2]}/edit`,
+            `/${firstSegment}/studio/articles/${pathnameSegments[2]}`,
             request.url
           )
         );

@@ -42,6 +42,9 @@ const publicationColumns = [
   'updated_at',
   'author',
   'cover_image',
+  'cover_url',
+  'cover_path',
+  'cover_alt',
   'tags',
   'aliases',
   'related_concepts',
@@ -72,6 +75,9 @@ interface ArticlePublicationRow {
   updated_at: string;
   author: string;
   cover_image: ArticleCoverImage | null;
+  cover_url: string | null;
+  cover_path: string | null;
+  cover_alt: string | null;
   tags: string[];
   aliases: string[];
   related_concepts: ArticleConceptLink[];
@@ -117,7 +123,14 @@ function toPublishedArticle(
     school: row.school,
     difficulty: row.difficulty,
     locale: row.language,
-    coverImage: row.cover_image,
+    coverImage: row.cover_url
+      ? {
+          ...(row.cover_image || { width: 1600, height: 900 }),
+          src: row.cover_url,
+          ...(row.cover_path ? { path: row.cover_path } : {}),
+          alt: row.cover_alt || row.cover_image?.alt || row.title,
+        }
+      : row.cover_image,
     tags: row.tags || [],
     aliases: row.aliases || [],
     outgoingLinks: [],
@@ -165,6 +178,9 @@ export async function publishWikiArticle(
     updated_at: article.updatedAt,
     author: article.authorName,
     cover_image: article.coverImage,
+    cover_url: article.coverImage?.src || null,
+    cover_path: article.coverImage?.path || null,
+    cover_alt: article.coverImage?.alt || null,
     tags: article.tags,
     aliases: article.aliases,
     related_concepts: article.relatedConcepts,

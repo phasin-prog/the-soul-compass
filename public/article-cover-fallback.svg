@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">The Soul's Compass article cover</title>
+  <desc id="desc">A restrained gold compass on a midnight blue field.</desc>
+  <rect width="1600" height="900" fill="#101827"/>
+  <g fill="none" stroke="#b99555" stroke-width="4" opacity=".78">
+    <circle cx="800" cy="450" r="238"/>
+    <circle cx="800" cy="450" r="154" opacity=".5"/>
+    <path d="M800 164v572M514 450h572" opacity=".42"/>
+    <path d="m800 244 48 206-48 206-48-206z" fill="#b99555" fill-opacity=".16"/>
+    <circle cx="800" cy="450" r="14" fill="#f4efe7"/>
+  </g>
+</svg>

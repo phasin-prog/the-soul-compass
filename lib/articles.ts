@@ -307,32 +307,12 @@ export const getStaticPublishedArticles = cache(
 
 export const getPublishedArticles = cache(
   async (locale: Locale): Promise<ArticleSummary[]> => {
-    const [staticArticles, remoteArticles] = await Promise.all([
-      getStaticPublishedArticles(locale),
-      getRemotePublishedArticles(locale),
-    ]);
-    const merged = new Map(
-      staticArticles.map((article) => [article.slug, toSummary(article)])
-    );
-
-    for (const article of remoteArticles) {
-      merged.set(article.slug, article);
-    }
-
-    return Array.from(merged.values()).sort((a, b) =>
-      b.publishedAt.localeCompare(a.publishedAt)
-    );
+    return getRemotePublishedArticles(locale);
   }
 );
 
 export const getArticleBySlug = cache(
   async (locale: Locale, slug: string): Promise<Article | null> => {
-    const staticArticles = await getStaticPublishedArticles(locale);
-    const staticArticle = staticArticles.find(
-      (article) => article.slug === slug
-    );
-
-    if (staticArticle) return staticArticle;
     if (!hasPublishedBackend()) return null;
 
     try {

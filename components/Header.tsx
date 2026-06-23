@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
+import { SoulIcon } from './icons/SoulIcon';
 import { ActiveLink } from './ActiveLink';
 import { AuthNavigation } from './auth/AuthNavigation';
 import { MobileMenu } from './MobileMenu';
@@ -31,7 +32,7 @@ export function Header({ locale }: HeaderProps) {
             aria-hidden="true"
             className="grid size-8 place-items-center rounded-full border border-accent/55 text-accent transition-colors duration-200 group-hover:border-accent group-hover:bg-accent-soft"
           >
-            ◈
+            <SoulIcon name="compass" size={17} />
           </span>
           <span className="font-serif text-lg font-medium leading-none text-text sm:text-xl">
             {siteConfig.name[locale]}

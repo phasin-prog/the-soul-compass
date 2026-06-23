@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SoulIcon } from '@/components/icons/SoulIcon';
 import { categories } from '@/lib/content/categories';
 import { formatDate, getDifficultyLabel } from '@/lib/format';
 import type { Locale } from '@/lib/site';
@@ -103,12 +104,11 @@ export function ArticleCard({
 
             <span className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-accent">
               {locale === 'th' ? 'อ่านบทความ' : 'Read article'}
-              <span
-                aria-hidden="true"
+              <SoulIcon
+                name="arrowRight"
+                size={16}
                 className="ml-2 transition-transform duration-200 group-hover:translate-x-1"
-              >
-                →
-              </span>
+              />
             </span>
           </div>
         </div>

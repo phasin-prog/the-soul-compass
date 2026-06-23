@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SoulIcon } from '@/components/icons/SoulIcon';
 import { categories } from '@/lib/content/categories';
 import { getDifficultyLabel } from '@/lib/format';
 import type { Locale } from '@/lib/site';
@@ -66,9 +67,11 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
           )}
           <span className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-accent">
             {locale === 'th' ? 'เปิดโหนดแนวคิด' : 'Open concept node'}
-            <span aria-hidden="true" className="ml-2 transition-transform duration-200 group-hover:translate-x-1">
-              →
-            </span>
+            <SoulIcon
+              name="arrowRight"
+              size={16}
+              className="ml-2 transition-transform duration-200 group-hover:translate-x-1"
+            />
           </span>
         </div>
       </Link>

@@ -1,6 +1,8 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { SoulIcon } from '@/components/icons/SoulIcon';
 import { renderObsidianLinks } from '@/lib/wiki/markdown';
+import { MarkdownCallout } from './MarkdownCallout';
 
 interface MarkdownContentProps {
   content: string;
@@ -12,6 +14,27 @@ export function MarkdownContent({ content, locale }: MarkdownContentProps) {
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
+        h2: ({ children }) => (
+          <h2 className="markdown-heading flex items-start gap-3">
+            <span className="mt-[0.38em] grid size-7 shrink-0 place-items-center rounded-sm border border-accent/35 text-accent">
+              <SoulIcon name="symbol" size={15} />
+            </span>
+            <span>{children}</span>
+          </h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="markdown-heading flex items-start gap-2.5">
+            <SoulIcon
+              name="concept"
+              size={15}
+              className="mt-[0.45em] shrink-0 text-accent"
+            />
+            <span>{children}</span>
+          </h3>
+        ),
+        blockquote: ({ children }) => (
+          <MarkdownCallout type="quote">{children}</MarkdownCallout>
+        ),
         a: ({ children, ...props }) => (
           <a {...props} rel="noreferrer">
             {children}

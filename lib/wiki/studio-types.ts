@@ -6,7 +6,9 @@ export const publishRequirementKeys = [
   'slug',
   'excerpt',
   'category',
-  'seoDescription',
+  'difficulty',
+  'coverImage',
+  'coverAlt',
 ] as const;
 
 export type PublishRequirementKey =
@@ -32,6 +34,7 @@ export interface StudioArticleInput {
   translationTh: string;
   translationEn: string;
   coverImageUrl: string;
+  coverImagePath: string;
   coverImageAlt: string;
   coverImageWidth: string;
   coverImageHeight: string;
@@ -47,4 +50,19 @@ export interface StudioActionResult {
   articleStatus?: WikiArticleStatus;
   fieldErrors?: Record<string, string[]>;
   missingFields?: PublishRequirementKey[];
+  errorKind?:
+    | 'auth'
+    | 'validation'
+    | 'conflict'
+    | 'database'
+    | 'storage'
+    | 'network'
+    | 'unknown';
+  coverImage?: {
+    src: string;
+    path: string;
+    alt: string;
+    width: number;
+    height: number;
+  };
 }

@@ -12,6 +12,22 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '6mb',
+    },
+  },
+  images: {
+    remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? [
+          {
+            protocol: 'https',
+            hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+            pathname: '/storage/v1/object/public/article-covers/**',
+          },
+        ]
+      : [],
+  },
   turbopack: {
     root: process.cwd(),
   },

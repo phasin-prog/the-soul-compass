@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { SignOutButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { isEditor, normalizeUserRole } from '@/lib/roles';
 import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
@@ -14,6 +16,10 @@ interface MobileMenuProps {
 export function MobileMenu({ locale }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const { isSignedIn, user } = useUser();
+  const canEdit = isEditor(
+    normalizeUserRole(user?.publicMetadata.role, 'member')
+  );
   const t = getT(locale);
   const primaryLinks = [
     { href: 'articles', label: t.nav.articles },
@@ -151,14 +157,36 @@ export function MobileMenu({ locale }: MobileMenuProps) {
               </div>
             </div>
 
-            <ActiveLink
-              href={`/${locale}/account`}
-              onClick={() => setIsOpen(false)}
-              className="flex min-h-12 items-center border-y border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
-              activeClassName="text-accent"
-            >
-              {locale === 'th' ? 'บัญชีผู้อ่าน' : 'Reader account'}
-            </ActiveLink>
+            {isSignedIn ? (
+              <>
+                {canEdit ? (
+                  <ActiveLink
+                    href={`/${locale}/studio/articles`}
+                    onClick={() => setIsOpen(false)}
+                    className="flex min-h-12 items-center border-y border-border px-1 text-lg font-medium text-accent transition-colors duration-200 hover:bg-accent-soft"
+                    activeClassName="bg-accent-soft"
+                  >
+                    {locale === 'th' ? 'เขียนบทความ' : 'Write an article'}
+                  </ActiveLink>
+                ) : null}
+                <ActiveLink
+                  href={`/${locale}/account`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex min-h-12 items-center border-b border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
+                  activeClassName="text-accent"
+                >
+                  {locale === 'th' ? 'บัญชีผู้อ่าน' : 'Reader account'}
+                </ActiveLink>
+              </>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                onClick={() => setIsOpen(false)}
+                className="flex min-h-12 items-center border-y border-border px-1 text-lg font-medium text-accent transition-colors duration-200 hover:bg-accent-soft"
+              >
+                {locale === 'th' ? 'เข้าสู่ระบบ' : 'Sign in'}
+              </Link>
+            )}
 
             <hr className="my-3 border-border" />
 
@@ -173,6 +201,17 @@ export function MobileMenu({ locale }: MobileMenuProps) {
                 {item.label}
               </ActiveLink>
             ))}
+
+            {isSignedIn ? (
+              <SignOutButton redirectUrl={`/${locale}`}>
+                <button
+                  type="button"
+                  className="mt-6 flex min-h-11 items-center px-1 text-sm text-muted transition-colors duration-200 hover:text-text"
+                >
+                  {locale === 'th' ? 'ออกจากระบบ' : 'Sign out'}
+                </button>
+              </SignOutButton>
+            ) : null}
           </div>
         </nav>
       </dialog>

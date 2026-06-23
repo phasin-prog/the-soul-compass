@@ -42,7 +42,7 @@ create table if not exists public.article_publications (
   aliases text[] not null default '{}',
   related_concepts jsonb not null default '[]'::jsonb,
   related_articles text[] not null default '{}',
-  references jsonb not null default '[]'::jsonb,
+  "references" jsonb not null default '[]'::jsonb,
   series_id text,
   seo_title text not null,
   seo_description text not null,
@@ -59,7 +59,7 @@ create table if not exists public.article_publications (
     jsonb_typeof(related_concepts) = 'array'
   ),
   constraint article_publications_references_array check (
-    jsonb_typeof(references) = 'array'
+    jsonb_typeof("references") = 'array'
   ),
   constraint article_publications_translations_object check (
     jsonb_typeof(translations) = 'object'

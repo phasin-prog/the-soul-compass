@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { ClerkProvider } from '@clerk/nextjs';
 import { Anuphan, Pridi } from 'next/font/google';
+import { getClerkLocalization } from '@/components/auth/AuthShell';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -101,18 +103,25 @@ export default async function LocaleLayout({
         />
       </head>
       <body className="flex min-h-full flex-col bg-background text-text">
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+        <ClerkProvider
+          localization={getClerkLocalization(localeKey)}
+          signInUrl={`/${localeKey}/login`}
+          signUpUrl={`/${localeKey}/register`}
+          afterSignOutUrl={`/${localeKey}`}
         >
-          {localeKey === 'th' ? 'ข้ามไปยังเนื้อหาหลัก' : 'Skip to main content'}
-        </a>
-        <Header locale={localeKey} />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
-        <Footer locale={localeKey} />
-        <ScrollToTop locale={localeKey} />
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+          >
+            {localeKey === 'th' ? 'ข้ามไปยังเนื้อหาหลัก' : 'Skip to main content'}
+          </a>
+          <Header locale={localeKey} />
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
+          <Footer locale={localeKey} />
+          <ScrollToTop locale={localeKey} />
+        </ClerkProvider>
       </body>
     </html>
   );

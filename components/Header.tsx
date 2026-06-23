@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
 import { ActiveLink } from './ActiveLink';
+import { AuthNavigation } from './auth/AuthNavigation';
 import { MobileMenu } from './MobileMenu';
 
 interface HeaderProps {
@@ -83,13 +84,7 @@ export function Header({ locale }: HeaderProps) {
               EN
             </Link>
           </div>
-          <ActiveLink
-            href={`/${locale}/account`}
-            className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-accent"
-            activeClassName="text-accent"
-          >
-            {locale === 'th' ? 'บัญชี' : 'Account'}
-          </ActiveLink>
+          <AuthNavigation locale={locale} />
         </nav>
 
         <MobileMenu locale={locale} />

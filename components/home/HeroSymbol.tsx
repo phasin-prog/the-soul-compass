@@ -10,6 +10,7 @@ if (typeof window !== 'undefined') {
 
 interface HeroSymbolProps {
   className?: string;
+  controlled?: boolean;
 }
 
 // Concept particles orbiting the gravity well
@@ -34,7 +35,7 @@ const RINGS = [
   { rx: 148, ry: 44, tilt: -6,  strokeOpacity: 0.22, dasharray: '3 14',  duration: 50 },
 ];
 
-export function HeroSymbol({ className = '' }: HeroSymbolProps) {
+export function HeroSymbol({ className = '', controlled = false }: HeroSymbolProps) {
   const svgRef   = useRef<SVGSVGElement>(null);
   const coreRef  = useRef<SVGGElement>(null);
   const ring0Ref = useRef<SVGGElement>(null);
@@ -60,45 +61,47 @@ export function HeroSymbol({ className = '' }: HeroSymbolProps) {
         return;
       }
 
-      // ── Entrance sequence ─────────────────────────────────────
-      const enter = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      if (!controlled) {
+        // ── Entrance sequence ─────────────────────────────────────
+        const enter = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      // Ambient glow fades in first
-      enter.fromTo(glowRef.current,
-        { opacity: 0, scale: 0.6 },
-        { opacity: 1, scale: 1, duration: 2.8, transformOrigin: '200px 200px' }
-      );
+        // Ambient glow fades in first
+        enter.fromTo(glowRef.current,
+          { opacity: 0, scale: 0.6 },
+          { opacity: 1, scale: 1, duration: 2.8, transformOrigin: '200px 200px' }
+        );
 
-      // Core nucleus appears — elastic-lite, not bounce
-      enter.fromTo(coreRef.current,
-        { opacity: 0, scale: 0.2 },
-        { opacity: 1, scale: 1, duration: 1.4, ease: 'power4.out', transformOrigin: '200px 200px' },
-        '-=2'
-      );
+        // Core nucleus appears — elastic-lite, not bounce
+        enter.fromTo(coreRef.current,
+          { opacity: 0, scale: 0.2 },
+          { opacity: 1, scale: 1, duration: 1.4, ease: 'power4.out', transformOrigin: '200px 200px' },
+          '-=2'
+        );
 
-      // Rings stagger in from center outward
-      enter.fromTo(ring0Ref.current,
-        { opacity: 0, scale: 0.3 },
-        { opacity: 1, scale: 1, duration: 1.8, ease: 'power2.out', transformOrigin: '200px 200px' },
-        '-=0.6'
-      );
-      enter.fromTo(ring1Ref.current,
-        { opacity: 0, scale: 0.2 },
-        { opacity: 1, scale: 1, duration: 2.0, ease: 'power2.out', transformOrigin: '200px 200px' },
-        '-=1.4'
-      );
-      enter.fromTo(ring2Ref.current,
-        { opacity: 0, scale: 0.1 },
-        { opacity: 1, scale: 1, duration: 2.2, ease: 'power2.out', transformOrigin: '200px 200px' },
-        '-=1.6'
-      );
+        // Rings stagger in from center outward
+        enter.fromTo(ring0Ref.current,
+          { opacity: 0, scale: 0.3 },
+          { opacity: 1, scale: 1, duration: 1.8, ease: 'power2.out', transformOrigin: '200px 200px' },
+          '-=0.6'
+        );
+        enter.fromTo(ring1Ref.current,
+          { opacity: 0, scale: 0.2 },
+          { opacity: 1, scale: 1, duration: 2.0, ease: 'power2.out', transformOrigin: '200px 200px' },
+          '-=1.4'
+        );
+        enter.fromTo(ring2Ref.current,
+          { opacity: 0, scale: 0.1 },
+          { opacity: 1, scale: 1, duration: 2.2, ease: 'power2.out', transformOrigin: '200px 200px' },
+          '-=1.6'
+        );
 
-      // Particles drift in last
-      enter.fromTo(particlesRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 1.5 },
-        '-=1'
-      );
+        // Particles drift in last
+        enter.fromTo(particlesRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 1.5 },
+          '-=1'
+        );
+      }
 
       // ── Continuous ring rotations ─────────────────────────────
       // Each ring spins on its own elliptical plane — opposite directions
@@ -258,7 +261,7 @@ export function HeroSymbol({ className = '' }: HeroSymbolProps) {
         />
 
         {/* ── 2. Saturn ring 2 (outermost, behind core) ─────────── */}
-        <g ref={ring2Ref} opacity="0">
+        <g ref={ring2Ref} opacity="0" className="symbol-ring-2">
           <ellipse
             cx={cx} cy={cy}
             rx={RINGS[2].rx} ry={RINGS[2].ry}
@@ -283,7 +286,7 @@ export function HeroSymbol({ className = '' }: HeroSymbolProps) {
         </g>
 
         {/* ── 3. Saturn ring 1 (mid) ────────────────────────────── */}
-        <g ref={ring1Ref} opacity="0">
+        <g ref={ring1Ref} opacity="0" className="symbol-ring-1">
           <ellipse
             cx={cx} cy={cy}
             rx={RINGS[1].rx} ry={RINGS[1].ry}
@@ -306,7 +309,7 @@ export function HeroSymbol({ className = '' }: HeroSymbolProps) {
         </g>
 
         {/* ── 4. Saturn ring 0 (innermost) ─────────────────────── */}
-        <g ref={ring0Ref} opacity="0">
+        <g ref={ring0Ref} opacity="0" className="symbol-ring-0">
           <ellipse
             cx={cx} cy={cy}
             rx={RINGS[0].rx} ry={RINGS[0].ry}
@@ -330,7 +333,7 @@ export function HeroSymbol({ className = '' }: HeroSymbolProps) {
         </g>
 
         {/* ── 5. Concept particles on ring orbits ──────────────── */}
-        <g ref={particlesRef} opacity="0">
+        <g ref={particlesRef} opacity="0" className="symbol-particles">
           {ORBIT_CONCEPTS.map((c, i) => {
             const { x, y } = getParticlePos(c.ring, c.offset);
             const fontSize = c.ring === 0 ? 7 : c.ring === 1 ? 6.5 : 5.5;
@@ -356,7 +359,7 @@ export function HeroSymbol({ className = '' }: HeroSymbolProps) {
         </g>
 
         {/* ── 6. Ego nucleus — singularity ─────────────────────── */}
-        <g ref={coreRef} opacity="0" filter="url(#core-glow)">
+        <g ref={coreRef} opacity="0" filter="url(#core-glow)" className="symbol-core">
           {/* Accretion disk shadow */}
           <circle cx={cx} cy={cy} r="24" fill="#0a0f1a" fillOpacity="0.85" />
           {/* Hot corona rim */}

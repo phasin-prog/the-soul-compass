@@ -3,6 +3,7 @@ import { ArticleCard } from '@/components/articles/ArticleCard';
 import { Button } from '@/components/ui/Button';
 import { HeroSymbol } from '@/components/home/HeroSymbol';
 import { HomeMotionLayer } from '@/components/home/HomeMotionLayer';
+import { Container } from '@/components/Layout/Container';
 import { getPublishedArticles } from '@/lib/articles';
 import {
   categories,
@@ -67,12 +68,26 @@ export default async function HomePage({ params }: PageProps) {
           <div className="home-hero__texture" aria-hidden="true" />
 
 
-          <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 pt-16 pb-8 sm:px-8 md:pt-20 md:pb-12 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)] lg:items-center">
-            <div className="relative z-10">
-              <p className="home-kicker mb-6 max-w-2xl text-accent">
+          <div className="relative mx-auto flex flex-col items-center text-center w-full max-w-soul-container px-6 md:px-12 pt-12 pb-8 md:pt-16 md:pb-12">
+            
+            {/* Energy Collision & Mandala Container */}
+            <div className="relative w-full max-w-[340px] sm:max-w-[420px] aspect-square flex items-center justify-center mb-6 overflow-visible">
+              {/* Left energy node */}
+              <div className="energy-left absolute w-4 h-4 rounded-full bg-accent blur-[1.5px] opacity-0 z-20" />
+              {/* Right energy node */}
+              <div className="energy-right absolute w-4 h-4 rounded-full bg-accent-strong blur-[1.5px] opacity-0 z-20" />
+              
+              {/* HeroSymbol wrapper */}
+              <div className="hero-symbol-wrapper scale-0 opacity-0 w-full h-full">
+                <HeroSymbol className="w-full h-full" controlled={true} />
+              </div>
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+              <p className="home-kicker mb-4 text-accent text-center tracking-[0.16em]">
                 THE SOUL&apos;S COMPASS / ANALYTICAL PSYCHE ARCHIVE
               </p>
-              <h1 className="type-display max-w-4xl text-text">
+              <h1 className="type-display max-w-4xl text-text text-center font-serif">
                 <span className="block">
                   {localeKey === 'th'
                     ? 'พื้นที่อ่านจิตใจมนุษย์'
@@ -84,12 +99,12 @@ export default async function HomePage({ params }: PageProps) {
                     : 'without reducing people to labels'}
                 </span>
               </h1>
-              <p className="type-lead mt-7 text-text-soft">
+              <p className="type-lead mt-6 text-text-soft text-center max-w-3xl">
                 {localeKey === 'th'
                   ? 'คลังความรู้สำหรับค่อย ๆ ทำความเข้าใจจิตใจผ่านจิตวิทยา จิตวิเคราะห์ ปรัชญา และวิทยาศาสตร์—โดยรักษาความซับซ้อนของมนุษย์ไว้'
                   : 'A knowledge archive for studying mind through psychology, psychoanalysis, philosophy, and science—without sanding away human complexity.'}
               </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <div className="home-buttons mt-8 flex flex-col gap-4 sm:flex-row justify-center">
                 <Button
                   href={`/${localeKey}/articles/shadow-is-not-just-the-dark-side`}
                 >
@@ -104,7 +119,7 @@ export default async function HomePage({ params }: PageProps) {
                 </Button>
               </div>
               {localeKey === 'en' ? (
-                <p className="type-meta mt-5 max-w-xl text-muted">
+                <p className="type-meta mt-6 max-w-xl text-muted text-center">
                   English translations are being reviewed. The complete published
                   corpus is currently available in{' '}
                   <Link
@@ -118,23 +133,14 @@ export default async function HomePage({ params }: PageProps) {
                 </p>
               ) : null}
             </div>
-
-            <figure className="relative flex min-h-80 items-center justify-center lg:min-h-[34rem]">
-              <HeroSymbol className="h-full w-full max-h-[420px]" />
-              <figcaption className="sr-only">
-                {localeKey === 'th'
-                  ? 'ภาพแสดงขั้วตรงข้ามของจิตใจ: สติและจิตใต้สำนึก, ภาษาและความเชื่อ'
-                  : 'A visual of psychic opposites: consciousness and the unconscious, language and belief.'}
-              </figcaption>
-            </figure>
           </div>
         </section>
 
       <section
-        className="home-reveal-section border-b border-border bg-surface px-5 py-10 sm:px-8 md:py-14"
+        className="home-reveal-section border-b border-border bg-surface py-10 md:py-14"
         aria-labelledby="domains-heading"
       >
-        <div className="mx-auto max-w-7xl">
+        <Container>
           <div className="mb-10 grid gap-5 lg:grid-cols-[minmax(0,0.75fr)_minmax(20rem,0.55fr)] lg:items-end lg:justify-between">
             <div className="reveal-heading">
               <h2 id="domains-heading" className="type-page-title max-w-2xl text-text">
@@ -195,11 +201,11 @@ export default async function HomePage({ params }: PageProps) {
               );
             })}
           </nav>
-        </div>
+        </Container>
       </section>
 
       <section
-        className="home-reveal-section mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 md:py-14"
+        className="home-reveal-section mx-auto w-full max-w-soul-container px-6 md:px-12 py-10 md:py-14"
         aria-labelledby="featured-heading"
       >
         <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -219,20 +225,22 @@ export default async function HomePage({ params }: PageProps) {
         </div>
 
         {featuredArticles.length > 0 ? (
-          <div className="grid gap-x-10 md:grid-cols-2">
-            {featuredArticles.map((article, index) => (
-              <div
-                key={article.slug}
-                className={index === 0 ? 'md:col-span-2' : undefined}
-              >
-                <ArticleCard
-                  article={article}
-                  locale={localeKey}
-                  featured={index === 0}
-                  headingLevel="h3"
-                />
-              </div>
-            ))}
+          <div className="featured-slider-viewport overflow-hidden w-full py-4 mt-6">
+            <div className="featured-slider-track flex gap-6 w-max">
+              {[...featuredArticles, ...featuredArticles].map((article, index) => (
+                <div
+                  key={`${article.slug}-${index}`}
+                  className="w-[290px] sm:w-[400px] md:w-[450px] shrink-0"
+                >
+                  <ArticleCard
+                    article={article}
+                    locale={localeKey}
+                    featured={false}
+                    headingLevel="h3"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <p className="border-y border-border py-10 text-muted">
@@ -245,10 +253,10 @@ export default async function HomePage({ params }: PageProps) {
 
       {articles.length > 3 ? (
         <section
-          className="border-y border-border bg-surface px-5 py-10 sm:px-8 md:py-14"
+          className="border-y border-border bg-surface py-10 md:py-14"
           aria-labelledby="recent-heading"
         >
-          <div className="mx-auto max-w-7xl">
+          <Container>
             <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 id="recent-heading" className="type-page-title text-text">
@@ -275,12 +283,12 @@ export default async function HomePage({ params }: PageProps) {
                 />
               ))}
             </div>
-          </div>
+          </Container>
         </section>
       ) : null}
 
-      <section className="border-y border-border bg-surface-raised px-5 py-10 sm:px-8 md:py-14">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(15rem,0.52fr)_minmax(0,1.48fr)] lg:items-start">
+      <section className="border-y border-border bg-surface-raised py-10 md:py-14">
+        <Container className="grid gap-10 lg:grid-cols-[minmax(15rem,0.52fr)_minmax(0,1.48fr)] lg:items-start">
           <div>
             <p className="font-serif text-lg text-accent">
               {localeKey === 'th' ? 'อ่านอย่างเป็นลำดับ' : 'A guided reading path'}
@@ -342,7 +350,7 @@ export default async function HomePage({ params }: PageProps) {
               </span>
             </Link>
           )}
-        </div>
+        </Container>
       </section>
     </div>
     </HomeMotionLayer>

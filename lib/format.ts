@@ -1,17 +1,19 @@
 import type { Locale } from '@/lib/site';
 
-export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
+export type Difficulty = 'beginner' | 'intermediate' | 'advanced' | 'academic';
 
 const difficultyMap = {
   th: {
     beginner: 'เริ่มต้น',
     intermediate: 'ระดับกลาง',
     advanced: 'ระดับลึก',
+    academic: 'วิชาการเข้มข้น',
   },
   en: {
     beginner: 'Beginner',
     intermediate: 'Intermediate',
     advanced: 'Advanced',
+    academic: 'Academic Study',
   },
 } as const;
 

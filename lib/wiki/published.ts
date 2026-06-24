@@ -164,6 +164,16 @@ export async function publishWikiArticle(
     throw new Error('Published articles require a category.');
   }
 
+  // Map academic difficulty to advanced for database check constraint safety
+  const dbDifficulty = article.difficulty === 'academic' ? 'advanced' : (article.difficulty || 'intermediate');
+  const dbTags = [...article.tags];
+  if (article.difficulty === 'academic' && !dbTags.includes('reading-level:academic')) {
+    dbTags.push('reading-level:academic');
+  }
+  if (article.sourceStatus && !dbTags.includes(`source-status:${article.sourceStatus}`)) {
+    dbTags.push(`source-status:${article.sourceStatus}`);
+  }
+
   const row: ArticlePublicationRow = {
     id: article.publicId,
     slug: article.slug,
@@ -174,7 +184,7 @@ export async function publishWikiArticle(
     excerpt: article.excerpt,
     category: article.category,
     school: article.school || categorySchools[article.category],
-    difficulty: article.difficulty || 'intermediate',
+    difficulty: dbDifficulty,
     reading_time: article.readingMinutes,
     published_at: article.publishedAt,
     updated_at: article.updatedAt,
@@ -183,7 +193,7 @@ export async function publishWikiArticle(
     cover_url: article.coverImage?.src || null,
     cover_path: article.coverImage?.path || null,
     cover_alt: article.coverImage?.alt || null,
-    tags: article.tags,
+    tags: dbTags,
     aliases: article.aliases,
     related_concepts: article.relatedConcepts,
     related_articles: article.relatedArticles,

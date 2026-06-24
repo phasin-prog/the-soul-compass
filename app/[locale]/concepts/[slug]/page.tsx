@@ -4,6 +4,7 @@ import { ArticleCard } from '@/components/articles/ArticleCard';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { CategoryBadge } from '@/components/ui/CategoryBadge';
+import { ReadingLevelBadge, WikiEntryTypeBadge } from '@/components/ui/Badge';
 import { ConceptRelationList } from '@/components/concepts/ConceptRelationList';
 import { ReferenceList } from '@/components/ui/ReferenceList';
 import {
@@ -124,10 +125,11 @@ export default async function ConceptDetailPage({ params }: PageProps) {
           <header className="border-b border-border pb-10 sm:pb-12">
             <div className="flex flex-wrap items-center gap-3">
               <CategoryBadge
-                color={category.color}
-                name={category.name}
+                category={concept.category}
                 locale={locale}
               />
+              <WikiEntryTypeBadge type={concept.entryType || 'concept'} locale={locale} />
+              <ReadingLevelBadge level={concept.difficulty} locale={locale} />
               <span className="type-meta text-muted">{concept.tradition}</span>
             </div>
 
@@ -279,8 +281,8 @@ export default async function ConceptDetailPage({ params }: PageProps) {
                   <dt className="type-meta text-muted">
                     {locale === 'th' ? 'ระดับความลึก' : 'Difficulty'}
                   </dt>
-                  <dd className="mt-2 text-text">
-                    {getDifficultyLabel(locale, concept.difficulty)}
+                  <dd className="mt-2 text-text flex items-center">
+                    <ReadingLevelBadge level={concept.difficulty} locale={locale} />
                   </dd>
                 </div>
                 <div className="py-5">

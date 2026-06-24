@@ -21,11 +21,14 @@ import {
 import type { PublishedArticle } from '@/lib/wiki/types';
 import {
   articleDifficulties,
+  articleSourceStatuses,
   articleSchools,
   articleStatuses,
   type Article,
   type ArticleSchool,
   type ArticleSummary,
+  type ArticleSourceStatus,
+  type ArticleDifficulty,
 } from '@/types/article';
 
 const contentRoot = path.join(process.cwd(), 'content', 'articles');
@@ -42,6 +45,7 @@ const articleFrontmatterSchema = z.object({
   category: z.enum(categoryIds),
   school: z.enum(articleSchools),
   difficulty: z.enum(articleDifficulties),
+  sourceStatus: z.enum(articleSourceStatuses).optional().default('original'),
   readingTime: z.number().int().positive(),
   publishedAt: z.string().regex(isoDatePattern),
   updatedAt: z.string().regex(isoDatePattern),
@@ -230,6 +234,21 @@ function mapPublishedArticle(
 ): Article {
   const category = normalizeCategory(article.category);
 
+  // Extract custom difficulty (academic) from tags
+  const readingLevelTag = article.tags.find(t => t.startsWith('reading-level:'));
+  const difficulty = readingLevelTag 
+    ? (readingLevelTag.substring('reading-level:'.length) as ArticleDifficulty)
+    : article.difficulty;
+
+  // Extract sourceStatus from tags
+  const sourceStatusTag = article.tags.find(t => t.startsWith('source-status:'));
+  const sourceStatus = sourceStatusTag
+    ? (sourceStatusTag.substring('source-status:'.length) as ArticleSourceStatus)
+    : 'original';
+
+  // Clean tags of the serialized metadata tags
+  const cleanTags = article.tags.filter(t => !t.startsWith('source-status:') && !t.startsWith('reading-level:'));
+
   return {
     id: article.id,
     slug: article.slug,
@@ -241,13 +260,14 @@ function mapPublishedArticle(
     status: 'published',
     category,
     school: article.school || categorySchools[category],
-    difficulty: article.difficulty,
+    difficulty,
+    sourceStatus,
     readingTime: article.readingMinutes,
     publishedAt: article.publishedAt,
     updatedAt: article.updatedAt,
     author: article.authorName,
     coverImage: article.coverImage,
-    tags: article.tags,
+    tags: cleanTags,
     relatedConcepts: article.relatedConcepts,
     relatedArticles: article.relatedArticles,
     references: article.references,

@@ -7,9 +7,12 @@ import type { Locale } from '@/lib/site';
 import {
   articleDifficulties,
   articleSchools,
+  articleSourceStatuses,
   type ArticleConceptLink,
   type ArticleReference,
   type ArticleSchool,
+  type ArticleSourceStatus,
+  type ArticleDifficulty,
 } from '@/types/article';
 import type { WikiArticleMeta, WikiArticleStatus, WikiLink } from './types';
 
@@ -104,11 +107,29 @@ export function normalizeWikiArticleMeta(
   const school = articleSchools.includes(raw.school as ArticleSchool)
     ? (raw.school as ArticleSchool)
     : '';
-  const difficulty = articleDifficulties.includes(
-    raw.difficulty as (typeof articleDifficulties)[number]
-  )
-    ? (raw.difficulty as (typeof articleDifficulties)[number])
-    : '';
+
+  const rawTags = stringArray(raw.tags);
+
+  // Extract custom difficulty (academic) from tags or fallback to field
+  const readingLevelTag = rawTags.find(t => t.startsWith('reading-level:'));
+  const difficulty = readingLevelTag 
+    ? (readingLevelTag.substring('reading-level:'.length) as ArticleDifficulty)
+    : articleDifficulties.includes(raw.difficulty as ArticleDifficulty)
+      ? (raw.difficulty as ArticleDifficulty)
+      : '';
+
+  // Extract sourceStatus from tags or fallback to field or 'original'
+  const sourceStatusTag = rawTags.find(t => t.startsWith('source-status:'));
+  const sourceStatus = sourceStatusTag
+    ? (sourceStatusTag.substring('source-status:'.length) as ArticleSourceStatus)
+    : articleSourceStatuses.includes(raw.sourceStatus as ArticleSourceStatus)
+      ? (raw.sourceStatus as ArticleSourceStatus)
+      : typeof raw.difficulty === 'string' && articleSourceStatuses.includes(raw.difficulty as ArticleSourceStatus) // in case raw contains it
+        ? (raw.difficulty as ArticleSourceStatus)
+        : 'original';
+
+  const cleanTags = rawTags.filter(t => !t.startsWith('source-status:') && !t.startsWith('reading-level:'));
+
   const title = typeof raw.title === 'string' ? raw.title : '';
   const excerpt = typeof raw.excerpt === 'string' ? raw.excerpt : '';
 
@@ -137,11 +158,12 @@ export function normalizeWikiArticleMeta(
     category,
     school,
     difficulty,
+    sourceStatus,
     coverImage:
       raw.coverImage && typeof raw.coverImage === 'object'
         ? (raw.coverImage as WikiArticleMeta['coverImage'])
         : null,
-    tags: stringArray(raw.tags),
+    tags: cleanTags,
     aliases: stringArray(raw.aliases),
     outgoingLinks: wikiLinks(raw.outgoingLinks),
     relatedConcepts: conceptLinks(raw.relatedConcepts),

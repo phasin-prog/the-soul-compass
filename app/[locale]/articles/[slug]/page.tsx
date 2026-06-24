@@ -6,10 +6,9 @@ import { ArticleBody } from '@/components/articles/ArticleBody';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 import { ReferenceList } from '@/components/articles/ReferenceList';
 import { RelatedConcepts } from '@/components/articles/RelatedConcepts';
-import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { ReadingProgress } from '@/components/ReadingProgress';
+import { ArticleMetadataPanel } from '@/components/ui/ArticleMetadata';
 import { ArticleEndCTA } from '@/components/cta/ArticleEndCTA';
 import { StickyServiceCTA } from '@/components/cta/StickyServiceCTA';
 import {
@@ -30,11 +29,13 @@ const difficultyLabels = {
     beginner: 'เริ่มต้น',
     intermediate: 'ระดับกลาง',
     advanced: 'ระดับลึก',
+    academic: 'วิชาการเข้มข้น',
   },
   en: {
     beginner: 'Beginner',
     intermediate: 'Intermediate',
     advanced: 'Advanced',
+    academic: 'Academic Study',
   },
 } as const;
 
@@ -150,19 +151,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
               ]}
             />
 
-            <header className="border-b border-border pb-10 sm:pb-12">
-              <div className="flex flex-wrap items-center gap-3">
-                <CategoryBadge
-                  color={category.color}
-                  name={category.name}
-                  locale={locale}
-                />
-                <span className="type-meta text-muted">
-                  {locale === 'th' ? 'สำนัก / กรอบทฤษฎี' : 'Tradition'}:{' '}
-                  {article.school}
-                </span>
-              </div>
-
+            <header className="pb-8">
               <h1 className="type-page-title mt-6 max-w-4xl text-text">
                 {article.title}
               </h1>
@@ -173,71 +162,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
                 </p>
               ) : null}
 
-              <dl className="type-meta mt-8 flex flex-wrap gap-x-6 gap-y-3 border-y border-border py-4 text-text-soft">
-                <div className="flex gap-2">
-                  <dt className="sr-only">
-                    {locale === 'th' ? 'ผู้เขียน' : 'Author'}
-                  </dt>
-                  <dd className="text-text-soft">{article.author}</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="sr-only">
-                    {locale === 'th' ? 'เผยแพร่' : 'Published'}
-                  </dt>
-                  <dd>
-                    <time dateTime={article.publishedAt}>
-                      {formattedPublishedAt}
-                    </time>
-                  </dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="sr-only">
-                    {locale === 'th' ? 'เวลาอ่าน' : 'Reading time'}
-                  </dt>
-                  <dd>
-                    {article.readingTime}{' '}
-                    {locale === 'th' ? 'นาที' : 'min read'}
-                  </dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="sr-only">
-                    {locale === 'th' ? 'ระดับ' : 'Difficulty'}
-                  </dt>
-                  <dd>{difficultyLabels[locale][article.difficulty]}</dd>
-                </div>
-              </dl>
-
-              <div className="mt-6 flex flex-wrap gap-2" aria-label={locale === 'th' ? 'ป้ายกำกับ' : 'Tags'}>
-                {article.tags.map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/${locale}/articles?tag=${encodeURIComponent(tag)}`}
-                    className="type-meta rounded-full bg-surface px-3 py-1.5 text-text-soft transition-colors duration-200 hover:bg-surface-raised hover:text-text"
-                  >
-                    #{tag}
-                  </Link>
-                ))}
-              </div>
-
-              <div className="mt-7">
-                <BookmarkButton
-                  locale={locale}
-                  targetSlug={article.slug}
-                  targetType="article"
-                />
-              </div>
-
-              {translatedSlug ? (
-                <Link
-                  href={`/${otherLocale}/articles/${translatedSlug}`}
-                  className="mt-7 inline-flex min-h-11 items-center text-sm font-medium text-accent underline decoration-accent/40 underline-offset-4 hover:text-accent-strong"
-                  hrefLang={otherLocale}
-                >
-                  {locale === 'th'
-                    ? 'Read this article in English'
-                    : 'อ่านบทความนี้เป็นภาษาไทย'}
-                </Link>
-              ) : null}
+              <ArticleMetadataPanel article={article} locale={locale} className="mt-8" />
             </header>
 
             {article.coverImage ? (

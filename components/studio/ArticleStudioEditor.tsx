@@ -20,7 +20,7 @@ import {
 } from '@/app/[locale]/studio/actions';
 import { SoulIcon, type SoulIconName } from '@/components/icons/SoulIcon';
 import { MarkdownContent } from '@/components/wiki/MarkdownContent';
-import { categories } from '@/lib/content/categories';
+import { categories, type CategoryId } from '@/lib/content/categories';
 import type { Locale } from '@/lib/site';
 import {
   categorySchools,
@@ -34,7 +34,22 @@ import type {
   StudioArticleInput,
 } from '@/lib/wiki/studio-types';
 import type { WikiArticle, WikiArticleStatus } from '@/lib/wiki/types';
-import { articleDifficulties, articleSchools } from '@/types/article';
+import {
+  articleDifficulties,
+  articleSchools,
+  articleSourceStatuses,
+  type Article,
+  type ArticleSourceStatus,
+  type ArticleSchool,
+  type ArticleDifficulty,
+} from '@/types/article';
+import {
+  categoryMetadata,
+  readingLevelMetadata,
+  sourceStatusMetadata,
+} from '@/lib/content/metadata-mapping';
+import { ArticleMetadataPanel } from '@/components/ui/ArticleMetadata';
+import { ArticleCard } from '@/components/articles/ArticleCard';
 
 type SaveState =
   | 'unsaved'
@@ -123,6 +138,7 @@ function initialInput(article: WikiArticle | null): StudioArticleInput {
       ? String(article.coverImage.height)
       : '900',
     featured: article?.featured || false,
+    sourceStatus: article?.sourceStatus || 'original',
   };
 }
 
@@ -414,6 +430,46 @@ export function ArticleStudioEditor({
   const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
   const anyActionPending =
     isSaving || isPublishing || isUploading || isUnpublishing || isArchiving;
+
+  const previewArticle = useMemo<Article>(() => {
+    return {
+      id: articleId || 'preview',
+      slug: form.slug || 'slug-preview',
+      title: form.title || (locale === 'th' ? 'ชื่อบทความตัวอย่าง' : 'Draft Article Title'),
+      subtitle: form.subtitle || '',
+      excerpt: form.excerpt || '',
+      body: form.content || '',
+      language: locale,
+      status: articleStatus,
+      category: (form.category as CategoryId) || 'analytical-psychology',
+      school: (form.school as ArticleSchool) || 'Analytical Psychology',
+      difficulty: (form.difficulty as ArticleDifficulty) || 'beginner',
+      sourceStatus: (form.sourceStatus as ArticleSourceStatus) || 'original',
+      readingTime: readingMinutes,
+      publishedAt: article?.publishedAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: article?.authorName || (locale === 'th' ? 'กองบรรณาธิการ' : 'Editorial Team'),
+      coverImage: form.coverImageUrl ? {
+        src: form.coverImageUrl,
+        path: form.coverImagePath,
+        alt: form.coverImageAlt,
+        width: parseInt(form.coverImageWidth) || 1600,
+        height: parseInt(form.coverImageHeight) || 900,
+      } : null,
+      tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      relatedConcepts: [],
+      relatedArticles: [],
+      references: [],
+      seriesId: form.seriesId || undefined,
+      seoTitle: form.seoTitle || '',
+      seoDescription: form.seoDescription || '',
+      translations: {
+        th: form.translationTh,
+        en: form.translationEn,
+      },
+      featured: form.featured,
+    };
+  }, [form, articleId, articleStatus, locale, article?.publishedAt, article?.authorName, readingMinutes]);
 
   const status = useMemo(() => {
     if (isUploading) {
@@ -979,66 +1035,147 @@ export function ArticleStudioEditor({
             </ul>
           </section>
 
-          <section aria-labelledby="metadata-title" className="space-y-4">
-            <div className="flex items-center gap-3">
+          <section aria-labelledby="metadata-title" className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-border/60 pb-2">
               <SoulIcon name="metadata" className="text-accent" />
               <h2 id="metadata-title" className="font-semibold text-text">
                 Metadata
               </h2>
             </div>
-            <div>
-              <label htmlFor="studio-category" className={labelClassName}>
+            
+            {/* Category Custom Selector */}
+            <div className="space-y-2">
+              <label className={labelClassName}>
                 หมวดหมู่
               </label>
-              <select
-                id="studio-category"
-                value={form.category}
-                onChange={(event) => {
-                  const category = event.target.value;
-                  updateField('category', category);
-                  if (category && category in categories) {
-                    updateField(
-                      'school',
-                      categorySchools[category as keyof typeof categorySchools]
-                    );
-                  }
-                }}
-                className={inputClassName}
-                aria-invalid={highlightedMissing.has('category')}
-              >
-                <option value="">เลือกหมวดหมู่</option>
-                {Object.entries(categories).map(([id, category]) => (
-                  <option key={id} value={id}>
-                    {category.name[locale]}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(categories).map(([id, cat]) => {
+                  const meta = categoryMetadata[id as keyof typeof categoryMetadata];
+                  const isSelected = form.category === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => {
+                        updateField('category', id);
+                        if (id in categorySchools) {
+                          updateField(
+                            'school',
+                            categorySchools[id as keyof typeof categorySchools]
+                          );
+                        }
+                      }}
+                      className={`flex items-start gap-2 rounded-lg border p-2.5 text-left transition-all duration-200 hover:border-accent/40 ${
+                        isSelected
+                          ? 'border-accent bg-accent-soft/30 text-accent font-medium'
+                          : 'border-border bg-surface hover:bg-surface-raised text-text-soft'
+                      }`}
+                    >
+                      <SoulIcon
+                        name={meta?.icon || 'compass'}
+                        size={15}
+                        className={`mt-0.5 shrink-0 ${isSelected ? 'text-accent' : 'text-muted'}`}
+                      />
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-semibold leading-tight truncate">
+                          {cat.name[locale]}
+                        </div>
+                        <div className="text-[9px] text-muted leading-tight truncate mt-0.5">
+                          {meta?.description[locale]}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {highlightedMissing.has('category') && (
+                <p className="mt-1 text-xs text-clay">กรุณาเลือกหมวดหมู่</p>
+              )}
             </div>
-            <div>
-              <label htmlFor="studio-difficulty" className={labelClassName}>
+
+            {/* Reading Level Custom Selector */}
+            <div className="space-y-2">
+              <label className={labelClassName}>
                 ระดับความลึก
               </label>
-              <select
-                id="studio-difficulty"
-                value={form.difficulty}
-                onChange={(event) =>
-                  updateField('difficulty', event.target.value)
-                }
-                className={inputClassName}
-                aria-invalid={highlightedMissing.has('difficulty')}
-              >
-                <option value="">เลือกระดับ</option>
-                {articleDifficulties.map((difficulty) => (
-                  <option key={difficulty} value={difficulty}>
-                    {difficulty === 'beginner'
-                      ? 'เริ่มต้น'
-                      : difficulty === 'intermediate'
-                        ? 'ระดับกลาง'
-                        : 'ระดับลึก'}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-2 gap-2">
+                {articleDifficulties.map((difficulty) => {
+                  const meta = readingLevelMetadata[difficulty];
+                  const isSelected = form.difficulty === difficulty;
+                  return (
+                    <button
+                      key={difficulty}
+                      type="button"
+                      onClick={() => updateField('difficulty', difficulty)}
+                      className={`flex items-start gap-2 rounded-lg border p-2.5 text-left transition-all duration-200 hover:border-accent/40 ${
+                        isSelected
+                          ? 'border-accent bg-accent-soft/30 text-accent font-medium'
+                          : 'border-border bg-surface hover:bg-surface-raised text-text-soft'
+                      }`}
+                    >
+                      <SoulIcon
+                        name={meta?.icon || 'levelBeginner'}
+                        size={15}
+                        className={`mt-0.5 shrink-0 ${isSelected ? 'text-accent' : 'text-muted'}`}
+                      />
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-semibold leading-tight truncate">
+                          {meta?.name[locale]}
+                        </div>
+                        <div className="text-[9px] text-muted leading-tight truncate mt-0.5">
+                          {meta?.description[locale]}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {highlightedMissing.has('difficulty') && (
+                <p className="mt-1 text-xs text-clay">กรุณาเลือกระดับความลึก</p>
+              )}
             </div>
+
+            {/* Source Status Custom Selector */}
+            <div className="space-y-2">
+              <label className={labelClassName}>
+                สถานะต้นทาง
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {articleSourceStatuses.map((status) => {
+                  const meta = sourceStatusMetadata[status];
+                  const isSelected = form.sourceStatus === status;
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      onClick={() => updateField('sourceStatus', status)}
+                      className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition-all duration-200 hover:border-accent/40 ${
+                        isSelected
+                          ? 'border-accent bg-accent-soft/30 text-accent font-medium'
+                          : 'border-border bg-surface hover:bg-surface-raised text-text-soft'
+                      }`}
+                    >
+                      <span style={{ color: meta?.color || 'var(--accent)' }} className="shrink-0 flex items-center">
+                        <SoulIcon
+                          name={meta?.icon || 'statusOriginal'}
+                          size={13}
+                        />
+                      </span>
+                      <span className="text-[11px] truncate">
+                        {meta?.name[locale]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {form.sourceStatus && sourceStatusMetadata[form.sourceStatus as ArticleSourceStatus] && (
+                <div className="rounded-md bg-surface-raised/40 p-2 text-[10px] text-muted border border-border/40 leading-relaxed">
+                  <strong>คำอธิบาย:</strong> {sourceStatusMetadata[form.sourceStatus as ArticleSourceStatus].description[locale]}
+                </div>
+              )}
+            </div>
+
+            {/* Tags Input */}
             <div>
               <label htmlFor="studio-tags" className={labelClassName}>
                 แท็ก
@@ -1051,17 +1188,47 @@ export function ArticleStudioEditor({
                 placeholder="Jung, Shadow, Persona"
               />
             </div>
-            <label className="flex min-h-11 items-center gap-3 text-sm text-text-soft">
+
+            {/* Featured Checkbox */}
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-text-soft">
               <input
                 type="checkbox"
                 checked={form.featured}
                 onChange={(event) =>
                   updateField('featured', event.target.checked)
                 }
-                className="size-4 accent-[var(--accent)]"
+                className="size-4 rounded border-border bg-background text-accent accent-[var(--accent)] focus:ring-accent"
               />
-              บทความแนะนำ
+              <span>บทความแนะนำ</span>
             </label>
+
+            {/* Live Metadata Preview */}
+            <div className="border-t border-border/60 pt-6 space-y-4">
+              <div className="flex items-center gap-2 text-muted">
+                <SoulIcon name="preview" size={16} />
+                <h3 className="text-xs font-semibold uppercase tracking-wider">
+                  {locale === 'th' ? 'ตัวอย่างการแสดงผล' : 'Metadata Live Preview'}
+                </h3>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-medium text-muted block">
+                    {locale === 'th' ? 'หน้าบทความ (Header Panel)' : 'Article Header Panel'}
+                  </span>
+                  <div className="scale-90 origin-top-left -mr-[11%]">
+                    <ArticleMetadataPanel article={previewArticle} locale={locale} />
+                  </div>
+                </div>
+                <div className="space-y-1 border-t border-border/40 pt-4">
+                  <span className="text-[10px] font-medium text-muted block">
+                    {locale === 'th' ? 'หน้ารายการ (Article Card)' : 'Article Card'}
+                  </span>
+                  <div className="rounded-lg border border-border bg-surface-soft/20 p-4 pointer-events-none opacity-90 select-none scale-95 origin-top-left -mr-[5%]">
+                    <ArticleCard article={previewArticle} locale={locale} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
 
           <details className="border-y border-border py-4">

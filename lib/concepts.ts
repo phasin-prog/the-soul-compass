@@ -15,6 +15,7 @@ import type { Locale } from '@/lib/site';
 import {
   conceptDifficulties,
   conceptStatuses,
+  conceptEntryTypes,
   type Concept,
   type ConceptSummary,
 } from '@/types/concept';
@@ -57,6 +58,7 @@ const conceptSchema = z.object({
   language: z.enum(['th', 'en']),
   status: z.enum(conceptStatuses),
   difficulty: z.enum(conceptDifficulties),
+  entryType: z.enum(conceptEntryTypes).optional().default('concept'),
   updatedAt: z.string().regex(isoDatePattern),
   seoTitle: z.string().min(1),
   seoDescription: z.string().min(1),

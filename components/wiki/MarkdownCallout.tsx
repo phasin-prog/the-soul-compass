@@ -7,9 +7,14 @@ export type MarkdownCalloutType =
   | 'source'
   | 'quote'
   | 'warning'
+  | 'caution'
   | 'reflection'
   | 'question'
-  | 'comparison';
+  | 'comparison'
+  | 'note'
+  | 'jungian'
+  | 'psychoanalysis'
+  | 'philosophy';
 
 const calloutStyles: Record<
   MarkdownCalloutType,
@@ -35,6 +40,10 @@ const calloutStyles: Record<
     icon: 'warning',
     accent: 'border-clay/35 bg-clay/5 text-clay',
   },
+  caution: {
+    icon: 'warning',
+    accent: 'border-clay/45 bg-clay/8 text-clay',
+  },
   reflection: {
     icon: 'shadow',
     accent: 'border-blue/35 bg-blue/5 text-blue',
@@ -47,6 +56,22 @@ const calloutStyles: Record<
     icon: 'comparison',
     accent: 'border-celadon/35 bg-celadon/5 text-celadon',
   },
+  note: {
+    icon: 'note',
+    accent: 'border-border bg-surface-raised text-muted',
+  },
+  jungian: {
+    icon: 'compass',
+    accent: 'border-accent/40 bg-accent-soft text-accent',
+  },
+  psychoanalysis: {
+    icon: 'complex',
+    accent: 'border-plum/35 bg-plum/5 text-plum',
+  },
+  philosophy: {
+    icon: 'philosophy',
+    accent: 'border-celadon/35 bg-celadon/5 text-celadon',
+  },
 };
 
 interface MarkdownCalloutProps {
@@ -54,6 +79,7 @@ interface MarkdownCalloutProps {
   title?: string;
   children: ReactNode;
   className?: string;
+  locale?: string;
 }
 
 export function MarkdownCallout({
@@ -61,9 +87,43 @@ export function MarkdownCallout({
   title,
   children,
   className = '',
+  locale = 'th',
 }: MarkdownCalloutProps) {
   const { icon, accent } = calloutStyles[type];
   const Tag = type === 'quote' ? 'blockquote' : 'aside';
+
+  if (type === 'quote') {
+    return (
+      <Tag
+        className={`markdown-callout my-10 border-l-2 border-plum/50 pl-6 sm:pl-8 py-2 font-serif text-[1.125rem] italic leading-relaxed text-text-soft relative ${className}`}
+      >
+        <SoulIcon
+          name="quote"
+          className="absolute -left-6 -top-4 opacity-10 text-plum hidden sm:block"
+          size={56}
+        />
+        <div className="markdown-callout__content">{children}</div>
+      </Tag>
+    );
+  }
+
+  if (type === 'definition') {
+    return (
+      <aside
+        className={`markdown-callout my-8 rounded-xl border border-celadon/25 bg-surface p-6 shadow-sm ${className}`}
+      >
+        <div className="flex items-center gap-2 mb-3 text-celadon">
+          <SoulIcon name="definition" size={16} />
+          <span className="text-xs font-semibold uppercase tracking-wider font-sans">
+            {title || (locale === 'th' ? 'คำนิยาม / ความหมายศัพท์' : 'Definition')}
+          </span>
+        </div>
+        <div className="markdown-callout__content text-text-soft font-serif">
+          {children}
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <Tag

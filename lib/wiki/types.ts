@@ -7,6 +7,7 @@ import type {
   ArticleReference,
   ArticleSchool,
   ArticleStatus,
+  ArticleSourceStatus,
 } from '@/types/article';
 
 export type WikiArticleStatus = ArticleStatus;
@@ -31,6 +32,7 @@ export interface WikiArticleMeta {
   category: CategoryId | '';
   school: ArticleSchool | '';
   difficulty: ArticleDifficulty | '';
+  sourceStatus?: ArticleSourceStatus;
   coverImage: ArticleCoverImage | null;
   tags: string[];
   aliases: string[];
@@ -67,6 +69,7 @@ export interface PublishedArticle {
   category: CategoryId;
   school: ArticleSchool;
   difficulty: ArticleDifficulty;
+  sourceStatus?: ArticleSourceStatus;
   locale: Locale;
   coverImage: ArticleCoverImage | null;
   tags: string[];

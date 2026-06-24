@@ -50,6 +50,14 @@ import {
   Upload,
   Waypoints,
   X,
+  // New icons for metadata system
+  DoorOpen,
+  GraduationCap,
+  PenTool,
+  FlaskConical,
+  ShieldCheck,
+  Clock,
+  User,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -112,6 +120,30 @@ const soulIcons = {
   revision: History,
   archive: Archive,
   remove: Trash2,
+
+  // New design system mappings
+  levelBeginner: DoorOpen,
+  levelIntermediate: BookOpen,
+  levelAdvanced: Layers,
+  levelAcademic: GraduationCap,
+
+  statusOriginal: PenTool,
+  statusPrimary: Landmark,
+  statusSecondary: Layers,
+  statusTranslation: Languages,
+  statusPending: TriangleAlert,
+  statusExperiment: FlaskConical,
+  statusVerified: ShieldCheck,
+  statusRevision: Clock,
+
+  typeConcept: CircleDot,
+  typePerson: User,
+  typeBook: BookOpenText,
+  typeSchool: Landmark,
+  typeTerm: Quote,
+  typeSymbol: Sparkles,
+  typeTimeline: History,
+  typeSourceNote: ScrollText,
 } satisfies Record<string, LucideIcon>;
 
 export type SoulIconName = keyof typeof soulIcons;

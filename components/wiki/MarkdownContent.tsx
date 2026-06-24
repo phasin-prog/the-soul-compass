@@ -1,13 +1,81 @@
+import React, { Children, ReactElement, isValidElement } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { SoulIcon } from '@/components/icons/SoulIcon';
 import { markdownHeadingIcons } from '@/lib/icon-registry';
 import { renderObsidianLinks } from '@/lib/wiki/markdown';
-import { MarkdownCallout } from './MarkdownCallout';
+import { MarkdownCallout, type MarkdownCalloutType } from './MarkdownCallout';
 
 interface MarkdownContentProps {
   content: string;
   locale: string;
+}
+
+const validCalloutTypes: MarkdownCalloutType[] = [
+  'concept',
+  'definition',
+  'source',
+  'quote',
+  'warning',
+  'caution',
+  'reflection',
+  'question',
+  'comparison',
+  'note',
+  'jungian',
+  'psychoanalysis',
+  'philosophy',
+];
+
+function parseCallout(children: React.ReactNode): {
+  type: MarkdownCalloutType;
+  title?: string;
+  cleanChildren: React.ReactNode;
+} | null {
+  const childrenArray = Children.toArray(children);
+  const firstChild = childrenArray[0];
+
+  if (!isValidElement(firstChild) || firstChild.type !== 'p') {
+    return null;
+  }
+
+  const firstElement = firstChild as React.ReactElement<{ children?: React.ReactNode }>;
+  const pChildren = Children.toArray(firstElement.props.children);
+  const firstTextNode = pChildren[0];
+
+  if (typeof firstTextNode !== 'string') {
+    return null;
+  }
+
+  const match = /^\[!([a-zA-Z-]+)\](.*)/.exec(firstTextNode);
+  if (!match) {
+    return null;
+  }
+
+  const type = match[1].toLowerCase() as MarkdownCalloutType;
+  if (!validCalloutTypes.includes(type)) {
+    return null;
+  }
+
+  const remainingText = match[2].trim();
+
+  // Rebuild the paragraph content without the callout header
+  let cleanPChildren: React.ReactNode[];
+  if (remainingText) {
+    cleanPChildren = [remainingText, ...pChildren.slice(1)];
+  } else {
+    cleanPChildren = pChildren.slice(1);
+  }
+
+  const cleanFirstChild = React.cloneElement(firstElement, {
+    children: cleanPChildren,
+  });
+
+  return {
+    type,
+    title: remainingText || undefined,
+    cleanChildren: [cleanFirstChild, ...childrenArray.slice(1)],
+  };
 }
 
 export function MarkdownContent({ content, locale }: MarkdownContentProps) {
@@ -33,9 +101,25 @@ export function MarkdownContent({ content, locale }: MarkdownContentProps) {
             <span>{children}</span>
           </h3>
         ),
-        blockquote: ({ children }) => (
-          <MarkdownCallout type="quote">{children}</MarkdownCallout>
-        ),
+        blockquote: ({ children }) => {
+          const parsed = parseCallout(children);
+          if (parsed) {
+            return (
+              <MarkdownCallout
+                type={parsed.type}
+                title={parsed.title}
+                locale={locale}
+              >
+                {parsed.cleanChildren}
+              </MarkdownCallout>
+            );
+          }
+          return (
+            <MarkdownCallout type="quote" locale={locale}>
+              {children}
+            </MarkdownCallout>
+          );
+        },
         a: ({ children, ...props }) => (
           <a {...props} rel="noreferrer">
             {children}

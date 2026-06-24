@@ -13,8 +13,21 @@ export const articleDifficulties = [
   'beginner',
   'intermediate',
   'advanced',
+  'academic',
 ] as const;
 export type ArticleDifficulty = (typeof articleDifficulties)[number];
+
+export const articleSourceStatuses = [
+  'original',
+  'primary-source',
+  'secondary-source',
+  'translation-draft',
+  'pending-verification',
+  'experiment',
+  'verified',
+  'needs-revision',
+] as const;
+export type ArticleSourceStatus = (typeof articleSourceStatuses)[number];
 
 export const articleSchools = [
   'Analytical Psychology',
@@ -62,6 +75,7 @@ export interface Article {
   category: CategoryId;
   school: ArticleSchool;
   difficulty: ArticleDifficulty;
+  sourceStatus?: ArticleSourceStatus;
   readingTime: number;
   publishedAt: string;
   updatedAt: string;
@@ -79,3 +93,4 @@ export interface Article {
 }
 
 export type ArticleSummary = Omit<Article, 'body' | 'references'>;
+

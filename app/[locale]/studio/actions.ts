@@ -50,8 +50,10 @@ import type { WikiArticle } from '@/lib/wiki/types';
 import {
   articleDifficulties,
   articleSchools,
+  articleSourceStatuses,
   type ArticleDifficulty,
   type ArticleSchool,
+  type ArticleSourceStatus,
 } from '@/types/article';
 
 const optionalUrl = z.union([z.literal(''), z.url()]);
@@ -78,6 +80,7 @@ const articleInputSchema = z.object({
   difficulty: optionalDifficulty,
   tags: z.string().max(1_000),
   aliases: z.string().max(1_000),
+  sourceStatus: z.string().max(100).optional().default('original'),
   relatedConcepts: z.string().max(10_000),
   relatedArticles: z.string().max(4_000),
   references: z.string().max(30_000),
@@ -325,6 +328,18 @@ async function prepareArticle(
     }))
     .filter((concept) => Boolean(concept.slug));
 
+  const sourceStatus = (result.data.sourceStatus || 'original') as ArticleSourceStatus;
+  const baseTags = parseCommaSeparated(result.data.tags)
+    .filter(t => !t.startsWith('source-status:') && !t.startsWith('reading-level:'));
+  
+  const finalTags = [...baseTags];
+  if (sourceStatus) {
+    finalTags.push(`source-status:${sourceStatus}`);
+  }
+  if (difficulty === 'academic') {
+    finalTags.push('reading-level:academic');
+  }
+
   const article: WikiArticle = {
     ...(currentArticle || {}),
     schemaVersion: 3,
@@ -340,6 +355,7 @@ async function prepareArticle(
     category,
     school,
     difficulty,
+    sourceStatus,
     coverImage: result.data.coverImageUrl
       ? {
           src: result.data.coverImageUrl,
@@ -351,7 +367,7 @@ async function prepareArticle(
           height: parseDimension(result.data.coverImageHeight, 900),
         }
       : null,
-    tags: parseCommaSeparated(result.data.tags),
+    tags: finalTags,
     aliases: parseCommaSeparated(result.data.aliases),
     outgoingLinks: extractWikiLinks(result.data.content),
     relatedConcepts: parsedConcepts,

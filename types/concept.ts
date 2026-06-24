@@ -8,8 +8,21 @@ export const conceptDifficulties = [
   'beginner',
   'intermediate',
   'advanced',
+  'academic',
 ] as const;
 export type ConceptDifficulty = (typeof conceptDifficulties)[number];
+
+export const conceptEntryTypes = [
+  'concept',
+  'person',
+  'book',
+  'school',
+  'term',
+  'symbol',
+  'timeline',
+  'source-note',
+] as const;
+export type ConceptEntryType = (typeof conceptEntryTypes)[number];
 
 export interface ConceptRelation {
   slug: string;
@@ -46,6 +59,7 @@ export interface Concept {
   language: Locale;
   status: ConceptStatus;
   difficulty: ConceptDifficulty;
+  entryType?: ConceptEntryType;
   updatedAt: string;
   seoTitle: string;
   seoDescription: string;
@@ -60,3 +74,4 @@ export type ConceptSummary = Omit<
   | 'commonMisunderstandings'
   | 'examples'
 >;
+

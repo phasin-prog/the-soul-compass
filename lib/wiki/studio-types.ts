@@ -39,6 +39,7 @@ export interface StudioArticleInput {
   coverImageWidth: string;
   coverImageHeight: string;
   featured: boolean;
+  sourceStatus: string;
 }
 
 export interface StudioActionResult {

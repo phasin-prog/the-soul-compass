@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { SoulIcon } from '@/components/icons/SoulIcon';
 import { CategoryBadge } from '@/components/ui/CategoryBadge';
+import { ReadingLevelBadge, WikiEntryTypeBadge } from '@/components/ui/Badge';
 import { categories } from '@/lib/content/categories';
-import { getDifficultyLabel } from '@/lib/format';
 import type { Locale } from '@/lib/site';
 import type { ConceptSummary } from '@/types/concept';
 
@@ -13,6 +13,7 @@ interface ConceptCardProps {
 
 export function ConceptCard({ concept, locale }: ConceptCardProps) {
   const category = categories[concept.category];
+  const entryType = concept.entryType || 'concept';
 
   return (
     <article className="border-t border-border">
@@ -29,16 +30,16 @@ export function ConceptCard({ concept, locale }: ConceptCardProps) {
               <span className="text-sm text-muted">{concept.thaiTerm}</span>
             ) : null}
           </div>
-          <p className="type-meta mt-2 text-muted">
-            {getDifficultyLabel(locale, concept.difficulty)}
-          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <ReadingLevelBadge level={concept.difficulty} locale={locale} />
+            <WikiEntryTypeBadge type={entryType} locale={locale} />
+          </div>
         </div>
 
         <div>
           <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
             <CategoryBadge
-              color={category.color}
-              name={category.name}
+              category={concept.category}
               locale={locale}
             />
             <span className="type-meta text-muted">{concept.tradition}</span>

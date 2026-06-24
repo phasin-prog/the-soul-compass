@@ -16,7 +16,7 @@ export const tpdtConcepts = [
       'ใน TPDT แนวคิดนี้ทำหน้าที่เป็นระดับวิเคราะห์เชิงกระบวนการ โดยพิจารณา activation, inhibition, compensation และ transition ของ patterns โดยยังอยู่ในระหว่างพัฒนานิยามเชิงปฏิบัติการ',
     category: 'tpdt',
     tradition: 'TPDT (Theory in Development)',
-    thinkers: ['Witcha Prasomsin'],
+    thinkers: ['Phasin Pasumart'],
     relatedConcepts: [
       { slug: 'defense-field', title: 'Defense Field', relation: 'การจัดระเบียบเพื่อรักษาเสถียรภาพ' },
       { slug: 'transformation-axis', title: 'Transformation Axis', relation: 'มิติของการเปลี่ยนรูป' },
@@ -51,7 +51,7 @@ export const tpdtConcepts = [
       'แนวคิดนี้เป็นข้อเสนอของ TPDT เพื่อวิเคราะห์ defense ในระดับ distributed pattern โดยเชื่อม intrapsychic operations กับ interpersonal feedback และ contextual reinforcement',
     category: 'tpdt',
     tradition: 'TPDT (Theory in Development)',
-    thinkers: ['Witcha Prasomsin', 'Sigmund Freud', 'Anna Freud'],
+    thinkers: ['Phasin Pasumart', 'Sigmund Freud', 'Anna Freud'],
     relatedConcepts: [
       { slug: 'defense-mechanism', title: 'Defense Mechanism', relation: 'รากฐานในจิตวิเคราะห์' },
       { slug: 'psyche-dynamics', title: 'Psyche Dynamics', relation: 'การเคลื่อนไหวในสนาม' },
@@ -85,7 +85,7 @@ export const tpdtConcepts = [
       'ใน TPDT แกนนี้เป็น construct เชิงพัฒนาที่เสนอให้พิจารณา rigidity, reflective capacity, tolerance of conflict, experimentation และ consolidation โดยยังต้องพัฒนาวิธี operationalize',
     category: 'tpdt',
     tradition: 'TPDT (Theory in Development)',
-    thinkers: ['Witcha Prasomsin', 'Donald W. Winnicott'],
+    thinkers: ['Phasin Pasumart', 'Donald W. Winnicott'],
     relatedConcepts: [
       { slug: 'psyche-dynamics', title: 'Psyche Dynamics', relation: 'กระบวนการที่ถูกติดตาม' },
       { slug: 'defense-field', title: 'Defense Field', relation: 'เสถียรภาพที่อาจต้านการเปลี่ยน' },
@@ -120,7 +120,7 @@ export const tpdtConcepts = [
       'TPDT เสนอคำนี้เพื่ออธิบาย metastable configurations ที่รองรับ experimentation ระหว่าง loosening of defense field และ consolidation ของ organization ใหม่',
     category: 'tpdt',
     tradition: 'TPDT (Theory in Development)',
-    thinkers: ['Witcha Prasomsin', 'Donald W. Winnicott'],
+    thinkers: ['Phasin Pasumart', 'Donald W. Winnicott'],
     relatedConcepts: [
       { slug: 'transformation-axis', title: 'Transformation Axis', relation: 'ตำแหน่งของการเคลื่อนผ่าน' },
       { slug: 'defense-field', title: 'Defense Field', relation: 'โครงสร้างเดิมที่ยังดึงกลับ' },

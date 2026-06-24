@@ -12,7 +12,7 @@ export const siteConfig = {
     en: 'A space for studying mind across psychology, neuroscience, and philosophy',
   },
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://thesoulscompass.com',
-  author: 'Witcha Prasomsin',
+  author: 'Phasin Pasumart',
   social: {
     email: 'contact@thesoulscompass.com',
   },

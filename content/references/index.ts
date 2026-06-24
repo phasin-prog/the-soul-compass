@@ -403,7 +403,7 @@ export const references: Reference[] = [
     category: 'tpdt',
     tradition: 'TPDT (Theory in Development)',
     sourceLevel: 'internal',
-    relatedThinkers: ['Witcha Prasomsin'],
+    relatedThinkers: ['Phasin Pasumart'],
     relatedConcepts: [
       'psyche-dynamics',
       'defense-field',

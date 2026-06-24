@@ -27,7 +27,7 @@ const inputOwnerId = argument('owner-id') || process.env.STUDIO_SEED_OWNER_ID;
 const ownerName =
   argument('owner-name') ||
   process.env.STUDIO_SEED_OWNER_NAME ||
-  "The Soul's Compass";
+  'Phasin Pasumart';
 
 const supabase = createClient(
   required('NEXT_PUBLIC_SUPABASE_URL'),

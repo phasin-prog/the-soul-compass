@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { localeConfig } from '@/lib/locale';
-import { siteConfig } from '@/lib/site';
 
 interface SiteMapItem {
   id: string;
@@ -213,9 +211,9 @@ export default function SitemapPage() {
       ease: 'sine.inOut',
     });
 
-    // Animate concentric circles
     gsap.to('.concentric-circle', {
-      opacity: [0.3, 0.6, 0.3],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      opacity: [0.3, 0.6, 0.3] as any,
       duration: 4,
       repeat: -1,
       stagger: 0.2,

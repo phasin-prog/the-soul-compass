@@ -9,6 +9,7 @@ import type {
   ArticleStatus,
   ArticleSourceStatus,
 } from '@/types/article';
+import type { SeriesItem } from '@/types/series';
 
 export type WikiArticleStatus = ArticleStatus;
 
@@ -41,6 +42,18 @@ export interface WikiArticleMeta {
   relatedArticles: string[];
   references: ArticleReference[];
   seriesId?: string;
+  postType?: 'article' | 'concept' | 'series';
+  // Concept metadata
+  originalTerm?: string;
+  thaiTerm?: string;
+  shortDefinition?: string;
+  tradition?: string;
+  thinkers?: string[];
+  commonMisunderstandings?: string[];
+  examples?: string[];
+  entryType?: string;
+  // Series metadata
+  items?: SeriesItem[];
   seoTitle: string;
   seoDescription: string;
   translations: Partial<Record<Locale, string>>;
@@ -79,6 +92,18 @@ export interface PublishedArticle {
   relatedArticles: string[];
   references: ArticleReference[];
   seriesId?: string;
+  postType?: 'article' | 'concept' | 'series';
+  // Concept metadata
+  originalTerm?: string;
+  thaiTerm?: string;
+  shortDefinition?: string;
+  tradition?: string;
+  thinkers?: string[];
+  commonMisunderstandings?: string[];
+  examples?: string[];
+  entryType?: string;
+  // Series metadata
+  items?: SeriesItem[];
   seoTitle: string;
   seoDescription: string;
   translations: Partial<Record<Locale, string>>;

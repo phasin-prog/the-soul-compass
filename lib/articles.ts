@@ -246,8 +246,44 @@ function mapPublishedArticle(
     ? (sourceStatusTag.substring('source-status:'.length) as ArticleSourceStatus)
     : 'original';
 
+  // Extract postType from tags
+  const postTypeTag = article.tags.find(t => t.startsWith('post-type:'));
+  const postType = postTypeTag ? (postTypeTag.substring('post-type:'.length) as 'article' | 'concept' | 'series') : 'article';
+
+  // Extract entryType from tags
+  const entryTypeTag = article.tags.find(t => t.startsWith('entry-type:'));
+  const entryType = entryTypeTag ? entryTypeTag.substring('entry-type:'.length) : undefined;
+
+  // Extract thinkers from tags
+  const thinkers = article.tags.filter(t => t.startsWith('thinker:')).map(t => t.substring('thinker:'.length));
+
+  // Extract commonMisunderstandings from tags
+  const commonMisunderstandings = article.tags.filter(t => t.startsWith('misunderstanding:')).map(t => t.substring('misunderstanding:'.length));
+
+  // Extract examples from tags
+  const examples = article.tags.filter(t => t.startsWith('example:')).map(t => t.substring('example:'.length));
+
+  // Extract other details
+  const originalTermTag = article.tags.find(t => t.startsWith('original-term:'));
+  const originalTerm = originalTermTag ? originalTermTag.substring('original-term:'.length) : article.subtitle;
+  const thaiTermTag = article.tags.find(t => t.startsWith('thai-term:'));
+  const thaiTerm = thaiTermTag ? thaiTermTag.substring('thai-term:'.length) : article.title;
+  const traditionTag = article.tags.find(t => t.startsWith('tradition:'));
+  const tradition = traditionTag ? traditionTag.substring('tradition:'.length) : (article.school || categorySchools[category]);
+
   // Clean tags of the serialized metadata tags
-  const cleanTags = article.tags.filter(t => !t.startsWith('source-status:') && !t.startsWith('reading-level:'));
+  const cleanTags = article.tags.filter(
+    t => !t.startsWith('source-status:') && 
+         !t.startsWith('reading-level:') && 
+         !t.startsWith('post-type:') &&
+         !t.startsWith('entry-type:') &&
+         !t.startsWith('thinker:') &&
+         !t.startsWith('misunderstanding:') &&
+         !t.startsWith('example:') &&
+         !t.startsWith('original-term:') &&
+         !t.startsWith('thai-term:') &&
+         !t.startsWith('tradition:')
+  );
 
   return {
     id: article.id,
@@ -262,6 +298,18 @@ function mapPublishedArticle(
     school: article.school || categorySchools[category],
     difficulty,
     sourceStatus,
+    postType,
+    // Concept fields
+    originalTerm,
+    thaiTerm,
+    shortDefinition: article.excerpt,
+    tradition,
+    thinkers,
+    commonMisunderstandings,
+    examples,
+    entryType,
+    // Series fields
+    items: article.items,
     readingTime: article.readingMinutes,
     publishedAt: article.publishedAt,
     updatedAt: article.updatedAt,

@@ -15,6 +15,7 @@ import {
   type ArticleDifficulty,
 } from '@/types/article';
 import type { WikiArticleMeta, WikiArticleStatus, WikiLink } from './types';
+import type { SeriesItem } from '@/types/series';
 
 export const categorySchools: Record<CategoryId, ArticleSchool> = {
   'analytical-psychology': 'Analytical Psychology',
@@ -213,6 +214,21 @@ export function normalizeWikiArticleMeta(
         : new Date(0).toISOString(),
     publishedAt:
       typeof raw.publishedAt === 'string' ? raw.publishedAt : null,
+    postType:
+      raw.postType === 'article' ||
+      raw.postType === 'concept' ||
+      raw.postType === 'series'
+        ? raw.postType
+        : 'article',
+    originalTerm: typeof raw.originalTerm === 'string' ? raw.originalTerm : undefined,
+    thaiTerm: typeof raw.thaiTerm === 'string' ? raw.thaiTerm : undefined,
+    shortDefinition: typeof raw.shortDefinition === 'string' ? raw.shortDefinition : undefined,
+    tradition: typeof raw.tradition === 'string' ? raw.tradition : undefined,
+    thinkers: Array.isArray(raw.thinkers) ? stringArray(raw.thinkers) : undefined,
+    commonMisunderstandings: Array.isArray(raw.commonMisunderstandings) ? stringArray(raw.commonMisunderstandings) : undefined,
+    examples: Array.isArray(raw.examples) ? stringArray(raw.examples) : undefined,
+    entryType: typeof raw.entryType === 'string' ? raw.entryType : undefined,
+    items: Array.isArray(raw.items) ? (raw.items as SeriesItem[]) : undefined,
   };
 }
 

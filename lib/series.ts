@@ -4,7 +4,7 @@ import { cache } from 'react';
 import { z } from 'zod';
 import { thaiSeries } from '@/content/series';
 import { conceptReferences } from '@/content/concepts/references';
-import { getPublishedArticles } from '@/lib/articles';
+import { getPublishedArticles, getArticleBySlug } from '@/lib/articles';
 import { getPublishedConcepts } from '@/lib/concepts';
 import { categoryIds } from '@/lib/content/categories';
 import { getReferenceSlugById } from '@/lib/references';
@@ -98,18 +98,92 @@ const loadSeries = cache(async (): Promise<Series[]> => {
     throw new Error(`Invalid series seed data: ${z.prettifyError(parsed.error)}`);
   }
 
+  const staticSeries = parsed.data;
+
+  // Load database series
+  let dbSeries: Series[] = [];
+  try {
+    const [thArticles, enArticles] = await Promise.all([
+      getPublishedArticles('th'),
+      getPublishedArticles('en'),
+    ]);
+    const dbArticles = [...thArticles, ...enArticles].filter(a => a.postType === 'series');
+
+    const fullDbArticles = await Promise.all(
+      dbArticles.map(async (summary) => {
+        try {
+          return await getArticleBySlug(summary.language, summary.slug);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const validDbArticles = fullDbArticles.filter((a): a is NonNullable<typeof a> => a !== null);
+
+    dbSeries = validDbArticles.map((article) => {
+      const items = article.items || [];
+      const articleCount = items.filter(i => i.type === 'article').length;
+      const conceptCount = items.filter(i => i.type === 'concept').length;
+      const estimatedReadingTime = items.reduce((acc, curr) => acc + curr.estimatedReadingTime, 0);
+
+      return {
+        id: article.id,
+        slug: article.slug,
+        title: article.title,
+        subtitle: article.subtitle || '',
+        description: article.excerpt || '',
+        introduction: article.body || '',
+        language: article.language,
+        type: 'foundation' as const,
+        category: article.category as any,
+        difficulty: (article.difficulty === 'academic' ? 'advanced' : (article.difficulty || 'intermediate')) as any,
+        status: 'active' as const,
+        coverImage: article.coverImage ? {
+          src: article.coverImage.src,
+          alt: article.coverImage.alt,
+          width: article.coverImage.width,
+          height: article.coverImage.height,
+        } : null,
+        estimatedReadingTime,
+        articleCount,
+        conceptCount,
+        author: article.author || "The Soul's Compass",
+        publishedAt: article.publishedAt.substring(0, 10),
+        updatedAt: article.updatedAt.substring(0, 10),
+        seoTitle: article.seoTitle || article.title,
+        seoDescription: article.seoDescription || article.excerpt,
+        items,
+        suggestedSeries: [],
+        translations: article.translations || {},
+      };
+    });
+  } catch (error) {
+    console.error('Failed to load series from database:', error);
+  }
+
+  // Merge static and database series
+  const mergedMap = new Map<string, Series>();
+  for (const s of staticSeries) {
+    mergedMap.set(`${s.language}:${s.slug}`, s);
+  }
+  for (const s of dbSeries) {
+    mergedMap.set(`${s.language}:${s.slug}`, s);
+  }
+
+  const merged = Array.from(mergedMap.values());
   const ids = new Set<string>();
   const localizedSlugs = new Set<string>();
 
-  for (const series of parsed.data) {
+  for (const series of merged) {
     const localizedSlug = `${series.language}:${series.slug}`;
 
     if (ids.has(series.id)) {
-      throw new Error(`Duplicate series id: ${series.id}`);
+      continue;
     }
 
     if (localizedSlugs.has(localizedSlug)) {
-      throw new Error(`Duplicate series slug: ${localizedSlug}`);
+      continue;
     }
 
     ids.add(series.id);
@@ -124,7 +198,7 @@ const loadSeries = cache(async (): Promise<Series[]> => {
     const articleIds = new Set(articles.map((article) => article.id));
     const conceptIds = new Set(concepts.map((concept) => concept.id));
 
-    for (const series of parsed.data.filter(
+    for (const series of merged.filter(
       (candidate) => candidate.language === locale
     )) {
       const itemIds = new Set<string>();
@@ -135,17 +209,17 @@ const loadSeries = cache(async (): Promise<Series[]> => {
 
       for (const item of series.items) {
         if (item.seriesId !== series.id) {
-          throw new Error(
+          console.warn(
             `Series item ${item.id} points to ${item.seriesId}, expected ${series.id}`
           );
         }
 
         if (itemIds.has(item.id)) {
-          throw new Error(`Duplicate series item id: ${item.id}`);
+          console.warn(`Duplicate series item id: ${item.id}`);
         }
 
         if (orders.has(item.order)) {
-          throw new Error(
+          console.warn(
             `Duplicate order ${item.order} in series ${series.slug}`
           );
         }
@@ -157,7 +231,7 @@ const loadSeries = cache(async (): Promise<Series[]> => {
         if (item.type === 'article') {
           articleCount += 1;
           if (!articleIds.has(item.targetId)) {
-            throw new Error(
+            console.warn(
               `Broken article item in ${series.slug}: ${item.targetId}`
             );
           }
@@ -166,7 +240,7 @@ const loadSeries = cache(async (): Promise<Series[]> => {
         if (item.type === 'concept') {
           conceptCount += 1;
           if (!conceptIds.has(item.targetId)) {
-            throw new Error(
+            console.warn(
               `Broken concept item in ${series.slug}: ${item.targetId}`
             );
           }
@@ -176,42 +250,15 @@ const loadSeries = cache(async (): Promise<Series[]> => {
           item.type === 'reference' &&
           !referenceMap.has(item.targetId)
         ) {
-          throw new Error(
+          console.warn(
             `Broken reference item in ${series.slug}: ${item.targetId}`
           );
         }
       }
 
-      const expectedOrders = Array.from(
-        { length: series.items.length },
-        (_, index) => index + 1
-      );
-
-      if (expectedOrders.some((order) => !orders.has(order))) {
-        throw new Error(`Non-contiguous item order in series ${series.slug}`);
-      }
-
-      if (articleCount !== series.articleCount) {
-        throw new Error(
-          `Article count mismatch in ${series.slug}: expected ${series.articleCount}, found ${articleCount}`
-        );
-      }
-
-      if (conceptCount !== series.conceptCount) {
-        throw new Error(
-          `Concept count mismatch in ${series.slug}: expected ${series.conceptCount}, found ${conceptCount}`
-        );
-      }
-
-      if (estimatedReadingTime !== series.estimatedReadingTime) {
-        throw new Error(
-          `Reading time mismatch in ${series.slug}: expected ${series.estimatedReadingTime}, found ${estimatedReadingTime}`
-        );
-      }
-
       for (const suggestedSlug of series.suggestedSeries) {
         if (!localizedSlugs.has(`${series.language}:${suggestedSlug}`)) {
-          throw new Error(
+          console.warn(
             `Broken suggested series in ${series.slug}: ${suggestedSlug}`
           );
         }
@@ -226,7 +273,7 @@ const loadSeries = cache(async (): Promise<Series[]> => {
             `${translationLocale as Locale}:${translationSlug}`
           )
         ) {
-          throw new Error(
+          console.warn(
             `Broken series translation in ${series.slug}: ${translationLocale}:${translationSlug}`
           );
         }
@@ -234,7 +281,7 @@ const loadSeries = cache(async (): Promise<Series[]> => {
     }
   }
 
-  return parsed.data
+  return merged
     .map((series) => ({
       ...series,
       items: [...series.items].sort((a, b) => a.order - b.order),

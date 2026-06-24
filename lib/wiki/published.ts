@@ -14,6 +14,7 @@ import {
   type ArticleReference,
   type ArticleSchool,
 } from '@/types/article';
+import type { SeriesItem } from '@/types/series';
 import { categorySchools } from './article-metadata';
 import {
   ARTICLE_PUBLICATIONS_CACHE_TAG,
@@ -115,6 +116,41 @@ function toPublishedArticle(
     return null;
   }
 
+  const postTypeTag = (row.tags || []).find(t => t.startsWith('post-type:'));
+  const postType = postTypeTag ? (postTypeTag.substring('post-type:'.length) as 'article' | 'concept' | 'series') : 'article';
+
+  const entryTypeTag = (row.tags || []).find(t => t.startsWith('entry-type:'));
+  const entryType = entryTypeTag ? entryTypeTag.substring('entry-type:'.length) : undefined;
+
+  const thinkers = (row.tags || []).filter(t => t.startsWith('thinker:')).map(t => t.substring('thinker:'.length));
+  const commonMisunderstandings = (row.tags || []).filter(t => t.startsWith('misunderstanding:')).map(t => t.substring('misunderstanding:'.length));
+  const examples = (row.tags || []).filter(t => t.startsWith('example:')).map(t => t.substring('example:'.length));
+
+  const originalTermTag = (row.tags || []).find(t => t.startsWith('original-term:'));
+  const originalTerm = originalTermTag ? originalTermTag.substring('original-term:'.length) : row.subtitle;
+
+  const thaiTermTag = (row.tags || []).find(t => t.startsWith('thai-term:'));
+  const thaiTerm = thaiTermTag ? thaiTermTag.substring('thai-term:'.length) : row.title;
+
+  const traditionTag = (row.tags || []).find(t => t.startsWith('tradition:'));
+  const tradition = traditionTag ? traditionTag.substring('tradition:'.length) : row.school;
+
+  const items = postType === 'series' ? (row.references as unknown as SeriesItem[]) : undefined;
+
+  // Clean tags of the serialized metadata tags
+  const cleanTags = (row.tags || []).filter(
+    t => !t.startsWith('source-status:') && 
+         !t.startsWith('reading-level:') && 
+         !t.startsWith('post-type:') &&
+         !t.startsWith('entry-type:') &&
+         !t.startsWith('thinker:') &&
+         !t.startsWith('misunderstanding:') &&
+         !t.startsWith('example:') &&
+         !t.startsWith('original-term:') &&
+         !t.startsWith('thai-term:') &&
+         !t.startsWith('tradition:')
+  );
+
   return {
     id: row.id,
     slug: row.slug,
@@ -133,13 +169,23 @@ function toPublishedArticle(
           alt: row.cover_alt || row.cover_image?.alt || row.title,
         }
       : row.cover_image,
-    tags: row.tags || [],
+    tags: cleanTags,
     aliases: row.aliases || [],
     outgoingLinks: [],
     relatedConcepts: row.related_concepts || [],
     relatedArticles: row.related_articles || [],
-    references: row.references || [],
+    references: postType === 'series' ? [] : (row.references || []),
     seriesId: row.series_id || undefined,
+    postType,
+    originalTerm,
+    thaiTerm,
+    shortDefinition: row.excerpt,
+    tradition,
+    thinkers,
+    commonMisunderstandings,
+    examples,
+    entryType,
+    items,
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
     translations: row.translations || {},
@@ -173,6 +219,28 @@ export async function publishWikiArticle(
   if (article.sourceStatus && !dbTags.includes(`source-status:${article.sourceStatus}`)) {
     dbTags.push(`source-status:${article.sourceStatus}`);
   }
+  if (article.postType) {
+    dbTags.push(`post-type:${article.postType}`);
+  }
+  if (article.postType === 'concept') {
+    if (article.entryType) dbTags.push(`entry-type:${article.entryType}`);
+    if (article.originalTerm) dbTags.push(`original-term:${article.originalTerm}`);
+    if (article.thaiTerm) dbTags.push(`thai-term:${article.thaiTerm}`);
+    if (article.tradition) dbTags.push(`tradition:${article.tradition}`);
+    if (article.thinkers) {
+      article.thinkers.forEach(t => dbTags.push(`thinker:${t}`));
+    }
+    if (article.commonMisunderstandings) {
+      article.commonMisunderstandings.forEach(m => dbTags.push(`misunderstanding:${m}`));
+    }
+    if (article.examples) {
+      article.examples.forEach(e => dbTags.push(`example:${e}`));
+    }
+  }
+
+  const dbReferences = article.postType === 'series' && article.items 
+    ? (article.items as unknown as ArticleReference[]) 
+    : article.references;
 
   const row: ArticlePublicationRow = {
     id: article.publicId,
@@ -183,7 +251,7 @@ export async function publishWikiArticle(
     subtitle: article.subtitle,
     excerpt: article.excerpt,
     category: article.category,
-    school: article.school || categorySchools[article.category],
+    school: isSchool(article.school || '') ? article.school : categorySchools[article.category],
     difficulty: dbDifficulty,
     reading_time: article.readingMinutes,
     published_at: article.publishedAt,
@@ -197,7 +265,7 @@ export async function publishWikiArticle(
     aliases: article.aliases,
     related_concepts: article.relatedConcepts,
     related_articles: article.relatedArticles,
-    references: article.references,
+    references: dbReferences,
     series_id: article.seriesId || null,
     seo_title: article.seoTitle || article.title,
     seo_description: article.seoDescription,

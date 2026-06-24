@@ -1,5 +1,6 @@
 import type { CategoryId } from '@/lib/content/categories';
 import type { Locale } from '@/lib/site';
+import type { SeriesItem } from './series';
 
 export const articleStatuses = [
   'draft',
@@ -86,6 +87,18 @@ export interface Article {
   relatedArticles: string[];
   references: ArticleReference[];
   seriesId?: string;
+  postType?: 'article' | 'concept' | 'series';
+  // Concept metadata
+  originalTerm?: string;
+  thaiTerm?: string;
+  shortDefinition?: string;
+  tradition?: string;
+  thinkers?: string[];
+  commonMisunderstandings?: string[];
+  examples?: string[];
+  entryType?: string;
+  // Series metadata
+  items?: SeriesItem[];
   seoTitle: string;
   seoDescription: string;
   translations: Partial<Record<Locale, string>>;

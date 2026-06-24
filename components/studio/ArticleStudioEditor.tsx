@@ -34,6 +34,7 @@ import type {
   StudioArticleInput,
 } from '@/lib/wiki/studio-types';
 import type { WikiArticle, WikiArticleStatus } from '@/lib/wiki/types';
+import type { SeriesItem } from '@/types/series';
 import {
   articleDifficulties,
   articleSchools,
@@ -139,6 +140,16 @@ function initialInput(article: WikiArticle | null): StudioArticleInput {
       : '900',
     featured: article?.featured || false,
     sourceStatus: article?.sourceStatus || 'original',
+    postType: article?.postType || 'article',
+    originalTerm: article?.originalTerm || '',
+    thaiTerm: article?.thaiTerm || '',
+    shortDefinition: article?.shortDefinition || '',
+    tradition: article?.tradition || '',
+    thinkers: article?.thinkers?.join(', ') || '',
+    commonMisunderstandings: article?.commonMisunderstandings?.join('\n') || '',
+    examples: article?.examples?.join('\n') || '',
+    entryType: article?.entryType || 'concept',
+    seriesItemsJson: article?.items ? JSON.stringify(article.items) : '[]',
   };
 }
 
@@ -150,8 +161,10 @@ function getMissingFields(input: StudioArticleInput): PublishRequirementKey[] {
   if (!input.excerpt.trim()) missing.push('excerpt');
   if (!input.category) missing.push('category');
   if (!input.difficulty) missing.push('difficulty');
-  if (!input.coverImageUrl) missing.push('coverImage');
-  if (!input.coverImageAlt.trim()) missing.push('coverAlt');
+  if (input.postType === 'article' || !input.postType) {
+    if (!input.coverImageUrl) missing.push('coverImage');
+    if (!input.coverImageAlt.trim()) missing.push('coverAlt');
+  }
   return missing;
 }
 
@@ -259,6 +272,7 @@ export function ArticleStudioEditor({
   const savingRef = useRef(false);
   const lastSavedRef = useRef(JSON.stringify(initial));
   const backupKey = `soul-studio:${article?.id || 'new'}:${locale}`;
+
   const [localBackupAvailable, setLocalBackupAvailable] = useState(() => {
     if (typeof window === 'undefined') return false;
     const stored = window.localStorage.getItem(backupKey);
@@ -298,6 +312,66 @@ export function ArticleStudioEditor({
     },
     []
   );
+
+  const seriesItems = useMemo<SeriesItem[]>(() => {
+    try {
+      return form.seriesItemsJson ? JSON.parse(form.seriesItemsJson) : [];
+    } catch {
+      return [];
+    }
+  }, [form.seriesItemsJson]);
+
+  const updateSeriesItems = useCallback((newItems: SeriesItem[]) => {
+    const sorted = [...newItems].map((item, idx) => ({
+      ...item,
+      order: idx + 1,
+      seriesId: articleIdRef.current || 'new-series',
+    }));
+    updateField('seriesItemsJson', JSON.stringify(sorted));
+  }, [updateField]);
+
+  const handleAddSeriesItem = () => {
+    const newItem: SeriesItem = {
+      id: `item-${Math.random().toString(36).substring(2, 10)}`,
+      seriesId: articleIdRef.current || 'new-series',
+      order: seriesItems.length + 1,
+      type: 'article',
+      targetId: '',
+      title: '',
+      description: '',
+      required: true,
+      estimatedReadingTime: 5,
+    };
+    updateSeriesItems([...seriesItems, newItem]);
+  };
+
+  const handleUpdateSeriesItem = (id: string, key: string, value: any) => {
+    const next = seriesItems.map((item) => {
+      if (item.id === id) {
+        return { ...item, [key]: value };
+      }
+      return item;
+    });
+    updateSeriesItems(next);
+  };
+
+  const handleMoveSeriesItem = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === seriesItems.length - 1) return;
+
+    const next = [...seriesItems];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const temp = next[index];
+    next[index] = next[targetIndex];
+    next[targetIndex] = temp;
+
+    updateSeriesItems(next);
+  };
+
+  const handleDeleteSeriesItem = (id: string) => {
+    const next = seriesItems.filter((item) => item.id !== id);
+    updateSeriesItems(next);
+  };
 
   useEffect(() => {
     window.localStorage.setItem(backupKey, JSON.stringify(form));
@@ -461,6 +535,16 @@ export function ArticleStudioEditor({
       relatedArticles: [],
       references: [],
       seriesId: form.seriesId || undefined,
+      postType: (form.postType as 'article' | 'concept' | 'series') || 'article',
+      originalTerm: form.originalTerm || undefined,
+      thaiTerm: form.thaiTerm || undefined,
+      shortDefinition: form.shortDefinition || undefined,
+      tradition: form.tradition || undefined,
+      thinkers: form.thinkers ? form.thinkers.split(',').map(t => t.trim()).filter(Boolean) : undefined,
+      commonMisunderstandings: form.commonMisunderstandings ? form.commonMisunderstandings.split('\n').map(m => m.trim()).filter(Boolean) : undefined,
+      examples: form.examples ? form.examples.split('\n').map(e => e.trim()).filter(Boolean) : undefined,
+      entryType: form.entryType || undefined,
+      items: form.postType === 'series' ? seriesItems : undefined,
       seoTitle: form.seoTitle || '',
       seoDescription: form.seoDescription || '',
       translations: {
@@ -469,7 +553,7 @@ export function ArticleStudioEditor({
       },
       featured: form.featured,
     };
-  }, [form, articleId, articleStatus, locale, article?.publishedAt, article?.authorName, readingMinutes]);
+  }, [form, articleId, articleStatus, locale, article?.publishedAt, article?.authorName, readingMinutes, seriesItems]);
 
   const status = useMemo(() => {
     if (isUploading) {
@@ -740,97 +824,138 @@ export function ArticleStudioEditor({
             </div>
           ) : null}
 
-          <section aria-labelledby="cover-heading">
-            <div className="mb-4 flex items-center gap-3">
-              <SoulIcon name="cover" className="text-accent" />
-              <h2 id="cover-heading" className="text-lg font-semibold text-text">
-                ภาพปก
+          {/* Post Type Selector */}
+          <section aria-labelledby="post-type-heading" className="rounded-lg border border-border bg-surface p-5 space-y-4">
+            <div className="mb-1 flex items-center gap-3">
+              <SoulIcon name="revision" className="text-accent" />
+              <h2 id="post-type-heading" className="text-base font-semibold text-text">
+                ประเภทเนื้อหา (Content Type)
               </h2>
             </div>
-            <div className="overflow-hidden rounded-lg border border-border bg-surface">
-              <div className="relative aspect-[16/9] w-full bg-surface-raised">
-                {form.coverImageUrl ? (
-                  <Image
-                    src={form.coverImageUrl}
-                    alt={form.coverImageAlt || ''}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 900px"
-                    className="object-cover"
-                    unoptimized={form.coverImageUrl.startsWith('/')}
-                  />
-                ) : (
-                  <div className="grid h-full place-items-center text-muted">
-                    <div className="text-center">
-                      <SoulIcon name="cover" size={32} className="mx-auto" />
-                      <p className="mt-3 text-sm">ยังไม่มีภาพปก</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-                <div>
-                  <label htmlFor="studio-cover-input" className={labelClassName}>
-                    อัปโหลดหรือเปลี่ยนภาพ
-                  </label>
-                  <input
-                    id="studio-cover-input"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/avif"
-                    disabled={isUploading}
-                    aria-describedby="studio-cover-feedback"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) void handleCoverUpload(file);
-                      event.currentTarget.value = '';
-                    }}
-                    className="block w-full text-sm text-muted file:mr-4 file:min-h-11 file:rounded-md file:border-0 file:bg-accent-soft file:px-4 file:font-semibold file:text-accent hover:file:bg-accent hover:file:text-accent-ink"
-                  />
-                  <FieldFeedback
-                    id="studio-cover-feedback"
-                    error={fieldErrors.coverImageUrl?.[0]}
-                    ready={form.coverImageUrl ? 'ภาพปกพร้อมใช้งาน' : undefined}
-                  />
-                </div>
-                {form.coverImageUrl ? (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { id: 'article', label: 'บทความ (Article)', icon: 'article' },
+                { id: 'concept', label: 'แนวคิด (Concept)', icon: 'concept' },
+                { id: 'series', label: 'ชุดการอ่าน (Series)', icon: 'book' },
+              ].map((type) => {
+                const isActive = form.postType === type.id;
+                return (
                   <button
+                    key={type.id}
                     type="button"
-                    onClick={() => void handleRemoveCover()}
-                    disabled={anyActionPending}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm text-muted hover:border-clay hover:text-clay"
+                    onClick={() => {
+                      updateField('postType', type.id);
+                      if (type.id === 'concept' && !form.content.trim()) {
+                        updateField('content', `## คำอธิบายให้เห็นภาพ\n[เขียนคำอธิบายง่ายๆ เห็นภาพชัดเจนที่นี่]\n\n## ความหมายทางวิชาการ / เทคนิค\n[เขียนคำอธิบายทางวิชาการ/เชิงลึกที่นี่]`);
+                      }
+                    }}
+                    className={`flex min-h-14 flex-col items-center justify-center rounded-lg border p-2 text-center transition-all ${
+                      isActive
+                        ? 'border-accent bg-accent-soft text-accent font-semibold'
+                        : 'border-border bg-background text-muted hover:border-muted hover:text-text'
+                    }`}
                   >
-                    <SoulIcon name="remove" size={16} />
-                    ลบภาพ
+                    <SoulIcon name={type.icon as any} size={18} className="mb-1" />
+                    <span className="text-xs">{type.label}</span>
                   </button>
-                ) : null}
-              </div>
-              <div className="border-t border-border p-4">
-                <label htmlFor="studio-cover-alt" className={labelClassName}>
-                  คำอธิบายภาพปก
-                </label>
-                <input
-                  id="studio-cover-alt"
-                  value={form.coverImageAlt}
-                  onChange={(event) =>
-                    updateField('coverImageAlt', event.target.value)
-                  }
-                  className={inputClassName}
-                  aria-invalid={highlightedMissing.has('coverAlt')}
-                  aria-describedby="studio-cover-alt-feedback"
-                  placeholder="อธิบายสาระของภาพสำหรับผู้อ่านที่มองไม่เห็นภาพ"
-                />
-                <FieldFeedback
-                  id="studio-cover-alt-feedback"
-                  error={
-                    fieldErrors.coverImageAlt?.[0] ||
-                    (highlightedMissing.has('coverAlt')
-                      ? 'กรุณาใส่คำอธิบายภาพก่อนเผยแพร่'
-                      : undefined)
-                  }
-                  ready={form.coverImageAlt.trim() ? 'คำอธิบายภาพพร้อม' : undefined}
-                />
-              </div>
+                );
+              })}
             </div>
           </section>
+
+          {(form.postType === 'article' || form.postType === 'series') && (
+            <section aria-labelledby="cover-heading">
+              <div className="mb-4 flex items-center gap-3">
+                <SoulIcon name="cover" className="text-accent" />
+                <h2 id="cover-heading" className="text-lg font-semibold text-text">
+                  ภาพปก
+                </h2>
+              </div>
+              <div className="overflow-hidden rounded-lg border border-border bg-surface">
+                <div className="relative aspect-[16/9] w-full bg-surface-raised">
+                  {form.coverImageUrl ? (
+                    <Image
+                      src={form.coverImageUrl}
+                      alt={form.coverImageAlt || ''}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 900px"
+                      className="object-cover"
+                      unoptimized={form.coverImageUrl.startsWith('/')}
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center text-muted">
+                      <div className="text-center">
+                        <SoulIcon name="cover" size={32} className="mx-auto" />
+                        <p className="mt-3 text-sm">ยังไม่มีภาพปก</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                  <div>
+                    <label htmlFor="studio-cover-input" className={labelClassName}>
+                      อัปโหลดหรือเปลี่ยนภาพ
+                    </label>
+                    <input
+                      id="studio-cover-input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/avif"
+                      disabled={isUploading}
+                      aria-describedby="studio-cover-feedback"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void handleCoverUpload(file);
+                        event.currentTarget.value = '';
+                      }}
+                      className="block w-full text-sm text-muted file:mr-4 file:min-h-11 file:rounded-md file:border-0 file:bg-accent-soft file:px-4 file:font-semibold file:text-accent hover:file:bg-accent hover:file:text-accent-ink"
+                    />
+                    <FieldFeedback
+                      id="studio-cover-feedback"
+                      error={fieldErrors.coverImageUrl?.[0]}
+                      ready={form.coverImageUrl ? 'ภาพปกพร้อมใช้งาน' : undefined}
+                    />
+                  </div>
+                  {form.coverImageUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleRemoveCover()}
+                      disabled={anyActionPending}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm text-muted hover:border-clay hover:text-clay"
+                    >
+                      <SoulIcon name="remove" size={16} />
+                      ลบภาพ
+                    </button>
+                  ) : null}
+                </div>
+                <div className="border-t border-border p-4">
+                  <label htmlFor="studio-cover-alt" className={labelClassName}>
+                    คำอธิบายภาพปก
+                  </label>
+                  <input
+                    id="studio-cover-alt"
+                    value={form.coverImageAlt}
+                    onChange={(event) =>
+                      updateField('coverImageAlt', event.target.value)
+                    }
+                    className={inputClassName}
+                    aria-invalid={highlightedMissing.has('coverAlt')}
+                    aria-describedby="studio-cover-alt-feedback"
+                    placeholder="อธิบายสาระของภาพสำหรับผู้อ่านที่มองไม่เห็นภาพ"
+                  />
+                  <FieldFeedback
+                    id="studio-cover-alt-feedback"
+                    error={
+                      fieldErrors.coverImageAlt?.[0] ||
+                      (highlightedMissing.has('coverAlt')
+                        ? 'กรุณาใส่คำอธิบายภาพก่อนเผยแพร่'
+                        : undefined)
+                    }
+                    ready={form.coverImageAlt.trim() ? 'คำอธิบายภาพพร้อม' : undefined}
+                  />
+                </div>
+              </div>
+            </section>
+          )}
 
           <section className="space-y-6" aria-label="เนื้อหาบทความ">
             <div>
@@ -924,6 +1049,277 @@ export function ArticleStudioEditor({
                 ready={form.excerpt.trim() ? 'คำโปรยพร้อม' : undefined}
               />
             </div>
+
+            {form.postType === 'concept' && (
+              <div aria-labelledby="concept-metadata-heading" className="space-y-6 rounded-lg border border-border bg-surface p-5">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-2">
+                  <SoulIcon name="typeConcept" className="text-accent" />
+                  <h3 id="concept-metadata-heading" className="text-base font-semibold text-text">
+                    ข้อมูลแนวคิด (Concept Details)
+                  </h3>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="studio-original-term" className={labelClassName}>
+                      คำศัพท์ภาษาอังกฤษ (Original Term)
+                    </label>
+                    <input
+                      id="studio-original-term"
+                      value={form.originalTerm}
+                      onChange={(event) => updateField('originalTerm', event.target.value)}
+                      className={inputClassName}
+                      placeholder="e.g. Archetype"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="studio-thai-term" className={labelClassName}>
+                      คำศัพท์ภาษาไทย (Thai Term)
+                    </label>
+                    <input
+                      id="studio-thai-term"
+                      value={form.thaiTerm}
+                      onChange={(event) => updateField('thaiTerm', event.target.value)}
+                      className={inputClassName}
+                      placeholder="e.g. แม่แบบจิตใต้สำนึก"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="studio-entry-type" className={labelClassName}>
+                      ประเภทคำศัพท์ (Entry Type)
+                    </label>
+                    <select
+                      id="studio-entry-type"
+                      value={form.entryType}
+                      onChange={(event) => updateField('entryType', event.target.value)}
+                      className={inputClassName}
+                    >
+                      <option value="concept">Concept (แนวคิด)</option>
+                      <option value="person">Person (บุคคล)</option>
+                      <option value="book">Book (หนังสือ)</option>
+                      <option value="school">School (สำนักความคิด)</option>
+                      <option value="term">Term (คำศัพท์เฉพาะ)</option>
+                      <option value="symbol">Symbol (สัญลักษณ์)</option>
+                      <option value="timeline">Timeline (เหตุการณ์/ประวัติศาสตร์)</option>
+                      <option value="source-note">Source Note (หมายเหตุต้นฉบับ)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="studio-thinkers" className={labelClassName}>
+                      นักคิด / ผู้เสนอแนวคิด (Thinkers - คั่นด้วยจุลภาค)
+                    </label>
+                    <input
+                      id="studio-thinkers"
+                      value={form.thinkers}
+                      onChange={(event) => updateField('thinkers', event.target.value)}
+                      className={inputClassName}
+                      placeholder="Carl Jung, Marie-Louise von Franz"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="studio-misunderstandings" className={labelClassName}>
+                    ความเข้าใจผิดที่พบบ่อย (Common Misunderstandings - บรรทัดละ 1 ข้อ)
+                  </label>
+                  <textarea
+                    id="studio-misunderstandings"
+                    rows={3}
+                    value={form.commonMisunderstandings}
+                    onChange={(event) => updateField('commonMisunderstandings', event.target.value)}
+                    className={textareaClassName}
+                    placeholder="ความเข้าใจผิดข้อที่ 1&#10;ความเข้าใจผิดข้อที่ 2"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="studio-examples" className={labelClassName}>
+                    ตัวอย่างการปรากฏตัว / การแสดงออก (Examples - บรรทัดละ 1 ข้อ)
+                  </label>
+                  <textarea
+                    id="studio-examples"
+                    rows={3}
+                    value={form.examples}
+                    onChange={(event) => updateField('examples', event.target.value)}
+                    className={textareaClassName}
+                    placeholder="ตัวอย่างที่ 1&#10;ตัวอย่างที่ 2"
+                  />
+                </div>
+              </div>
+            )}
+
+            {form.postType === 'series' && (
+              <div aria-labelledby="series-items-heading" className="space-y-6 rounded-lg border border-border bg-surface p-5">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                  <div className="flex items-center gap-3">
+                    <SoulIcon name="validation" className="text-accent" />
+                    <h3 id="series-items-heading" className="text-base font-semibold text-text">
+                      รายการบทความในชุดอ่าน (Series Items)
+                    </h3>
+                  </div>
+                  <button
+                    key="add-item-btn"
+                    type="button"
+                    onClick={handleAddSeriesItem}
+                    className="inline-flex min-h-9 items-center gap-2 rounded-md bg-accent-soft px-3 text-xs font-semibold text-accent hover:bg-accent hover:text-accent-ink"
+                  >
+                    <SoulIcon name="cover" size={14} />
+                    เพิ่มรายการ
+                  </button>
+                </div>
+
+                {seriesItems.length === 0 ? (
+                  <div className="rounded-md border border-dashed border-border py-8 text-center text-muted">
+                    ยังไม่มีรายการในชุดการอ่านนี้ กดปุ่ม "เพิ่มรายการ" เพื่อเริ่มต้น
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {seriesItems.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="relative rounded-md border border-border bg-surface-raised/40 p-4 space-y-3"
+                      >
+                        {/* Item Header / Reorder Actions */}
+                        <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                          <span className="text-xs font-semibold text-accent">
+                            ลำดับที่ {index + 1}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => handleMoveSeriesItem(index, 'up')}
+                              className="p-1 text-muted hover:text-text disabled:opacity-30"
+                              title="เลื่อนขึ้น"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === seriesItems.length - 1}
+                              onClick={() => handleMoveSeriesItem(index, 'down')}
+                              className="p-1 text-muted hover:text-text disabled:opacity-30"
+                              title="เลื่อนลง"
+                            >
+                              ▼
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSeriesItem(item.id)}
+                              className="ml-2 p-1 text-clay hover:text-clay-strong"
+                              title="ลบ"
+                            >
+                              <SoulIcon name="remove" size={14} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Fields Grid */}
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div>
+                            <label className="mb-1 block text-xs font-medium text-text-soft">
+                              ประเภทโหนด (Item Type)
+                            </label>
+                            <select
+                              value={item.type}
+                              onChange={(e) =>
+                                handleUpdateSeriesItem(item.id, 'type', e.target.value)
+                              }
+                              className="min-h-9 w-full rounded-md border border-border bg-background px-2 text-xs text-text focus:border-accent"
+                            >
+                              <option value="article">Article (บทความ)</option>
+                              <option value="concept">Concept (แนวคิด)</option>
+                              <option value="reference">Reference (อ้างอิง)</option>
+                              <option value="note">Note (บันทึกย่อ)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="mb-1 block text-xs font-medium text-text-soft">
+                              Target ID / Slug
+                            </label>
+                            <input
+                              type="text"
+                              value={item.targetId}
+                              onChange={(e) =>
+                                handleUpdateSeriesItem(item.id, 'targetId', e.target.value)
+                              }
+                              placeholder="e.g. article-shadow-not-dark-side-th"
+                              className="min-h-9 w-full rounded-md border border-border bg-background px-2 text-xs text-text focus:border-accent"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div>
+                            <label className="mb-1 block text-xs font-medium text-text-soft">
+                              หัวข้อ (Title)
+                            </label>
+                            <input
+                              type="text"
+                              value={item.title}
+                              onChange={(e) =>
+                                handleUpdateSeriesItem(item.id, 'title', e.target.value)
+                              }
+                              placeholder="หัวข้อสำหรับแสดงในชุดการอ่าน"
+                              className="min-h-9 w-full rounded-md border border-border bg-background px-2 text-xs text-text focus:border-accent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="mb-1 block text-xs font-medium text-text-soft">
+                              เวลาอ่านประมาณ (นาที)
+                            </label>
+                            <input
+                              type="number"
+                              min={1}
+                              value={item.estimatedReadingTime}
+                              onChange={(e) =>
+                                handleUpdateSeriesItem(
+                                  item.id,
+                                  'estimatedReadingTime',
+                                  Math.max(1, parseInt(e.target.value) || 1)
+                                )
+                              }
+                              className="min-h-9 w-full rounded-md border border-border bg-background px-2 text-xs text-text focus:border-accent"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-text-soft">
+                            รายละเอียดสั้น ๆ (Description)
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={item.description}
+                            onChange={(e) =>
+                              handleUpdateSeriesItem(item.id, 'description', e.target.value)
+                            }
+                            placeholder="อธิบายสั้น ๆ ว่าทำไมต้องอ่านโหนดนี้"
+                            className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs leading-normal text-text focus:border-accent"
+                          />
+                        </div>
+
+                        <label className="flex items-center gap-2 text-xs text-text-soft">
+                          <input
+                            type="checkbox"
+                            checked={item.required}
+                            onChange={(e) =>
+                              handleUpdateSeriesItem(item.id, 'required', e.target.checked)
+                            }
+                            className="size-3.5 rounded border-border bg-background text-accent accent-[var(--accent)]"
+                          />
+                          <span>จำเป็นต้องอ่านเพื่อผ่านชุดนี้ (Required)</span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-4">

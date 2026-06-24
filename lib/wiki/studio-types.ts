@@ -40,6 +40,16 @@ export interface StudioArticleInput {
   coverImageHeight: string;
   featured: boolean;
   sourceStatus: string;
+  postType: string;
+  originalTerm: string;
+  thaiTerm: string;
+  shortDefinition: string;
+  tradition: string;
+  thinkers: string;
+  commonMisunderstandings: string;
+  examples: string;
+  entryType: string;
+  seriesItemsJson: string;
 }
 
 export interface StudioActionResult {

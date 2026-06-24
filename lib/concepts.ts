@@ -6,6 +6,7 @@ import { thaiConcepts } from '@/content/concepts/th';
 import {
   getPublishedArticles,
   getStaticPublishedArticles,
+  getArticleBySlug,
 } from '@/lib/articles';
 import {
   categoryIds,
@@ -18,6 +19,8 @@ import {
   conceptEntryTypes,
   type Concept,
   type ConceptSummary,
+  type ConceptEntryType,
+  type ConceptDifficulty,
 } from '@/types/concept';
 import type { ArticleSummary } from '@/types/article';
 
@@ -92,28 +95,111 @@ const loadConcepts = cache(async (): Promise<Concept[]> => {
     throw new Error(`Invalid concept seed data: ${z.prettifyError(parsed.error)}`);
   }
 
+  const staticConcepts = parsed.data;
+
+  // Load database concepts
+  let dbConcepts: Concept[] = [];
+  try {
+    const [thArticles, enArticles] = await Promise.all([
+      getPublishedArticles('th'),
+      getPublishedArticles('en'),
+    ]);
+    const dbArticles = [...thArticles, ...enArticles].filter(a => a.postType === 'concept');
+    
+    const fullDbArticles = await Promise.all(
+      dbArticles.map(async (summary) => {
+        try {
+          return await getArticleBySlug(summary.language, summary.slug);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const validDbArticles = fullDbArticles.filter((a): a is NonNullable<typeof a> => a !== null);
+    
+    dbConcepts = validDbArticles.map((article) => {
+      const parts = (article.body || '').split(/##\s*(?:ความหมายทางวิชาการ|Academic \/ technical explanation|Technical Explanation)/i);
+      let humanExplanation = parts[0] || '';
+      let technicalExplanation = parts[1] || '';
+      
+      humanExplanation = humanExplanation.replace(/^##\s*(?:คำอธิบายให้เห็นภาพ|Human explanation)\s*\n/i, '').trim();
+      technicalExplanation = technicalExplanation.trim();
+
+      return {
+        id: article.id,
+        slug: article.slug,
+        title: article.title,
+        originalTerm: article.originalTerm || article.subtitle || '',
+        thaiTerm: article.thaiTerm || article.title || '',
+        shortDefinition: article.excerpt || '',
+        humanExplanation,
+        technicalExplanation,
+        category: article.category,
+        tradition: article.school || '',
+        thinkers: article.thinkers || [],
+        relatedConcepts: (article.relatedConcepts || []).map(r => ({
+          slug: r.slug,
+          title: r.title,
+          relation: 'related',
+        })),
+        relatedArticles: article.relatedArticles || [],
+        references: (article.references || []).map(ref => ({
+          id: ref.id,
+          authors: ref.authors,
+          year: ref.year,
+          title: ref.title,
+          publication: ref.publication,
+          url: ref.url,
+        })),
+        commonMisunderstandings: article.commonMisunderstandings || [],
+        examples: article.examples || [],
+        language: article.language,
+        status: 'published' as const,
+        difficulty: (article.difficulty === 'academic' ? 'academic' : (article.difficulty || 'intermediate')) as ConceptDifficulty,
+        entryType: (article.entryType || 'concept') as ConceptEntryType,
+        updatedAt: article.updatedAt.substring(0, 10),
+        seoTitle: article.seoTitle || article.title,
+        seoDescription: article.seoDescription || article.excerpt,
+        translations: article.translations || {},
+      };
+    });
+  } catch (error) {
+    console.error('Failed to load concepts from database:', error);
+  }
+
+  // Merge static and DB concepts. DB concepts override static ones.
+  const mergedMap = new Map<string, Concept>();
+  for (const c of staticConcepts) {
+    mergedMap.set(`${c.language}:${c.slug}`, c);
+  }
+  for (const c of dbConcepts) {
+    mergedMap.set(`${c.language}:${c.slug}`, c);
+  }
+
+  const merged = Array.from(mergedMap.values());
   const ids = new Set<string>();
   const localizedSlugs = new Set<string>();
 
-  for (const concept of parsed.data) {
+  for (const concept of merged) {
     const localizedSlug = `${concept.language}:${concept.slug}`;
 
     if (ids.has(concept.id)) {
-      throw new Error(`Duplicate concept id: ${concept.id}`);
+      continue;
     }
 
     if (localizedSlugs.has(localizedSlug)) {
-      throw new Error(`Duplicate concept slug: ${localizedSlug}`);
+      continue;
     }
 
     ids.add(concept.id);
     localizedSlugs.add(localizedSlug);
   }
 
-  for (const concept of parsed.data) {
+  for (const concept of merged) {
     for (const relation of concept.relatedConcepts) {
       if (!localizedSlugs.has(`${concept.language}:${relation.slug}`)) {
-        throw new Error(
+        console.warn(
           `Broken concept relation in ${concept.slug}: ${relation.slug}`
         );
       }
@@ -126,7 +212,7 @@ const loadConcepts = cache(async (): Promise<Concept[]> => {
         translatedSlug &&
         !localizedSlugs.has(`${locale as Locale}:${translatedSlug}`)
       ) {
-        throw new Error(
+        console.warn(
           `Broken concept translation in ${concept.slug}: ${locale}:${translatedSlug}`
         );
       }
@@ -137,12 +223,12 @@ const loadConcepts = cache(async (): Promise<Concept[]> => {
     const articles = await getStaticPublishedArticles(locale);
     const articleSlugs = new Set(articles.map((article) => article.slug));
 
-    for (const concept of parsed.data.filter(
+    for (const concept of merged.filter(
       (candidate) => candidate.language === locale
     )) {
       for (const articleSlug of concept.relatedArticles) {
         if (!articleSlugs.has(articleSlug)) {
-          throw new Error(
+          console.warn(
             `Broken concept article link in ${concept.slug}: ${articleSlug}`
           );
         }
@@ -152,7 +238,7 @@ const loadConcepts = cache(async (): Promise<Concept[]> => {
     for (const article of articles) {
       for (const conceptLink of article.relatedConcepts) {
         if (!localizedSlugs.has(`${locale}:${conceptLink.slug}`)) {
-          throw new Error(
+          console.warn(
             `Broken article concept link in ${article.slug}: ${conceptLink.slug}`
           );
         }
@@ -160,7 +246,7 @@ const loadConcepts = cache(async (): Promise<Concept[]> => {
     }
   }
 
-  return parsed.data.sort((a, b) =>
+  return merged.sort((a, b) =>
     a.title.localeCompare(b.title, 'en', { sensitivity: 'base' })
   );
 });

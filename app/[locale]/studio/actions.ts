@@ -49,6 +49,7 @@ import type {
   StudioArticleInput,
 } from '@/lib/wiki/studio-types';
 import type { WikiArticle } from '@/lib/wiki/types';
+import type { SeriesItem } from '@/types/series';
 import {
   articleDifficulties,
   articleSchools,
@@ -97,6 +98,16 @@ const articleInputSchema = z.object({
   coverImageWidth: optionalDimension,
   coverImageHeight: optionalDimension,
   featured: z.boolean(),
+  postType: z.string().max(100).optional().default('article'),
+  originalTerm: z.string().trim().max(200).optional().default(''),
+  thaiTerm: z.string().trim().max(200).optional().default(''),
+  shortDefinition: z.string().trim().max(500).optional().default(''),
+  tradition: z.string().trim().max(200).optional().default(''),
+  thinkers: z.string().max(2_000).optional().default(''),
+  commonMisunderstandings: z.string().max(5_000).optional().default(''),
+  examples: z.string().max(5_000).optional().default(''),
+  entryType: z.string().max(100).optional().default('concept'),
+  seriesItemsJson: z.string().max(100_000).optional().default('[]'),
 });
 
 interface AuthenticatedUser {
@@ -265,8 +276,11 @@ function getMissingPublishFields(
   if (!article.excerpt.trim()) missing.push('excerpt');
   if (!isCategoryId(article.category)) missing.push('category');
   if (!article.difficulty) missing.push('difficulty');
-  if (!article.coverImage?.src) missing.push('coverImage');
-  if (!article.coverImage?.alt.trim()) missing.push('coverAlt');
+  
+  if (article.postType === 'article' || !article.postType) {
+    if (!article.coverImage?.src) missing.push('coverImage');
+    if (!article.coverImage?.alt.trim()) missing.push('coverAlt');
+  }
 
   return missing;
 }
@@ -331,8 +345,36 @@ async function prepareArticle(
     .filter((concept) => Boolean(concept.slug));
 
   const sourceStatus = (result.data.sourceStatus || 'original') as ArticleSourceStatus;
+  const postType = (result.data.postType || 'article') as 'article' | 'concept' | 'series';
+  const entryType = result.data.entryType || undefined;
+  const originalTerm = result.data.originalTerm || undefined;
+  const thaiTerm = result.data.thaiTerm || undefined;
+  
+  const thinkers = parseCommaSeparated(result.data.thinkers);
+  const commonMisunderstandings = parseCommaSeparated(result.data.commonMisunderstandings);
+  const examples = parseCommaSeparated(result.data.examples);
+
+  let items: SeriesItem[] | undefined;
+  if (postType === 'series') {
+    try {
+      items = result.data.seriesItemsJson ? JSON.parse(result.data.seriesItemsJson) : [];
+    } catch {
+      items = [];
+    }
+  }
+
   const baseTags = parseCommaSeparated(result.data.tags)
-    .filter(t => !t.startsWith('source-status:') && !t.startsWith('reading-level:'));
+    .filter(
+      t => !t.startsWith('source-status:') && 
+           !t.startsWith('reading-level:') && 
+           !t.startsWith('post-type:') &&
+           !t.startsWith('entry-type:') &&
+           !t.startsWith('thinker:') &&
+           !t.startsWith('misunderstanding:') &&
+           !t.startsWith('example:') &&
+           !t.startsWith('original-term:') &&
+           !t.startsWith('thai-term:')
+    );
   
   const finalTags = [...baseTags];
   if (sourceStatus) {
@@ -340,6 +382,17 @@ async function prepareArticle(
   }
   if (difficulty === 'academic') {
     finalTags.push('reading-level:academic');
+  }
+  if (postType) {
+    finalTags.push(`post-type:${postType}`);
+  }
+  if (postType === 'concept') {
+    if (entryType) finalTags.push(`entry-type:${entryType}`);
+    if (originalTerm) finalTags.push(`original-term:${originalTerm}`);
+    if (thaiTerm) finalTags.push(`thai-term:${thaiTerm}`);
+    if (thinkers) thinkers.forEach(t => finalTags.push(`thinker:${t}`));
+    if (commonMisunderstandings) commonMisunderstandings.forEach(m => finalTags.push(`misunderstanding:${m}`));
+    if (examples) examples.forEach(e => finalTags.push(`example:${e}`));
   }
 
   const article: WikiArticle = {
@@ -358,6 +411,16 @@ async function prepareArticle(
     school,
     difficulty,
     sourceStatus,
+    postType,
+    originalTerm,
+    thaiTerm,
+    shortDefinition: postType === 'concept' ? result.data.excerpt : undefined,
+    tradition: postType === 'concept' ? (result.data.school || (category && category in categorySchools ? categorySchools[category as keyof typeof categorySchools] : '')) : undefined,
+    thinkers: postType === 'concept' ? thinkers : undefined,
+    commonMisunderstandings: postType === 'concept' ? commonMisunderstandings : undefined,
+    examples: postType === 'concept' ? examples : undefined,
+    entryType: postType === 'concept' ? entryType : undefined,
+    items,
     coverImage: result.data.coverImageUrl
       ? {
           src: result.data.coverImageUrl,

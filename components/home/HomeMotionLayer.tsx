@@ -55,18 +55,18 @@ export function HomeMotionLayer({ children }: HomeMotionLayerProps) {
           '-=0.6'
         );
 
-      gsap.fromTo(
-        '.home-compass',
-        { opacity: 0, scale: 0.9, rotation: -30 },
-        {
-          opacity: 1,
-          scale: 1,
-          rotation: 0,
-          duration: 2.5,
-          ease: 'power2.out',
-          delay: 0.3,
-        }
-      );
+      // Subtle scroll-driven expansion of the hero symbol as user scrolls down
+      gsap.to('.home-hero figure', {
+        scale: 1.08,
+        opacity: 0.4,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.home-hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.2,
+        },
+      });
 
       const sections = document.querySelectorAll('[data-symbol-section]');
       sections.forEach((section) => {

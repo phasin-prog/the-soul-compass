@@ -22,7 +22,7 @@ export function HomeMotionLayer({ children }: HomeMotionLayerProps) {
       ).matches;
 
       if (reducedMotion) {
-        gsap.set('[data-reveal]', { opacity: 1, y: 0 });
+        gsap.set('[data-reveal], .home-reveal-section', { opacity: 1, y: 0 });
         return;
       }
 
@@ -111,6 +111,24 @@ export function HomeMotionLayer({ children }: HomeMotionLayerProps) {
             }
           );
         }
+      });
+      const revealSections = document.querySelectorAll('.home-reveal-section');
+      revealSections.forEach((section) => {
+        gsap.fromTo(
+          section,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
       });
 
       const categoryLinks = document.querySelectorAll('.category-compass-link');

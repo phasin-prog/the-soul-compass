@@ -71,7 +71,7 @@ export default async function HomePage({ params }: PageProps) {
             <HeroSymbol className="absolute inset-0 h-full w-full opacity-40" />
           </div>
 
-          <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-16 sm:px-8 md:py-24 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)] lg:items-center">
+          <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 pt-16 pb-8 sm:px-8 md:pt-20 md:pb-12 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)] lg:items-center">
             <div className="relative z-10">
               <p className="home-kicker mb-6 max-w-2xl text-accent">
                 THE SOUL&apos;S COMPASS / ANALYTICAL PSYCHE ARCHIVE
@@ -145,7 +145,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
 
       <section
-        className="home-reveal-section border-b border-border bg-surface px-5 py-16 sm:px-8 md:py-24"
+        className="home-reveal-section border-b border-border bg-surface px-5 py-10 sm:px-8 md:py-14"
         aria-labelledby="domains-heading"
       >
         <div className="mx-auto max-w-7xl">
@@ -213,7 +213,7 @@ export default async function HomePage({ params }: PageProps) {
       </section>
 
       <section
-        className="home-reveal-section mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 md:py-24"
+        className="home-reveal-section mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 md:py-14"
         aria-labelledby="featured-heading"
       >
         <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -259,7 +259,7 @@ export default async function HomePage({ params }: PageProps) {
 
       {articles.length > 3 ? (
         <section
-          className="border-y border-border bg-surface px-5 py-16 sm:px-8 md:py-24"
+          className="border-y border-border bg-surface px-5 py-10 sm:px-8 md:py-14"
           aria-labelledby="recent-heading"
         >
           <div className="mx-auto max-w-7xl">
@@ -293,7 +293,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
       ) : null}
 
-      <section className="border-y border-border bg-surface-raised px-5 py-16 sm:px-8 md:py-24">
+      <section className="border-y border-border bg-surface-raised px-5 py-10 sm:px-8 md:py-14">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(15rem,0.52fr)_minmax(0,1.48fr)] lg:items-start">
           <div>
             <p className="font-serif text-lg text-accent">

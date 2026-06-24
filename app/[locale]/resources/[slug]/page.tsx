@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Container } from '@/components/Layout/Container';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { CitationBox } from '@/components/resources/CitationBox';
 import { ReferenceMeta } from '@/components/resources/ReferenceMeta';
@@ -110,7 +111,7 @@ export default async function ReferenceDetailPage({ params }: PageProps) {
   ].filter((row): row is [string, string] => Boolean(row[1]));
 
   return (
-    <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">
+    <Container className="py-10 sm:py-14">
       <article className="mx-auto !max-w-6xl">
         <Breadcrumbs
           locale={locale}
@@ -270,6 +271,6 @@ export default async function ReferenceDetailPage({ params }: PageProps) {
           </aside>
         </div>
       </article>
-    </div>
+    </Container>
   );
 }

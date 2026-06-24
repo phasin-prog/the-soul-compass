@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Container } from '@/components/Layout/Container';
 import { SupportDisclaimer } from '@/components/support/SupportDisclaimer';
 import { SupportFAQ } from '@/components/support/SupportFAQ';
 import { SupportHero } from '@/components/support/SupportHero';
@@ -99,7 +100,7 @@ export default async function SupportPage({ params }: PageProps) {
         ];
 
   return (
-    <div className="container mx-auto px-5 py-12 sm:px-8 sm:py-16">
+    <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-6xl">
         <SupportHero locale={locale} />
 
@@ -207,6 +208,6 @@ export default async function SupportPage({ params }: PageProps) {
           <SupportFAQ locale={locale} />
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

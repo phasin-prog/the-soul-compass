@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Container } from '@/components/Layout/Container';
 import { ExternalLinkDisclaimer } from '@/components/external-links/ExternalLinkDisclaimer';
 import { ExternalLinkFilters } from '@/components/external-links/ExternalLinkFilters';
 import { getActiveExternalLinks } from '@/lib/external-links';
@@ -35,7 +36,7 @@ export default async function ExternalLinksPage({
   const links = await getActiveExternalLinks();
 
   return (
-    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+    <Container className="py-14 sm:py-18">
       <div className="mx-auto max-w-6xl">
         <header className="max-w-4xl">
           <p className="type-meta text-accent">
@@ -57,6 +58,6 @@ export default async function ExternalLinksPage({
           <ExternalLinkFilters links={links} locale={locale} />
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

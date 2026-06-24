@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Container } from '@/components/Layout/Container';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
 
@@ -26,8 +27,8 @@ export default async function AboutPage({ params }: PageProps) {
   const localeKey = (locale === 'th' || locale === 'en') ? locale : 'th';
 
   return (
-    <div className="container mx-auto px-5 py-16 sm:px-8">
-      <article className="max-w-3xl mx-auto">
+    <Container className="py-16">
+      <article className="max-w-reading-focus mx-auto">
         <h1 className="type-page-title mb-8 text-text">
           {localeKey === 'th' ? 'เกี่ยวกับ' : 'About'}
         </h1>
@@ -105,6 +106,6 @@ export default async function AboutPage({ params }: PageProps) {
           </div>
         )}
       </article>
-    </div>
+    </Container>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { Container } from '@/components/Layout/Container';
 import { ArticleFilters } from '@/components/articles/ArticleFilters';
 import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
 import { ArticleCardSkeleton } from '@/components/ui/Skeleton';
@@ -50,7 +51,7 @@ export default async function ArticlesPage({ params, searchParams }: PageProps) 
       : undefined;
 
   return (
-    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+    <Container className="py-14 sm:py-18">
       <div className="mx-auto max-w-6xl">
         <header className="mb-12 max-w-4xl sm:mb-16">
           <h1 className="type-page-title text-text">{t.nav.articles}</h1>
@@ -96,6 +97,6 @@ export default async function ArticlesPage({ params, searchParams }: PageProps) 
           </Suspense>
         )}
       </div>
-    </div>
+    </Container>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Container } from '@/components/Layout/Container';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
@@ -109,7 +110,7 @@ export default async function ConceptDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(conceptJsonLd) }}
       />
 
-      <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">
+      <Container className="py-10 sm:py-14">
         <article className="mx-auto !max-w-6xl">
           <Breadcrumbs
             locale={locale}
@@ -319,7 +320,7 @@ export default async function ConceptDetailPage({ params }: PageProps) {
             </aside>
           ) : null}
         </article>
-      </div>
+      </Container>
     </>
   );
 }

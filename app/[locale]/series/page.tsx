@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { Container } from '@/components/Layout/Container';
 import { SeriesFilters } from '@/components/series/SeriesFilters';
 import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
 import { SeriesCardSkeleton } from '@/components/ui/Skeleton';
@@ -39,7 +40,7 @@ export default async function SeriesListingPage({ params }: PageProps) {
   const series = await getPublishedSeries(localeKey);
 
   return (
-    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+    <Container className="py-14 sm:py-18">
       <div className="mx-auto max-w-6xl">
         <header className="mb-12 max-w-4xl sm:mb-16">
           <p className="type-meta text-accent">
@@ -91,6 +92,6 @@ export default async function SeriesListingPage({ params }: PageProps) {
           )
         )}
       </div>
-    </div>
+    </Container>
   );
 }

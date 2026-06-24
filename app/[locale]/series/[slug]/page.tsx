@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Container } from '@/components/Layout/Container';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { ConceptReferenceList } from '@/components/concepts/ConceptReferenceList';
@@ -97,7 +98,7 @@ export default async function SeriesDetailPage({ params }: PageProps) {
   );
 
   return (
-    <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">
+    <Container className="py-10 sm:py-14">
       <article className="mx-auto !max-w-6xl">
         <Breadcrumbs
           locale={locale}
@@ -279,6 +280,6 @@ export default async function SeriesDetailPage({ params }: PageProps) {
           </aside>
         ) : null}
       </article>
-    </div>
+    </Container>
   );
 }

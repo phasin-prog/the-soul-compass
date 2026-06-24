@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Container } from '@/components/Layout/Container';
 import { ConceptFilters } from '@/components/concepts/ConceptFilters';
 import { LocaleAvailabilityNotice } from '@/components/LocaleAvailabilityNotice';
 import { getPublishedConcepts } from '@/lib/concepts';
@@ -64,7 +65,7 @@ export default async function ConceptsPage({ params, searchParams }: PageProps) 
     : 1;
 
   return (
-    <div className="container mx-auto px-5 py-14 sm:px-8 sm:py-18">
+    <Container className="py-14 sm:py-18">
       <div className="mx-auto max-w-6xl">
         <header className="mb-12 grid gap-7 border-b border-border pb-10 sm:mb-16 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
           <div>
@@ -108,6 +109,6 @@ export default async function ConceptsPage({ params, searchParams }: PageProps) 
           )
         )}
       </div>
-    </div>
+    </Container>
   );
 }

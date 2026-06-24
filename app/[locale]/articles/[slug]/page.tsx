@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -8,6 +7,7 @@ import { ReferenceList } from '@/components/articles/ReferenceList';
 import { RelatedConcepts } from '@/components/articles/RelatedConcepts';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ReadingProgress } from '@/components/ReadingProgress';
+import { Container } from '@/components/Layout/Container';
 import { ArticleMetadataPanel } from '@/components/ui/ArticleMetadata';
 import { ArticleEndCTA } from '@/components/cta/ArticleEndCTA';
 import { StickyServiceCTA } from '@/components/cta/StickyServiceCTA';
@@ -137,7 +137,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(articleJsonLd) }}
       />
 
-      <div className="container mx-auto px-5 py-10 sm:px-8 sm:py-14">
+      <Container className="py-10 sm:py-14">
         <article className="mx-auto !max-w-none">
           <div className="mx-auto max-w-5xl">
             <Breadcrumbs
@@ -223,7 +223,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
             </aside>
           ) : null}
         </article>
-      </div>
+      </Container>
 
       <StickyServiceCTA locale={locale} />
     </>

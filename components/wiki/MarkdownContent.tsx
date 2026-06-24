@@ -25,6 +25,8 @@ const validCalloutTypes: MarkdownCalloutType[] = [
   'jungian',
   'psychoanalysis',
   'philosophy',
+  'series',
+  'difficulty',
 ];
 
 function parseCallout(children: React.ReactNode): {

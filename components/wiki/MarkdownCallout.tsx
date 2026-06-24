@@ -14,7 +14,9 @@ export type MarkdownCalloutType =
   | 'note'
   | 'jungian'
   | 'psychoanalysis'
-  | 'philosophy';
+  | 'philosophy'
+  | 'series'
+  | 'difficulty';
 
 const calloutStyles: Record<
   MarkdownCalloutType,
@@ -71,6 +73,14 @@ const calloutStyles: Record<
   philosophy: {
     icon: 'philosophy',
     accent: 'border-celadon/35 bg-celadon/5 text-celadon',
+  },
+  series: {
+    icon: 'depth',
+    accent: 'border-plum/35 bg-plum/5 text-plum',
+  },
+  difficulty: {
+    icon: 'compass',
+    accent: 'border-blue/35 bg-blue/5 text-blue',
   },
 };
 

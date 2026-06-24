@@ -66,14 +66,14 @@ export const schoolIcons: Record<string, SoulIconName> = {
 };
 
 export const categoryIcons: Record<CategoryId, SoulIconName> = {
-  'analytical-psychology': 'psychology',
-  psychoanalysis: 'psyche',
+  'analytical-psychology': 'compass',
+  psychoanalysis: 'complex',
   neuroscience: 'psychology',
-  'social-psychology': 'philosophy',
+  'social-psychology': 'social',
   philosophy: 'philosophy',
-  'philosophy-of-mind': 'concept',
+  'philosophy-of-mind': 'psyche',
   typology: 'depth',
-  tpdt: 'map',
+  tpdt: 'individuation',
 };
 
 export const navIcons: Record<string, SoulIconName> = {

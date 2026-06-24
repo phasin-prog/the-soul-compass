@@ -20,6 +20,8 @@ import {
   savePublishedWikiContent,
   saveWikiArticle,
 } from '@/lib/r2/wiki-store';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getR2Client, getR2BucketName } from '@/lib/r2/client';
 import type { Locale } from '@/lib/site';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import {
@@ -837,28 +839,35 @@ export async function uploadStudioCover(
   }
 
   const extension = coverExtensions[file.type];
-  const path = `articles/${article.publicId}/cover-${Date.now()}-${randomUUID()}.${extension}`;
-  const storage = getSupabaseAdmin().storage.from('article-covers');
-  const { error } = await storage.upload(path, file, {
-    cacheControl: '31536000',
-    contentType: file.type,
-    upsert: false,
-  });
+  const path = `article-covers/articles/${article.publicId}/cover-${Date.now()}-${randomUUID()}.${extension}`;
+  
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-  if (error) {
+    await getR2Client().send(
+      new PutObjectCommand({
+        Bucket: getR2BucketName(),
+        Key: path,
+        Body: buffer,
+        ContentType: file.type,
+        CacheControl: 'public, max-age=31536000',
+      })
+    );
+  } catch (err) {
     return {
       status: 'error',
       errorKind: 'storage',
-      message: `อัปโหลดภาพปกไม่สำเร็จ: ${error.message}`,
+      message: `อัปโหลดภาพปกไม่สำเร็จ: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
 
-  const { data } = storage.getPublicUrl(path);
+  const publicUrl = `https://pub-a6d858289a46ca560102ecd69a1bae4e.r2.dev/the-souls-compass/${path}`;
   return {
     status: 'success',
     message: 'อัปโหลดภาพปกแล้ว',
     coverImage: {
-      src: data.publicUrl,
+      src: publicUrl,
       path,
       alt: article.coverImage?.alt || '',
       width: Number.isFinite(width) && width > 0 ? width : 1600,
@@ -878,7 +887,12 @@ export async function removeStudioCover(
   if (!user) return authenticationError();
 
   const article = await getWikiArticle(user.userId, articleId);
-  if (!article || !path.startsWith(`articles/${article.publicId}/`)) {
+  const isR2Path = path.startsWith('article-covers/');
+  const isValidPath = article && (isR2Path
+    ? path.startsWith(`article-covers/articles/${article.publicId}/`)
+    : path.startsWith(`articles/${article.publicId}/`));
+
+  if (!isValidPath) {
     return {
       status: 'error',
       errorKind: 'auth',
@@ -886,15 +900,25 @@ export async function removeStudioCover(
     };
   }
 
-  const { error } = await getSupabaseAdmin()
-    .storage.from('article-covers')
-    .remove([path]);
-
-  if (error) {
+  try {
+    if (isR2Path) {
+      await getR2Client().send(
+        new DeleteObjectCommand({
+          Bucket: getR2BucketName(),
+          Key: path,
+        })
+      );
+    } else {
+      const { error } = await getSupabaseAdmin()
+        .storage.from('article-covers')
+        .remove([path]);
+      if (error) throw error;
+    }
+  } catch (err) {
     return {
       status: 'error',
       errorKind: 'storage',
-      message: `ลบภาพปกไม่สำเร็จ: ${error.message}`,
+      message: `ลบภาพปกไม่สำเร็จ: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
 

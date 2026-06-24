@@ -37,7 +37,7 @@ export const categoryMetadata: Record<CategoryId, MetadataMappingItem & { color:
     key: 'social-psychology',
     name: { th: 'จิตวิทยาสังคม', en: 'Social Psychology' },
     description: { th: 'ตัวตน ความสัมพันธ์ และอิทธิพลของกลุ่มสังคม', en: 'Self, relationships, and the influence of social groups' },
-    icon: 'individuation',
+    icon: 'social',
     color: 'var(--clay)',
   },
   'philosophy': {

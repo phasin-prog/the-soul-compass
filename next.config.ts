@@ -18,15 +18,22 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
-      ? [
-          {
-            protocol: 'https',
-            hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
-            pathname: '/storage/v1/object/public/article-covers/**',
-          },
-        ]
-      : [],
+    remotePatterns: [
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+              pathname: '/storage/v1/object/public/article-covers/**',
+            },
+          ]
+        : []),
+      {
+        protocol: 'https' as const,
+        hostname: 'pub-a6d858289a46ca560102ecd69a1bae4e.r2.dev',
+        pathname: '/the-souls-compass/**',
+      },
+    ],
   },
   turbopack: {
     root: process.cwd(),

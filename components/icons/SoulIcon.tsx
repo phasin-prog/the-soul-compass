@@ -50,7 +50,6 @@ import {
   Upload,
   Waypoints,
   X,
-  // New icons for metadata system
   DoorOpen,
   GraduationCap,
   PenTool,
@@ -58,6 +57,8 @@ import {
   ShieldCheck,
   Clock,
   User,
+  Users,
+  Scroll,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -128,13 +129,14 @@ const soulIcons = {
   levelAcademic: GraduationCap,
 
   statusOriginal: PenTool,
-  statusPrimary: Landmark,
-  statusSecondary: Layers,
+  statusPrimary: Scroll,
+  statusSecondary: GitBranch,
   statusTranslation: Languages,
   statusPending: TriangleAlert,
   statusExperiment: FlaskConical,
   statusVerified: ShieldCheck,
   statusRevision: Clock,
+  social: Users,
 
   typeConcept: CircleDot,
   typePerson: User,

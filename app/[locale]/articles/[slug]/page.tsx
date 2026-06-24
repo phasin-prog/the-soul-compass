@@ -10,6 +10,8 @@ import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { ReadingProgress } from '@/components/ReadingProgress';
+import { ArticleEndCTA } from '@/components/cta/ArticleEndCTA';
+import { StickyServiceCTA } from '@/components/cta/StickyServiceCTA';
 import {
   getArticleBySlug,
   getRelatedArticles,
@@ -274,6 +276,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
                   : ''}
               </p>
             </footer>
+
+            <ArticleEndCTA locale={locale} />
           </div>
 
           {relatedArticles.length > 0 ? (
@@ -295,6 +299,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
           ) : null}
         </article>
       </div>
+
+      <StickyServiceCTA locale={locale} />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { SoulIcon } from '@/components/icons/SoulIcon';
+import { markdownHeadingIcons } from '@/lib/icon-registry';
 import { renderObsidianLinks } from '@/lib/wiki/markdown';
 import { MarkdownCallout } from './MarkdownCallout';
 
@@ -17,7 +18,7 @@ export function MarkdownContent({ content, locale }: MarkdownContentProps) {
         h2: ({ children }) => (
           <h2 className="markdown-heading flex items-start gap-3">
             <span className="mt-[0.38em] grid size-7 shrink-0 place-items-center rounded-sm border border-accent/35 text-accent">
-              <SoulIcon name="symbol" size={15} />
+              <SoulIcon name={markdownHeadingIcons.h2} size={15} />
             </span>
             <span>{children}</span>
           </h2>
@@ -25,7 +26,7 @@ export function MarkdownContent({ content, locale }: MarkdownContentProps) {
         h3: ({ children }) => (
           <h3 className="markdown-heading flex items-start gap-2.5">
             <SoulIcon
-              name="concept"
+              name={markdownHeadingIcons.h3}
               size={15}
               className="mt-[0.45em] shrink-0 text-accent"
             />

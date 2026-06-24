@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 import { Button } from '@/components/ui/Button';
+import { HeroSymbol } from '@/components/home/HeroSymbol';
+import { HomeMotionLayer } from '@/components/home/HomeMotionLayer';
 import { getPublishedArticles } from '@/lib/articles';
 import {
   categories,
@@ -59,98 +61,109 @@ export default async function HomePage({ params }: PageProps) {
   const recommendedSeries = series[0];
 
   return (
-    <div className="flex flex-col">
-      <section className="home-hero relative overflow-hidden border-b border-border">
-        <div className="home-hero__texture" aria-hidden="true" />
-        <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-16 sm:px-8 md:py-24 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)] lg:items-center">
-          <div className="relative z-10">
-            <p className="home-kicker mb-6 max-w-2xl text-accent">
-              THE SOUL’S COMPASS / ANALYTICAL PSYCHE ARCHIVE
-            </p>
-            <h1 className="type-display max-w-4xl text-text">
-              <span className="block">
-                {localeKey === 'th'
-                  ? 'พื้นที่อ่านจิตใจมนุษย์'
-                  : 'A place to read the human psyche'}
-              </span>
-              <span className="mt-2 block text-text-soft">
-                {localeKey === 'th'
-                  ? 'โดยไม่ลดมนุษย์ให้เหลือป้ายกำกับ'
-                  : 'without reducing people to labels'}
-              </span>
-            </h1>
-            <p className="type-lead mt-7 text-text-soft">
-              {localeKey === 'th'
-                ? 'คลังความรู้สำหรับค่อย ๆ ทำความเข้าใจจิตใจผ่านจิตวิทยา จิตวิเคราะห์ ปรัชญา และวิทยาศาสตร์—โดยรักษาความซับซ้อนของมนุษย์ไว้'
-                : 'A knowledge archive for studying mind through psychology, psychoanalysis, philosophy, and science—without sanding away human complexity.'}
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button
-                href={`/${localeKey}/articles/shadow-is-not-just-the-dark-side`}
-              >
-                {localeKey === 'th'
-                  ? 'เริ่มอ่านจาก Shadow'
-                  : 'Begin with the Shadow'}
-              </Button>
-              <Button href={`/${localeKey}/concepts`} variant="secondary">
-                {localeKey === 'th'
-                  ? 'สำรวจคลังแนวคิด'
-                  : 'Explore the concept archive'}
-              </Button>
-            </div>
-            {localeKey === 'en' ? (
-              <p className="type-meta mt-5 max-w-xl text-muted">
-                English translations are being reviewed. The complete published
-                corpus is currently available in{' '}
-                <Link
-                  href="/th"
-                  hrefLang="th"
-                  className="text-accent underline decoration-accent/40 underline-offset-4"
-                >
-                  Thai
-                </Link>
-                .
-              </p>
-            ) : null}
+    <HomeMotionLayer>
+      <div className="flex flex-col">
+        <section className="home-hero relative overflow-hidden border-b border-border">
+          <div className="home-hero__texture" aria-hidden="true" />
+
+          {/* Yin-Yang orbiting symbol */}
+          <div className="yin-yang-orbit absolute inset-0 flex items-center justify-center pointer-events-none">
+            <HeroSymbol className="absolute inset-0 h-full w-full opacity-40" />
           </div>
 
-          <figure className="relative min-h-80 lg:min-h-[34rem]">
-            <div className="home-compass" aria-hidden="true">
-              <span className="home-compass__ring home-compass__ring--outer" />
-              <span className="home-compass__ring home-compass__ring--middle" />
-              <span className="home-compass__ring home-compass__ring--inner" />
-              <span className="home-compass__line" />
-              <span className="home-compass__line home-compass__line--horizontal" />
-              <span className="home-compass__line home-compass__line--diagonal" />
-              <span className="home-compass__line home-compass__line--diagonal-reverse" />
-              <span className="home-compass__needle" />
-              <span className="home-compass__centre" />
+          <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-16 sm:px-8 md:py-24 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)] lg:items-center">
+            <div className="relative z-10">
+              <p className="home-kicker mb-6 max-w-2xl text-accent">
+                THE SOUL&apos;S COMPASS / ANALYTICAL PSYCHE ARCHIVE
+              </p>
+              <h1 className="type-display max-w-4xl text-text">
+                <span className="block">
+                  {localeKey === 'th'
+                    ? 'พื้นที่อ่านจิตใจมนุษย์'
+                    : 'A place to read the human psyche'}
+                </span>
+                <span className="mt-2 block text-text-soft">
+                  {localeKey === 'th'
+                    ? 'โดยไม่ลดมนุษย์ให้เหลือป้ายกำกับ'
+                    : 'without reducing people to labels'}
+                </span>
+              </h1>
+              <p className="type-lead mt-7 text-text-soft">
+                {localeKey === 'th'
+                  ? 'คลังความรู้สำหรับค่อย ๆ ทำความเข้าใจจิตใจผ่านจิตวิทยา จิตวิเคราะห์ ปรัชญา และวิทยาศาสตร์—โดยรักษาความซับซ้อนของมนุษย์ไว้'
+                  : 'A knowledge archive for studying mind through psychology, psychoanalysis, philosophy, and science—without sanding away human complexity.'}
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  href={`/${localeKey}/articles/shadow-is-not-just-the-dark-side`}
+                >
+                  {localeKey === 'th'
+                    ? 'เริ่มอ่านจาก Shadow'
+                    : 'Begin with the Shadow'}
+                </Button>
+                <Button href={`/${localeKey}/concepts`} variant="secondary">
+                  {localeKey === 'th'
+                    ? 'สำรวจคลังแนวคิด'
+                    : 'Explore the concept archive'}
+                </Button>
+              </div>
+              {localeKey === 'en' ? (
+                <p className="type-meta mt-5 max-w-xl text-muted">
+                  English translations are being reviewed. The complete published
+                  corpus is currently available in{' '}
+                  <Link
+                    href="/th"
+                    hrefLang="th"
+                    className="text-accent underline decoration-accent/40 underline-offset-4"
+                  >
+                    Thai
+                  </Link>
+                  .
+                </p>
+              ) : null}
             </div>
-            <figcaption className="absolute inset-x-0 bottom-0 mx-auto max-w-sm border-t border-border pt-5 text-center text-sm leading-7 text-muted lg:text-left">
-              {localeKey === 'th'
-                ? 'เข็มทิศมีไว้ช่วยกำหนดทิศ ไม่ได้ใช้ตัดสินว่ามนุษย์คนหนึ่งเป็นอะไร'
-                : 'A compass helps orient inquiry; it does not decide what a person is.'}
-            </figcaption>
-          </figure>
-        </div>
-      </section>
+
+            <figure className="relative min-h-80 lg:min-h-[34rem]">
+              <div className="home-compass" aria-hidden="true">
+                <span className="home-compass__ring home-compass__ring--outer" />
+                <span className="home-compass__ring home-compass__ring--middle" />
+                <span className="home-compass__ring home-compass__ring--inner" />
+                <span className="home-compass__line" />
+                <span className="home-compass__line home-compass__line--horizontal" />
+                <span className="home-compass__line home-compass__line--diagonal" />
+                <span className="home-compass__line home-compass__line--diagonal-reverse" />
+                <span className="home-compass__needle" />
+                <span className="home-compass__centre" />
+              </div>
+              <figcaption className="absolute inset-x-0 bottom-0 mx-auto max-w-sm border-t border-border pt-5 text-center text-sm leading-7 text-muted lg:text-left">
+                {localeKey === 'th'
+                  ? 'เข็มทิศมีไว้ช่วยกำหนดทิศ ไม่ได้ใช้ตัดสินว่ามนุษย์คนหนึ่งเป็นอะไร'
+                  : 'A compass helps orient inquiry; it does not decide what a person is.'}
+              </figcaption>
+            </figure>
+          </div>
+        </section>
 
       <section
-        className="border-b border-border bg-surface px-5 py-16 sm:px-8 md:py-24"
+        className="home-reveal-section border-b border-border bg-surface px-5 py-16 sm:px-8 md:py-24"
         aria-labelledby="domains-heading"
       >
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 grid gap-5 lg:grid-cols-[minmax(0,0.75fr)_minmax(20rem,0.55fr)] lg:items-end lg:justify-between">
-            <h2 id="domains-heading" className="type-page-title max-w-2xl text-text">
-              {localeKey === 'th'
-                ? 'แผนที่ความคิดหลายสำนัก'
-                : 'A map across traditions'}
-            </h2>
-            <p className="max-w-xl text-text-soft lg:justify-self-end">
-              {localeKey === 'th'
-                ? 'เลือกประตูบานหนึ่ง แล้วค่อยตามความเชื่อมโยงไปยังแนวคิด บทความ และแหล่งต้นทาง'
-                : 'Choose one doorway, then follow its connections into concepts, essays, and source material.'}
-            </p>
+            <div className="reveal-heading">
+              <h2 id="domains-heading" className="type-page-title max-w-2xl text-text">
+                {localeKey === 'th'
+                  ? 'แผนที่ความคิดหลายสำนัก'
+                  : 'A map across traditions'}
+              </h2>
+            </div>
+            <div className="reveal-body">
+              <p className="max-w-xl text-text-soft lg:justify-self-end">
+                {localeKey === 'th'
+                  ? 'เลือกประตูบานหนึ่ง แล้วค่อยตามความเชื่อมโยงไปยังแนวคิด บทความ และแหล่งต้นทาง'
+                  : 'Choose one doorway, then follow its connections into concepts, essays, and source material.'}
+              </p>
+            </div>
           </div>
 
           <nav
@@ -200,15 +213,15 @@ export default async function HomePage({ params }: PageProps) {
       </section>
 
       <section
-        className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 md:py-24"
+        className="home-reveal-section mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 md:py-24"
         aria-labelledby="featured-heading"
       >
         <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 id="featured-heading" className="type-page-title text-text">
+            <h2 id="featured-heading" className="reveal-heading type-page-title text-text">
               {localeKey === 'th' ? 'บทความคัดสรร' : 'Selected essays'}
             </h2>
-            <p className="mt-3 max-w-2xl text-text-soft">
+            <p className="reveal-body mt-3 max-w-2xl text-text-soft">
               {localeKey === 'th'
                 ? 'บทอ่านที่ชวนเริ่มจากคำถาม แล้วค่อยลงลึกไปยังกรอบคิดและหลักฐาน'
                 : 'Essays that begin with a question, then move carefully into frameworks and evidence.'}
@@ -346,5 +359,6 @@ export default async function HomePage({ params }: PageProps) {
         </div>
       </section>
     </div>
+    </HomeMotionLayer>
   );
 }

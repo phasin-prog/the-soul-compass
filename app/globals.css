@@ -34,6 +34,14 @@
   --blue: #9cacc2;
   --clay: var(--soul-rose);
 
+  --icon-neutral: var(--text-muted);
+  --icon-primary: var(--text);
+  --icon-gold: var(--soul-gold);
+  --icon-muted: var(--text-faint);
+  --icon-danger: #dc2626;
+  --icon-danger-bg: rgba(220, 38, 38, 0.10);
+  --icon-danger-border: rgba(220, 38, 38, 0.28);
+
   --radius-sm: 0.375rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
@@ -557,6 +565,46 @@ article {
   white-space: normal;
 }
 
+[data-symbol-section] {
+  position: relative;
+  overflow: hidden;
+}
+
+.symbol-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.symbol-text {
+  position: relative;
+  z-index: 1;
+}
+
+.symbol-text::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--soul-gold) 20%,
+    var(--soul-gold) 80%,
+    transparent
+  );
+  opacity: 0.3;
+}
+
+@media (min-width: 64rem) {
+  .symbol-text::before {
+    display: block;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-intensity: 0;
@@ -615,4 +663,45 @@ article {
     grid-template-columns: 2.5rem minmax(0, 1fr) auto;
     gap: 1rem;
   }
+}
+
+/* Home Motion Layer - GSAP enhanced */
+.home-motion-layer {
+  position: relative;
+}
+
+.home-reveal-section {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.yin-yang-orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Symbolic section backgrounds */
+.symbol-shadow {
+  background: radial-gradient(
+    ellipse at 30% 50%,
+    color-mix(in srgb, var(--soul-navy) 80%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.symbol-persona {
+  background: radial-gradient(
+    ellipse at 70% 40%,
+    color-mix(in srgb, var(--soul-parchment) 8%, transparent) 0%,
+    transparent 60%
+  );
+}
+
+.symbol-self {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--soul-gold) 10%, transparent) 0%,
+    transparent 50%
+  );
 }

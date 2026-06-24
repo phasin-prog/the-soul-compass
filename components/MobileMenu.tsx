@@ -8,11 +8,67 @@ import type { Locale } from '@/lib/site';
 import { getT } from '@/lib/i18n';
 import { siteConfig } from '@/lib/site';
 import { primaryNav, secondaryNav } from '@/lib/content/navigation';
-import { SoulIcon } from './icons/SoulIcon';
+import { SoulIcon, type SoulIconName } from './icons/SoulIcon';
 import { ActiveLink } from './ActiveLink';
+import { menuGroupConfig, levelIcons, levelLabels, schoolIcons } from '@/lib/icon-registry';
+import { categories, categoryIds } from '@/lib/content/categories';
 
 interface MobileMenuProps {
   locale: Locale;
+}
+
+function MenuGroupTitle({ icon, title }: { icon: SoulIconName; title: string }) {
+  return (
+    <div className="mb-2 mt-6 flex items-center gap-2.5 px-1">
+      <SoulIcon name={icon} size={16} className="text-accent" />
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted">
+        {title}
+      </span>
+    </div>
+  );
+}
+
+function MenuItem({
+  icon,
+  label,
+  href,
+  onClick,
+  variant = 'default',
+  locale,
+}: {
+  icon: SoulIconName;
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  variant?: 'default' | 'danger';
+  locale: Locale;
+}) {
+  const baseClasses = `flex min-h-12 items-center gap-3 border-b border-border px-1 text-lg transition-colors duration-200 ${
+    variant === 'danger'
+      ? 'text-red-400 hover:bg-red-950/30 hover:text-red-300'
+      : 'text-text hover:text-accent'
+  }`;
+
+  if (href) {
+    return (
+      <ActiveLink
+        href={`/${locale}${href}`}
+        onClick={onClick}
+        className={baseClasses}
+        activeClassName="text-accent"
+      >
+        <SoulIcon name={icon} size={20} className="shrink-0" />
+        <span>{label}</span>
+      </ActiveLink>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onClick} className={baseClasses}>
+      <SoulIcon name={icon} size={20} className="shrink-0" />
+      <span>{label}</span>
+    </button>
+  );
 }
 
 export function MobileMenu({ locale }: MobileMenuProps) {
@@ -77,16 +133,49 @@ export function MobileMenu({ locale }: MobileMenuProps) {
           </div>
 
           <div className="flex flex-col">
+            <MenuGroupTitle
+              icon={menuGroupConfig.content.icon}
+              title={menuGroupConfig.content.title[locale]}
+            />
             {primaryNav.map((item) => (
-              <ActiveLink
+              <MenuItem
                 key={item.href}
-                href={`/${locale}/${item.href}`}
+                icon={item.icon}
+                label={item.label[locale]}
+                href={`/${item.href}`}
                 onClick={() => setIsOpen(false)}
-                className="flex min-h-12 items-center border-b border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
-                activeClassName="text-accent"
-              >
-                {item.label[locale]}
-              </ActiveLink>
+                locale={locale}
+              />
+            ))}
+
+            <MenuGroupTitle
+              icon={menuGroupConfig.levels.icon}
+              title={menuGroupConfig.levels.title[locale]}
+            />
+            {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
+              <MenuItem
+                key={level}
+                icon={levelIcons[level]}
+                label={levelLabels[level][locale]}
+                href={`/articles?difficulty=${level}`}
+                onClick={() => setIsOpen(false)}
+                locale={locale}
+              />
+            ))}
+
+            <MenuGroupTitle
+              icon={menuGroupConfig.schools.icon}
+              title={menuGroupConfig.schools.title[locale]}
+            />
+            {categoryIds.slice(0, 5).map((categoryId) => (
+              <MenuItem
+                key={categoryId}
+                icon={schoolIcons[categories[categoryId].name.en] || 'philosophy'}
+                label={categories[categoryId].name[locale]}
+                href={`/${categories[categoryId].slug}`}
+                onClick={() => setIsOpen(false)}
+                locale={locale}
+              />
             ))}
 
             <div className="my-6">
@@ -123,59 +212,60 @@ export function MobileMenu({ locale }: MobileMenuProps) {
               </div>
             </div>
 
+            <MenuGroupTitle
+              icon={menuGroupConfig.account.icon}
+              title={menuGroupConfig.account.title[locale]}
+            />
             {isSignedIn ? (
               <>
                 {canEdit ? (
-                  <ActiveLink
-                    href={`/${locale}/studio/articles`}
+                  <MenuItem
+                    icon="body"
+                    label={locale === 'th' ? 'เขียนบทความ' : 'Write an article'}
+                    href="/studio/articles"
                     onClick={() => setIsOpen(false)}
-                    className="flex min-h-12 items-center border-y border-border px-1 text-lg font-medium text-accent transition-colors duration-200 hover:bg-accent-soft"
-                    activeClassName="bg-accent-soft"
-                  >
-                    {locale === 'th' ? 'เขียนบทความ' : 'Write an article'}
-                  </ActiveLink>
+                    locale={locale}
+                  />
                 ) : null}
-                <ActiveLink
-                  href={`/${locale}/account`}
+                <MenuItem
+                  icon="auth"
+                  label={locale === 'th' ? 'บัญชีผู้อ่าน' : 'Reader account'}
+                  href="/account"
                   onClick={() => setIsOpen(false)}
-                  className="flex min-h-12 items-center border-b border-border px-1 text-lg text-text transition-colors duration-200 hover:text-accent"
-                  activeClassName="text-accent"
-                >
-                  {locale === 'th' ? 'บัญชีผู้อ่าน' : 'Reader account'}
-                </ActiveLink>
+                  locale={locale}
+                />
               </>
             ) : (
-              <Link
-                href={`/${locale}/login`}
+              <MenuItem
+                icon="auth"
+                label={locale === 'th' ? 'เข้าสู่ระบบ' : 'Sign in'}
+                href="/login"
                 onClick={() => setIsOpen(false)}
-                className="flex min-h-12 items-center border-y border-border px-1 text-lg font-medium text-accent transition-colors duration-200 hover:bg-accent-soft"
-              >
-                {locale === 'th' ? 'เข้าสู่ระบบ' : 'Sign in'}
-              </Link>
+                locale={locale}
+              />
             )}
 
             <hr className="my-3 border-border" />
 
             {secondaryNav.map((item) => (
-              <ActiveLink
+              <MenuItem
                 key={item.href}
-                href={`/${locale}/${item.href}`}
+                icon={item.icon}
+                label={item.label[locale]}
+                href={`/${item.href}`}
                 onClick={() => setIsOpen(false)}
-                className="flex min-h-11 items-center px-1 text-base text-muted transition-colors duration-200 hover:text-accent"
-                activeClassName="text-accent"
-              >
-                {item.label[locale]}
-              </ActiveLink>
+                locale={locale}
+              />
             ))}
 
             {isSignedIn ? (
               <SignOutButton redirectUrl={`/${locale}`}>
-                <button
-                  type="button"
-                  className="mt-6 flex min-h-11 items-center px-1 text-sm text-muted transition-colors duration-200 hover:text-text"
-                >
-                  {locale === 'th' ? 'ออกจากระบบ' : 'Sign out'}
-                </button>
+                <MenuItem
+                  icon="close"
+                  label={locale === 'th' ? 'ออกจากระบบ' : 'Sign out'}
+                  variant="danger"
+                  locale={locale}
+                />
               </SignOutButton>
             ) : null}
           </div>

@@ -41,10 +41,11 @@ export function Header({ locale }: HeaderProps) {
             <ActiveLink
               key={item.href}
               href={`/${locale}/${item.href}`}
-              className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-text"
+              className="flex items-center gap-2 text-sm text-muted transition-colors duration-200 hover:text-text"
               activeClassName="text-accent"
             >
-              {item.label[locale]}
+              <SoulIcon name={item.icon} size={16} className="opacity-70" />
+              <span>{item.label[locale]}</span>
             </ActiveLink>
           ))}
 

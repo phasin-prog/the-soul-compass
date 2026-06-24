@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
-import { Anuphan, Pridi } from 'next/font/google';
+import { Cinzel, IBM_Plex_Sans_Thai } from 'next/font/google';
 import { getClerkLocalization } from '@/components/auth/AuthShell';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
@@ -15,17 +15,17 @@ import { safeJsonLdStringify } from '@/lib/safe-json-ld';
 import { locales, siteConfig } from '@/lib/site';
 import '../globals.css';
 
-const display = Pridi({
+const display = Cinzel({
   variable: '--font-display',
-  subsets: ['thai', 'latin'],
-  weight: ['300', '400', '500', '600'],
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const body = Anuphan({
+const body = IBM_Plex_Sans_Thai({
   variable: '--font-body',
   subsets: ['thai', 'latin'],
-  weight: 'variable',
+  weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 });
 

@@ -66,10 +66,6 @@ export default async function HomePage({ params }: PageProps) {
         <section className="home-hero relative overflow-hidden border-b border-border">
           <div className="home-hero__texture" aria-hidden="true" />
 
-          {/* Yin-Yang orbiting symbol */}
-          <div className="yin-yang-orbit absolute inset-0 flex items-center justify-center pointer-events-none">
-            <HeroSymbol className="absolute inset-0 h-full w-full opacity-40" />
-          </div>
 
           <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 pt-16 pb-8 sm:px-8 md:pt-20 md:pb-12 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)] lg:items-center">
             <div className="relative z-10">
@@ -123,22 +119,12 @@ export default async function HomePage({ params }: PageProps) {
               ) : null}
             </div>
 
-            <figure className="relative min-h-80 lg:min-h-[34rem]">
-              <div className="home-compass" aria-hidden="true">
-                <span className="home-compass__ring home-compass__ring--outer" />
-                <span className="home-compass__ring home-compass__ring--middle" />
-                <span className="home-compass__ring home-compass__ring--inner" />
-                <span className="home-compass__line" />
-                <span className="home-compass__line home-compass__line--horizontal" />
-                <span className="home-compass__line home-compass__line--diagonal" />
-                <span className="home-compass__line home-compass__line--diagonal-reverse" />
-                <span className="home-compass__needle" />
-                <span className="home-compass__centre" />
-              </div>
-              <figcaption className="absolute inset-x-0 bottom-0 mx-auto max-w-sm border-t border-border pt-5 text-center text-sm leading-7 text-muted lg:text-left">
+            <figure className="relative flex min-h-80 items-center justify-center lg:min-h-[34rem]">
+              <HeroSymbol className="h-full w-full max-h-[420px]" />
+              <figcaption className="sr-only">
                 {localeKey === 'th'
-                  ? 'เข็มทิศมีไว้ช่วยกำหนดทิศ ไม่ได้ใช้ตัดสินว่ามนุษย์คนหนึ่งเป็นอะไร'
-                  : 'A compass helps orient inquiry; it does not decide what a person is.'}
+                  ? 'ภาพแสดงขั้วตรงข้ามของจิตใจ: สติและจิตใต้สำนึก, ภาษาและความเชื่อ'
+                  : 'A visual of psychic opposites: consciousness and the unconscious, language and belief.'}
               </figcaption>
             </figure>
           </div>

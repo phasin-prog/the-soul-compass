@@ -56,8 +56,13 @@ export function ReadingLevelBadge({
       <span>{meta.name[locale]}</span>
       
       {/* Tooltip */}
-      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded bg-surface-soft border border-border p-2.5 text-[0.75rem] leading-normal text-text-soft opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 font-sans">
-        <span className="block font-semibold text-accent mb-0.5">{meta.name[locale]}</span>
+      <span className="pointer-events-none absolute bottom-full left-0 z-50 mb-2 w-64 translate-y-1 scale-95 rounded-lg border border-border bg-surface-soft p-3 text-[0.75rem] leading-relaxed text-text-soft opacity-0 shadow-xl transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 font-sans
+        before:content-[''] before:absolute before:top-full before:left-6 before:border-[6px] before:border-transparent before:border-t-border
+        after:content-[''] after:absolute after:top-full after:left-[25px] after:border-[5px] after:border-transparent after:border-t-surface-soft">
+        <span className="block font-semibold text-accent mb-1 flex items-center gap-1.5">
+          <SoulIcon name={meta.icon} size={11} className="text-accent" />
+          {meta.name[locale]}
+        </span>
         {meta.description[locale]}
       </span>
     </span>
@@ -91,8 +96,15 @@ export function SourceStatusBadge({
       <span>{meta.name[locale]}</span>
       
       {/* Tooltip */}
-      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded bg-surface-soft border border-border p-2.5 text-[0.75rem] leading-normal text-text-soft opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 font-sans" style={{ color: 'var(--text-soft)' }}>
-        <span className="block font-semibold mb-0.5" style={{ color: meta.color }}>{meta.name[locale]}</span>
+      <span className="pointer-events-none absolute bottom-full left-0 z-50 mb-2 w-64 translate-y-1 scale-95 rounded-lg border border-border bg-surface-soft p-3 text-[0.75rem] leading-relaxed text-text-soft opacity-0 shadow-xl transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 font-sans
+        before:content-[''] before:absolute before:top-full before:left-6 before:border-[6px] before:border-transparent before:border-t-border
+        after:content-[''] after:absolute after:top-full after:left-[25px] after:border-[5px] after:border-transparent after:border-t-surface-soft" style={{ color: 'var(--text-soft)' }}>
+        <span className="block font-semibold mb-1 flex items-center gap-1.5" style={{ color: meta.color }}>
+          <span style={{ color: meta.color }} className="shrink-0 flex items-center">
+            <SoulIcon name={meta.icon} size={11} />
+          </span>
+          {meta.name[locale]}
+        </span>
         {meta.description[locale]}
       </span>
     </span>

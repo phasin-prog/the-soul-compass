@@ -4,7 +4,7 @@
 
 พื้นที่ศึกษาจิตใจมนุษย์ผ่านจิตวิทยาหลายสำนัก ประสาทวิทยาศาสตร์ จิตวิทยาสังคม และปรัชญา
 
-**Live Site:** https://thesoulscompass.vercel.app *(coming soon)*
+**Live Site:** https://thesoulscompass.vercel.app
 
 ---
 
@@ -18,8 +18,8 @@
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd the-souls-compass
+git clone https://github.com/phasin-prog/the-soul-compass.git
+cd the-soul-compass
 
 # Install dependencies
 npm install
@@ -37,10 +37,13 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 📦 Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS v4
 - **Fonts:** Playfair Display, Inter, Sarabun
+- **Auth:** Clerk
+- **Database:** Supabase (PostgreSQL)
+- **Storage:** Cloudflare R2
 - **Deployment:** Vercel
 - **i18n:** Thai (primary) + English
 
@@ -58,38 +61,38 @@ app/
 │   ├── concepts/          # Concept glossary + [slug]
 │   ├── series/            # Series listing + [slug]
 │   ├── resources/         # Resources
-│   └── [categories]/      # 5 category pages
+│   ├── studio/            # CMS editor (auth-gated)
+│   └── [categories]/      # Category pages (AP, psychoanalysis, etc.)
 ├── sitemap.ts             # Dynamic sitemap
 ├── robots.ts              # SEO robots.txt
 └── opengraph-image.tsx    # OG image generation
 
 components/
 ├── ui/                    # Base UI components
-│   ├── Button.tsx
-│   ├── Card.tsx
-│   └── Badge.tsx
-├── Header.tsx             # Site header
-├── Footer.tsx             # Site footer
-├── ArticleCard.tsx        # Article preview card
-├── ConceptCard.tsx        # Concept preview card
-├── CategoryPage.tsx       # Category landing template
-├── ArticleLayout.tsx      # Article detail wrapper
-└── WarningBanner.tsx      # TPDT development notice
+├── home/                  # Homepage sections
+├── studio/                # Studio CMS editor
+├── Header.tsx
+├── Footer.tsx
+├── ArticleCard.tsx
+├── ConceptCard.tsx
+├── CategoryPage.tsx
+└── ArticleLayout.tsx
 
 lib/
 ├── site.ts                # Site config
 ├── routes.ts              # Route utilities
-├── metadata.ts            # SEO metadata helpers
-├── i18n/                  # Internationalization
-└── content/               # Content type definitions
+├── articles.ts            # Article data layer
+├── concepts.ts            # Concept data layer (Supabase + R2)
+├── series.ts              # Series data layer (Supabase + R2)
+├── i18n/                  # Internationalization (th.ts, en.ts)
+└── wiki/                  # Studio types, publish/draft logic
 ```
 
 ---
 
 ## 🌐 Environment Variables
 
-The publishing Studio uses Supabase as the public metadata/index layer and
-Cloudflare R2 as the private Markdown/object store:
+The publishing Studio uses Supabase as the public metadata/index layer and Cloudflare R2 as the private Markdown/object store:
 
 ```env
 NEXT_PUBLIC_SITE_URL=https://thesoulscompass.com
@@ -100,13 +103,12 @@ R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 R2_BUCKET_NAME=<bucket>
 R2_ACCESS_KEY_ID=<access-key>
 R2_SECRET_ACCESS_KEY=<secret-key>
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
+CLERK_SECRET_KEY=sk_...
 POSTHOG_PROJECT_TOKEN=phc_...
 POSTHOG_LOGS_ENDPOINT=https://us.i.posthog.com/i/v1/logs
 OTEL_SERVICE_NAME=the-souls-compass
 ```
-
-Legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` remain
-supported while migrating to the newer Supabase key format.
 
 ### CMS database setup
 
@@ -119,24 +121,12 @@ npx supabase db push
 npm run cms:check
 ```
 
-The migration creates `public.article_publications`, enables RLS, grants
-anonymous read access only to published rows, and keeps all writes behind the
-server-only Supabase secret key.
-
 ### Publishing flow
 
 1. Draft and review content is written privately to R2.
 2. Publishing upserts typed metadata and the R2 object key to Supabase.
 3. Next.js invalidates only the article list/locale/slug cache tags.
 4. No Git commit, Vercel deployment, or full-site rebuild is required.
-
-Public requests read cached metadata from Supabase and cached Markdown from R2.
-The body cache key includes the content hash, so an updated publication does
-not reuse stale Markdown.
-
-Server-side CMS lifecycle logs are batched through OpenTelemetry and sent to
-PostHog after the response completes. The project token stays in environment
-variables and is not committed to the repository.
 
 ---
 
@@ -153,13 +143,14 @@ variables and is not committed to the repository.
 **Typography:**
 - Headings: Playfair Display (serif)
 - Body: Inter (English), Sarabun (Thai)
-- Base size: 17-18px, line-height: 1.75
+- Base size: 17–18px, line-height: 1.75
 
 **Design Principles:**
 - Dark theme only
 - Editorial typography with italic emphasis
 - Max-width 720px for prose
 - Warm, earthy color palette
+- Quiet midnight reading-room aesthetic
 
 ---
 
@@ -178,8 +169,10 @@ variables and is not committed to the repository.
 **Content Types:**
 - Articles (long-form)
 - Concepts (structured, interconnected knowledge nodes)
-- Series (curated collections)
+- Series (curated reading paths)
 - Resources (books, papers, videos)
+
+All content types are managed through the built-in Studio CMS and stored in Supabase + Cloudflare R2.
 
 ---
 
@@ -201,9 +194,9 @@ variables and is not committed to the repository.
 - ✅ ARIA labels
 
 **Performance:**
-- ✅ Static generation (30 routes)
+- ✅ Static generation for public routes
 - ✅ Font optimization
-- ✅ Image optimization ready
+- ✅ Image optimization (Cloudflare R2 + Next.js Image)
 
 ---
 
@@ -224,45 +217,31 @@ vercel --prod
 ## 📚 Commands
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run cms:check    # Verify Supabase table and R2 read/write access
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run start            # Start production server
+npm run lint             # Run ESLint
+npm run cms:check        # Verify Supabase table and R2 read/write access
+npm run cms:seed-existing # Seed existing static articles to database
 ```
 
 ---
 
 ## 🎯 Project Status
 
-**Phase 0-6:** ✅ Complete
-- Skills setup
-- Architecture
-- Core pages
-- Content sections
-- SEO + Accessibility
+**Phase 0–6:** ✅ Complete
+- Skills setup, architecture, core pages, content sections, SEO + Accessibility
+
+**Studio CMS:** ✅ Complete
+- Full publish/draft lifecycle for Articles, Concepts, and Series via Supabase + R2
 
 **Phase 7:** 🚧 In Progress
 - QA + Deployment
-
-**Next Steps:**
-- Continue publishing reviewed articles and concepts
-- Analytics (optional)
-
----
-
-## 📄 License
-
-MIT License
 
 ---
 
 ## 👤 Author
 
-Witcha Prasomsin
-
----
-
-## 🙏 Acknowledgments
-
-Built with Claude Code (Opus 4.8) — Anthropic's official CLI for Claude
+**Phasin Pasumart**
+- GitHub: [@phasin-prog](https://github.com/phasin-prog)
+- Email: phasinxpasumart@gmail.com
